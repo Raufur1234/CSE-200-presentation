@@ -54,7 +54,9 @@
       \node[avlkeygold]  at (0,0.8)     {20};
       \node[avlkey]      at (-1.9,-0.5) {10};
       \node[avlkeyalert] at (1.9,-0.5)  {30};
-      \pivotpin{1.9,-0.5}
+      % No pin on these beats. The pin was a fixed post; redrawing it under 30
+      % after the turn would say it travelled with the node, which is the one
+      % thing the whole picture is trying not to say.
     }
 
     % ---------------- the order strip, from the payoff beat on --------
@@ -78,8 +80,8 @@
               rotation is \emph{named} at.}}
     \only<3>{{\color{avlmuted}Now turn the whole tree \fib{clockwise} about
               that pin. That is a \fib{right rotation}.}}
-    \only<4>{{\color{avlmuted}20 came up, 30 came down on the right.
-              The dashed circles are where they were.}}
+    \only<4>{{\color{avlmuted}20 came up, 30 came down on the right ---
+              dashed circles show where they were.}}
     \only<5->{{\color{avlmuted}Nothing moved sideways, so the order is safe,
               and only \fib{three links} changed.}}
   \end{center}
