@@ -1,0 +1,367 @@
+﻿% ===========================================================================
+%  PART 1 --- Introduction, the BST problem, the AVL idea, height, proof,
+%             Fibonacci property.
+%  Follows the requested flow:
+%    intro -> what is a BST -> what problem -> AVL idea -> how AVL solves it
+%    -> height property -> proof -> Fibonacci property
+%  Wording rule: short sentences, common words, no idioms.
+% ===========================================================================
+
+% ------------------------------------------------------------------ title
+\begin{frame}[plain,label=p1]
+  \vfill
+  \begin{center}
+    {\Huge\bfseries\color{avlink}AVL Trees}\\[0.8em]
+    {\large\color{avlfib}Trees which balance all on their own}\\[2.6em]
+    {\color{avlmuted}\small
+      Sheikh Raufur Rahim \quad$\cdot$\quad Md Ishtiak Moin
+      \quad$\cdot$\quad Abhijnan Podder}\\[0.7em]
+    {\color{avlmuted}\scriptsize CSE 200}
+  \end{center}
+  \vfill
+\end{frame}
+
+\avldivider{1}{The problem}{When can a search tree stop being fast?}{avlpone}
+
+\setavlpart{Part 1 --- The problem}{avlpone}
+
+% ------------------------------------------------------------------ what is a BST
+\begin{frame}[label=p1]{First, the rule every BST follows}
+  \vspace{0.3em}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \vspace{0.8em}
+      {\large\bfseries\color{avlink}Binary Search Tree}\\[0.9em]
+      For \emph{every} node:
+      \begin{itemize}
+        \setlength{\itemsep}{0.55em}
+        \item everything on the \fib{left} is \fib{smaller}
+        \item everything on the \fib{right} is \fib{bigger}
+      \end{itemize}
+      \vspace{1.1em}
+      {\color{avlmuted}To search, you compare once and drop one whole side.}\\[0.6em]
+      Cost of a search $=$ \fib{the height of the tree}.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.95]
+        \node[avlkey] (n4) at (0,0)       {4};
+        \node[avlkey] (n2) at (-1.35,-1.2) {2};
+        \node[avlkey] (n6) at (1.35,-1.2)  {6};
+        \node[avlkey] (n1) at (-2.1,-2.4)  {1};
+        \node[avlkey] (n3) at (-0.6,-2.4)  {3};
+        \node[avlkey] (n5) at (0.6,-2.4)   {5};
+        \node[avlkey] (n7) at (2.1,-2.4)   {7};
+        \foreach \a/\b in {n4/n2,n4/n6,n2/n1,n2/n3,n6/n5,n6/n7}
+          \draw[avledge] (\a) -- (\b);
+        \node[color=avlmuted,font=\scriptsize] at (-2.0,-0.55) {smaller};
+        \node[color=avlmuted,font=\scriptsize] at (2.0,-0.55) {bigger};
+        \node[color=avlfib,font=\small] at (0,-3.2) {height $=2$};
+      \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
+
+  \note{Say the rule out loud. Left is smaller, right is bigger. That is all a
+  BST is. And because you throw away half the tree at each step, the cost of a
+  search is just the height.}
+\end{frame}
+
+% ------------------------------------------------------------------ the problem
+\begin{frame}[label=p1]{The problem: sorted input destroys it}
+  \vspace{0.2em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \begin{scope}[xshift=-3.7cm]
+      \node[avlkey] (b4) at (0,0)       {4};
+      \node[avlkey] (b2) at (-1.25,-1.1) {2};
+      \node[avlkey] (b6) at (1.25,-1.1)  {6};
+      \node[avlkey] (b1) at (-1.95,-2.2) {1};
+      \node[avlkey] (b3) at (-0.55,-2.2) {3};
+      \node[avlkey] (b5) at (0.55,-2.2)  {5};
+      \node[avlkeygold] (b7) at (1.95,-2.2) {7};
+      \foreach \a/\b in {b4/b2,b4/b6,b2/b1,b2/b3,b6/b5,b6/b7}
+        \draw[avledge] (\a) -- (\b);
+      \draw[avlgoldarrow,line width=1.1pt] (b4) -- (b6);
+      \draw[avlgoldarrow,line width=1.1pt] (b6) -- (b7);
+      \node[color=avlmuted,font=\small] at (0,-3.1) {inserted 4,2,6,1,3,5,7};
+      \node[color=avlfib,font=\large\bfseries] at (0,-3.9) {3 steps};
+    \end{scope}
+
+    \begin{scope}[xshift=3.6cm,yshift=0.3cm]
+      \foreach \k [count=\i from 0] in {1,2,3,4,5,6,7} {
+        \pgfmathsetmacro{\yy}{-\i*0.55}
+        \pgfmathsetmacro{\xx}{\i*0.32}
+        \node[avlkeyalert,minimum size=5.4mm,font=\scriptsize] (c\k) at (\xx,\yy) {\k};
+      }
+      \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
+        \draw[draw=avlalert,line width=0.8pt] (\a) -- (\b);
+      \node[color=avlmuted,font=\small] at (1.0,-4.0) {inserted 1,2,3,4,5,6,7};
+      \node[color=avlalert,font=\large\bfseries] at (1.0,-4.7) {7 steps};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.2em}
+  \begin{center}
+    {\color{avlmuted}Same seven keys. Both are legal BSTs.
+     The right one is now a \viol{list}, not a tree.}
+  \end{center}
+
+  \note{Both trees are legal. The right one is what you get when the data
+  arrives already sorted --- IDs, dates, imported records. This is not a rare
+  case. It is the most common case. Search cost goes from log n to n.}
+\end{frame}
+
+% ------------------------------------------------------------------ the idea
+\begin{frame}[label=p1]{The idea: check the height at every node}
+  \vspace{0.6em}
+  \begin{center}
+    {\large\color{avlmuted}The tree got tall because one side grew and
+     \emph{nobody checked}.}
+  \end{center}
+  \vspace{1.3em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \node[avlkeygold,minimum size=8mm] (r) at (0,0) {};
+    \node[avltri,minimum size=1.9cm] (L) at (-1.7,-1.6) {};
+    \node[avltri,minimum size=1.9cm] (R) at (1.7,-1.6) {};
+    \draw[avlgoldedge] (r) -- (L);
+    \draw[avlgoldedge] (r) -- (R);
+    \node[color=avlmuted,font=\small] at (-1.7,-1.75) {height $a$};
+    \node[color=avlmuted,font=\small] at (1.7,-1.75) {height $b$};
+    \draw[decorate,decoration={brace,amplitude=5pt,mirror},avlmuted]
+      (-2.9,-2.8) -- (2.9,-2.8);
+    \node[color=avlfib,font=\large] at (0,-3.6)
+      {rule: $a$ and $b$ may differ by at most \textbf{1}};
+  \end{tikzpicture}
+  \end{center}
+
+  \note{The fix is simple to state. At every node, look at the height of the
+  left side and the height of the right side. Do not let them differ by more
+  than one. That is the whole idea.}
+\end{frame}
+
+% ------------------------------------------------------------------ DEFINITION
+\begin{frame}[label=p1]{Definition: what an AVL tree is}
+  \vspace{0.2em}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \vspace{0.5em}
+      {\color{avlmuted}\small Adelson-Velsky and Landis, 1962.
+       The first self-balancing search tree.}\\[1.0em]
+
+      {\bfseries\color{avlink}Balance factor} of a node:
+      \[ \mathrm{bf} \;=\; (\text{height of left}) - (\text{height of right}) \]
+      \vspace{-0.4em}
+
+      {\bfseries\color{avlink}An AVL tree is:}
+      \begin{itemize}
+        \setlength{\itemsep}{0.45em}
+        \item a binary search tree, \emph{and}
+        \item every node has \fib{$\mathrm{bf} = -1$, $0$, or $+1$}
+      \end{itemize}
+      \vspace{0.8em}
+      {\color{avlmuted}If any node reaches $+2$ or $-2$, the tree is
+       \viol{broken} and must be fixed.}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92]
+        \node[avlkey] (a) at (0,0) {};
+        \node[color=avlfib,font=\small,anchor=west] at (0.42,0.12) {$+1$};
+        \node[avlkey] (b) at (-1.15,-1.25) {};
+        \node[color=avlfib,font=\small,anchor=east] at (-1.55,-1.1) {$0$};
+        \node[avlkey] (c) at (1.15,-1.25) {};
+        \node[color=avlfib,font=\small,anchor=west] at (1.55,-1.1) {$0$};
+        \node[avlkey] (d) at (-1.9,-2.5) {};
+        \node[avlkey] (e) at (-0.4,-2.5) {};
+        \foreach \p/\q in {a/b,a/c,b/d,b/e} \draw[avledge] (\p) -- (\q);
+        \node[color=avlmuted,font=\scriptsize] at (0,-3.35)
+          {left height 2, right height 1};
+        \node[color=avlfib,font=\small] at (0,-4.0) {legal AVL tree};
+      \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
+
+  \note{Now the name and the rule. AVL stands for the two Soviet
+  mathematicians who invented it in 1962. Balance factor is left height minus
+  right height. An AVL tree is a BST where every single node has a balance
+  factor of minus one, zero, or plus one.}
+\end{frame}
+
+% ------------------------------------------------------------------ how it solves it
+\begin{frame}[label=p1]{How AVL fixes the bad case}
+  \vspace{0.3em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \begin{scope}[xshift=-3.6cm,yshift=0.4cm]
+      \foreach \k [count=\i from 0] in {1,2,3,4,5,6,7} {
+        \pgfmathsetmacro{\yy}{-\i*0.55}
+        \pgfmathsetmacro{\xx}{\i*0.30}
+        \node[avlkeyalert,minimum size=5.0mm,font=\tiny] (c\k) at (\xx,\yy) {\k};
+      }
+      \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
+        \draw[draw=avlalert,line width=0.8pt] (\a) -- (\b);
+      \node[color=avlmuted,font=\small] at (0.9,-4.2) {plain BST};
+      \node[color=avlalert,font=\small\bfseries] at (0.9,-4.9) {height 6};
+    \end{scope}
+
+    \draw[avlgoldarrow,line width=1.4pt] (-0.9,-1.6) -- (0.5,-1.6);
+    \node[color=avlfib,font=\scriptsize,above=1pt] at (-0.2,-1.55) {same input};
+
+    \begin{scope}[xshift=3.4cm,yshift=-0.6cm]
+      \node[avlkeygold] (a4) at (0,0)       {4};
+      \node[avlkeygold] (a2) at (-1.3,-1.15) {2};
+      \node[avlkeygold] (a6) at (1.3,-1.15)  {6};
+      \node[avlkeygold] (a1) at (-2.0,-2.3)  {1};
+      \node[avlkeygold] (a3) at (-0.6,-2.3)  {3};
+      \node[avlkeygold] (a5) at (0.6,-2.3)   {5};
+      \node[avlkeygold] (a7) at (2.0,-2.3)   {7};
+      \foreach \a/\b in {a4/a2,a4/a6,a2/a1,a2/a3,a6/a5,a6/a7}
+        \draw[avlgoldedge] (\a) -- (\b);
+      \node[color=avlmuted,font=\small] at (0,-3.2) {AVL tree};
+      \node[color=avlfib,font=\small\bfseries] at (0,-3.9) {height 2};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.3em}
+  \begin{center}
+    {\color{avlmuted}Insert 1,2,3,4,5,6,7 into both.
+     AVL rebalances as it goes. \fib{7 steps become 3.}}
+  \end{center}
+
+  \note{Same sorted input that destroyed the plain tree. The AVL tree fixes
+  itself while you insert, and stays short. We will see exactly how it does
+  that in Part 2.}
+\end{frame}
+
+% ------------------------------------------------------------------ height property
+\begin{frame}[label=p1]{The height property}
+  \vspace{1.0em}
+  \begin{center}
+    {\color{avlmuted}\large A local rule at every node gives a
+     \emph{global} guarantee:}\\[1.2em]
+    {\Huge\color{avlfib}$h \;<\; 1.44 \, \log_2 n$}\\[1.6em]
+  \end{center}
+  \begin{center}
+  \setlength{\tabcolsep}{14pt}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabular}{lcc}
+    \color{avlmuted}nodes & \color{avlmuted}perfect tree & \color{avlmuted}worst AVL tree\\\hline
+    $1\,000\,000$ & 20 steps & \fib{28 steps}\\
+  \end{tabular}
+  \end{center}
+  \vspace{0.9em}
+  \begin{center}
+    {\color{avlmuted}Never a list. Always close to the best possible.}
+  \end{center}
+
+  \note{This is the promise. No matter what order the data arrives in, the
+  height stays within 44 percent of a perfect tree. One million records: at
+  most 28 comparisons. Next question --- why 1.44? Where does that number come
+  from?}
+\end{frame}
+
+% ------------------------------------------------------------------ proof
+\begin{frame}[label=p1]{Proof: ask the question backwards}
+  \vspace{0.4em}
+  \begin{center}
+    {\color{avlmuted}\large Instead of ``how tall can it get?'', ask:}\\[0.5em]
+    {\large\color{avlfib}\bfseries What is the \emph{smallest} AVL tree of height $h$?}
+  \end{center}
+  \vspace{0.7em}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.42\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.88]
+        \node[avlkeygold] (r) at (0,0) {};
+        \node[avltri,draw=avlfib,text=avlfib,minimum size=1.8cm]
+          (L) at (-1.4,-1.7) {$T_{h-1}$};
+        \node[avltri,draw=avlfib,text=avlfib,minimum size=1.5cm]
+          (R) at (1.3,-1.85) {$T_{h-2}$};
+        \draw[avlgoldedge] (r) -- (L);
+        \draw[avlgoldedge] (r) -- (R);
+      \end{tikzpicture}
+      \end{center}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \vspace{0.3em}
+      {\color{avlmuted}One side must be height $h-1$.}\\
+      {\color{avlmuted}The other can be $h-2$ --- but no less,}\\
+      {\color{avlmuted}because the rule forbids a gap of 2.}\\[1.2em]
+      Call $N(h)$ the smallest node count:
+      \[ \color{avlfib} N(h) = N(h-1) + N(h-2) + 1 \]
+    \end{column}
+  \end{columns}
+
+  \note{Turn the question around. Build the emptiest legal tree of height h.
+  Its root needs one side of height h minus one. The other side can be h minus
+  two, but not smaller, because the rule forbids a gap of two. So the smallest
+  tree of height h is one root plus the two smallest trees below it.}
+\end{frame}
+
+% ------------------------------------------------------------------ Fibonacci property
+\begin{frame}[label=p1]{The Fibonacci property}
+  \vspace{0.7em}
+  \begin{center}
+  \setlength{\tabcolsep}{7pt}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{l|cccccccc}
+    {\color{avlmuted}height $h$} & 0 & 1 & 2 & 3 & 4  & 5  & 6  & \fib{\textbf{7}}\\\hline
+    {\color{avlink}$N(h)$ smallest} & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
+    \onslide<2->{{\color{avlmuted}Fibonacci $F(h{+}3)$} & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{55}}
+  \end{tabular}
+  \end{center}
+
+  \vspace{1.1em}
+  \onslide<3->{
+  \begin{center}
+    {\LARGE\color{avlfib}$N(h) \;=\; F(h+3) \;-\; 1$}
+  \end{center}}
+
+  \vspace{0.9em}
+  \onslide<4->{
+  \begin{center}
+    {\color{avlmuted}Fibonacci grows like $\varphi^h$, where
+     $\varphi = 1.618$ is the golden ratio.}\\[0.5em]
+    {\large\color{avlfib}$1 / \log_2 \varphi = \mathbf{1.44}$
+     \quad\quietc{$\leftarrow$}\quad that is where the 1.44 comes from}
+  \end{center}}
+
+  \note{Line up the smallest node counts. Then put Fibonacci underneath. They
+  are the same numbers, shifted by three and off by one. And because Fibonacci
+  grows like the golden ratio, the golden ratio is exactly what produces the
+  1.44 in the height bound.}
+\end{frame}
+
+% ------------------------------------------------------------------ THE PLANT
+\begin{frame}[label=p1]{Remember this number: 54}
+  \vspace{-0.2em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      avldot/.style={avlgolddot},
+      avledge/.style={avlgoldedge}]
+    \setavlscale{0.55}{0.60}
+    \resetavl
+    \drawfib{7}{0}{0}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.3em}
+  \begin{center}
+    {\large\color{avlink}This is the \fib{worst tree AVL allows} at height 7.}\\[0.5em]
+    {\color{avlmuted}It has the fewest nodes possible:
+     $N(7) = F(10) - 1 = 55 - 1 = $ \fib{\textbf{54}}}\\[0.7em]
+    {\color{avlpthree}\bfseries In Part 3 we will build this exact tree by
+     simulation --- and count 54.}
+  \end{center}
+
+  \note{This is the emptiest legal AVL tree of height seven. Fibonacci predicts
+  it has 54 nodes. Remember that number. In Part 3 we will run the worst case
+  by hand and land on it. Handoff: we know the tree stays short. Now, how does
+  it fix itself?}
+\end{frame}

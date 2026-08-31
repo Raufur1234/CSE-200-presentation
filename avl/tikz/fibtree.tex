@@ -1,0 +1,69 @@
+% ---------------------------------------------------------------------------
+%  Recursive minimum-node AVL ("Fibonacci") tree macro.
+%
+%  T_h is drawn from T_{h-1} and T_{h-2} by the SAME recursion the proof uses,
+%  and the horizontal layout is computed from phi via Binet's formula - so the
+%  golden ratio literally positions the picture that proves the golden ratio.
+%
+%  Leaf count of T_h is L(h) = F(h+1); subtree centres are offset by half the
+%  sibling's leaf count, which packs the tree with no overlap at any height.
+%
+%  Usage inside a tikzpicture:
+%      \setavlscale{<leaf sep>}{<level sep>}
+%      \drawfib{7}{0}{0}
+% ---------------------------------------------------------------------------
+
+\newcounter{avlnode}
+\newcommand{\avlleafsep}{0.55}
+\newcommand{\avllevsep}{0.80}
+
+\newcommand{\setavlscale}[2]{%
+  \renewcommand{\avlleafsep}{#1}%
+  \renewcommand{\avllevsep}{#2}%
+}
+
+% Leaves of T_h via Binet: L(h) = F(h+1). Returns 0 for h < 0 (empty subtree).
+\newcommand{\avlL}[1]{round((((1+sqrt(5))/2)^((#1)+1))/sqrt(5))}
+
+% Node styles (overridden by the theme; these are safe standalone defaults)
+\tikzset{
+  avldot/.style   = {circle, draw=black, fill=black, inner sep=0pt, minimum size=3pt},
+  avlgolddot/.style={circle, draw=black, fill=black, inner sep=0pt, minimum size=3pt},
+  avledge/.style  = {draw=black, line width=0.4pt},
+}
+
+% \drawfib{height}{x}{y}
+% Wrapped in a group so each frame's \avlself survives its own recursive calls;
+% the counter is global, so node names stay unique across the whole picture.
+\newcommand{\drawfib}[3]{%
+  \begingroup
+  \stepcounter{avlnode}%
+  \edef\avlself{f\theavlnode}%
+  \node[avldot] (\avlself) at (#2,#3) {};%
+  \ifnum#1>0\relax
+    % ---- left child is T(h-1); offset by half the RIGHT sibling's leaves ----
+    \pgfmathsetmacro{\avlRsib}{\avlL{#1-2}}%
+    \pgfmathsetmacro{\avlcxA}{(#2)-(\avlRsib/2)*\avlleafsep}%
+    \pgfmathsetmacro{\avlcyA}{(#3)-\avllevsep}%
+    \edef\avlnexth{\the\numexpr#1-1\relax}%
+    \edef\avlchildA{f\the\numexpr\value{avlnode}+1\relax}%
+    % fully expand the coordinates INTO the call, otherwise the recursive
+    % invocation would re-bind \avlcxA before it is ever used
+    \edef\avlgo{\noexpand\drawfib{\avlnexth}{\avlcxA}{\avlcyA}}\avlgo
+    \draw[avledge] (\avlself) -- (\avlchildA);%
+  \fi
+  \ifnum#1>1\relax
+    % ---- right child is T(h-2); offset by half the LEFT sibling's leaves ----
+    \pgfmathsetmacro{\avlLsib}{\avlL{#1-1}}%
+    \pgfmathsetmacro{\avlcxB}{(#2)+(\avlLsib/2)*\avlleafsep}%
+    \pgfmathsetmacro{\avlcyB}{(#3)-\avllevsep}%
+    \edef\avlnexthb{\the\numexpr#1-2\relax}%
+    \edef\avlchildB{f\the\numexpr\value{avlnode}+1\relax}%
+    \edef\avlgob{\noexpand\drawfib{\avlnexthb}{\avlcxB}{\avlcyB}}\avlgob
+    \draw[avledge] (\avlself) -- (\avlchildB);%
+  \fi
+  \endgroup
+}
+
+% Convenience: reset the id counter before each tree so names are predictable
+\newcommand{\resetavl}{\setcounter{avlnode}{0}}

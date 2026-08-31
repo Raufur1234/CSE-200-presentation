@@ -1,0 +1,419 @@
+﻿% ===========================================================================
+%  PART 2 --- Rotations and Insertion
+%  Flow: the string analogy (frame by frame) -> what actually moves ->
+%        the four cases -> insertion rule -> insertion simulation
+%
+%  The string analogy is drawn EXACTLY:
+%    x of every node = its position in sorted order  (FROZEN, never changes)
+%    y of every node = its depth in the current tree
+%  A rotation therefore changes only heights. The string cannot reorder.
+% ===========================================================================
+
+\avldivider{2}{Rotations}{How the tree fixes itself.}{avlptwo}
+
+\setavlpart{Part 2 --- Rotations}{avlptwo}
+
+% ------------------------------------------------------------------ the string
+\begin{frame}[label=p2]{Think of the tree as a string you pick up}
+  \vspace{0.1em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    % ---- the order strip is FIXED: x never changes for any node ----
+    % keys 1 3 4 5 8 sit at x = -3 -1.5 0 1.5 3 in every single frame
+
+    % ============ STEP 1: the string lying flat ============
+    \only<1-2>{
+      \draw[avlfib,line width=1.6pt] (-3.6,0) -- (3.6,0);
+      \foreach \k/\x in {1/-3, 3/-1.5, 4/0, 5/1.5, 8/3} {
+        \draw[avlmuted,line width=0.9pt] (\x,0) -- (\x,0.55);   % the sticks
+        \node[avlkey] at (\x,0) {\k};
+      }
+    }
+    \only<1>{
+      \node[color=avlmuted,font=\small] at (0,-1.5)
+        {A string with sticks poking out. The beads are in order: 1, 3, 4, 5, 8.};
+    }
+    % ---- PAUSE BEAT: point at the pivot before anything moves ----
+    \only<2>{
+      \pivotdot{1.5,0.55}
+      \draw[avlgoldarrow,line width=1.3pt] (1.5,1.35) -- (1.5,0.75);
+      \node[color=avlfib,font=\small,anchor=south] at (1.5,1.40) {grab bead 5};
+    }
+
+    % ============ STEP 2: pull it up at 5 ============
+    \only<3>{
+      \node[avlkeygold] (a5) at (1.5,0)    {5};
+      \node[avlkey]     (a3) at (-1.5,-1.15) {3};
+      \node[avlkey]     (a8) at (3,-1.15)   {8};
+      \node[avlkey]     (a1) at (-3,-2.3)   {1};
+      \node[avlkey]     (a4) at (0,-2.3)    {4};
+      % ghosts: where 3, 8, 1, 4 sat when the string was flat (y=0)
+      \ghostnode{-1.5}{0}{3} \ghostnode{3}{0}{8}
+      \ghostpath{-1.5,0}{a3} \ghostpath{3,0}{a8}
+      \foreach \p/\q in {a5/a3,a5/a8,a3/a1,a3/a4} \draw[avlgoldedge,line width=1.2pt] (\p) -- (\q);
+      \rotarc{1.5,0}{0.85}{200}{340}
+      \pivotdot{1.5,0}
+      \node[color=avlfib,font=\small,anchor=south] at (1.5,1.30) {pulled up at 5};
+      \foreach \x in {-3,-1.5,0,1.5,3}
+        \draw[avlrule,dashed,line width=0.5pt] (\x,-2.7) -- (\x,-3.2);
+    }
+
+    % ---- PAUSE BEAT: let go, point at the next pivot ----
+    \only<4>{
+      \node[avlkeygold] (a5) at (1.5,0)    {5};
+      \node[avlkey]     (a3) at (-1.5,-1.15) {3};
+      \node[avlkey]     (a8) at (3,-1.15)   {8};
+      \node[avlkey]     (a1) at (-3,-2.3)   {1};
+      \node[avlkey]     (a4) at (0,-2.3)    {4};
+      \foreach \p/\q in {a5/a3,a5/a8,a3/a1,a3/a4} \draw[avlgoldedge,line width=1.2pt] (\p) -- (\q);
+      \pivotdot{-1.5,-1.15}
+      \draw[avlgoldarrow,line width=1.3pt] (-1.5,0.75) -- (-1.5,-0.85);
+      \node[color=avlfib,font=\small,anchor=south] at (-1.5,0.85) {let go --- grab 3 instead};
+      \foreach \x in {-3,-1.5,0,1.5,3}
+        \draw[avlrule,dashed,line width=0.5pt] (\x,-2.7) -- (\x,-3.2);
+    }
+
+    % ============ STEP 3: pull at 3 instead ============
+    \only<5->{
+      \node[avlkeygold] (b3) at (-1.5,0)   {3};
+      \node[avlkey]     (b1) at (-3,-1.15)  {1};
+      \node[avlkey]     (b5) at (1.5,-1.15) {5};
+      \node[avlkey]     (b4) at (0,-2.3)    {4};
+      \node[avlkey]     (b8) at (3,-2.3)    {8};
+      % ghost: where 5 and 8 sat a moment ago, held at 5
+      \ghostnode{1.5}{0}{5} \ghostnode{3}{-1.15}{8}
+      \ghostpath{1.5,0}{b5} \ghostpath{3,-1.15}{b8}
+      \foreach \p/\q in {b3/b1,b3/b5,b5/b4,b5/b8} \draw[avlgoldedge,line width=1.2pt] (\p) -- (\q);
+      \rotarc{-1.5,0}{0.85}{200}{340}
+      \pivotdot{-1.5,0}
+      \node[color=avlfib,font=\small,anchor=south] at (-1.5,1.30) {pulled up at 3};
+      \foreach \x in {-3,-1.5,0,1.5,3}
+        \draw[avlrule,dashed,line width=0.5pt] (\x,-2.7) -- (\x,-3.2);
+    }
+
+    % ---- the order line: identical in every frame ----
+    \begin{scope}[yshift=-3.35cm]
+      \draw[avlrule,line width=1pt] (-3.6,0) -- (3.6,0);
+      \foreach \k/\x in {1/-3, 3/-1.5, 4/0, 5/1.5, 8/3} {
+        \draw[avlrule,line width=1pt] (\x,0.12) -- (\x,-0.12);
+        \node[color=avlink,font=\small] at (\x,0.45) {\k};
+      }
+      \node[color=avlmuted,font=\scriptsize,anchor=north] at (0,-0.3)
+        {left to right order --- \textbf{never changes}};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \note{Step one: the string lies flat, beads in sorted order. Pause: point at
+  bead 5 before touching it. Pull: the curved arrow shows the swing direction
+  as everything else hangs down from the new pivot. The faded beads are where
+  3 and 8 used to sit --- watch them settle into their new spot. Pause again:
+  let go, point at bead 3. Pull: same swing, new pivot, and now 5 and 8 are the
+  ones fading into their new position. Look at the bottom line the whole time.
+  The order never moves. Only the grip changes. That is a rotation.}
+\end{frame}
+
+% ------------------------------------------------------------------ side by side
+\begin{frame}[label=p2]{Same string. Different grip. That is a rotation.}
+  \vspace{0.2em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.86,every node/.style={transform shape}]
+    % ---------------- held at 5 ----------------
+    \begin{scope}[xshift=-4.3cm]
+      \node[avlkeygold] (a5) at (0.75,0)   {5};
+      \node[avlkey]     (a3) at (-0.75,-1.2) {3};
+      \node[avlkey]     (a8) at (1.5,-1.2)  {8};
+      \node[avlkey]     (a1) at (-1.5,-2.4) {1};
+      \node[avlkey]     (a4) at (0,-2.4)    {4};
+      \foreach \p/\q in {a5/a3,a5/a8,a3/a1,a3/a4} \draw[avlgoldedge,line width=1.1pt] (\p) -- (\q);
+      \node[color=avlmuted,font=\small] at (0,-3.3) {held at \textbf{5}};
+      \node[color=avlmuted,font=\scriptsize] at (0,-3.95) {height 2};
+    \end{scope}
+
+    \node[color=avlfib,font=\Large] at (0,-1.2) {$\longleftrightarrow$};
+    \node[color=avlfib,font=\scriptsize,anchor=south] at (0,-1.0) {rotate};
+
+    % ---------------- held at 3 ----------------
+    \begin{scope}[xshift=3.3cm]
+      \node[avlkeygold] (b3) at (-0.75,0)  {3};
+      \node[avlkey]     (b1) at (-1.5,-1.2) {1};
+      \node[avlkey]     (b5) at (0.75,-1.2) {5};
+      \node[avlkey]     (b4) at (0,-2.4)   {4};
+      \node[avlkey]     (b8) at (1.5,-2.4) {8};
+      \foreach \p/\q in {b3/b1,b3/b5,b5/b4,b5/b8} \draw[avlgoldedge,line width=1.1pt] (\p) -- (\q);
+      \node[color=avlmuted,font=\small] at (0,-3.3) {held at \textbf{3}};
+      \node[color=avlmuted,font=\scriptsize] at (0,-3.95) {height 2};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.3em}
+  \begin{center}
+    {\color{avlmuted}Both are correct search trees. Both hold 1, 3, 4, 5, 8
+     in the same order.}\\[0.4em]
+    {\large\color{avlfib}A rotation changes the \textbf{shape}, never the
+     \textbf{order}.}
+  \end{center}
+
+  \note{Put them side by side. Same five keys, same left-to-right order, two
+  different shapes. This is why a rotation is always safe: it can never break
+  the search rule.}
+\end{frame}
+
+% ------------------------------------------------------------------ what moves
+\begin{frame}[label=p2]{What actually moves: three links}
+  \vspace{0.4em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.95]
+    % before
+    \begin{scope}[xshift=-3.8cm]
+      \node[avlkeyalert] (p5) at (0.7,0)    {5};
+      \node[avlkeygold]  (p3) at (-0.7,-1.3) {3};
+      \node[avlkey]      (p8) at (2.0,-1.3)  {8};
+      \node[avlkey]      (p1) at (-1.9,-2.6) {1};
+      \node[avlkey]      (p4) at (0.2,-2.6)  {4};
+      \draw[avledge] (p5) -- (p3);
+      \draw[avledge] (p5) -- (p8);
+      \draw[avledge] (p3) -- (p1);
+      \draw[draw=avlfib,line width=1.4pt] (p3) -- (p4);
+      \node[color=avlalert,font=\scriptsize] at (0.7,0.75) {$\mathrm{bf}=+2$};
+      \node[color=avlmuted,font=\small] at (0,-3.5) {before};
+    \end{scope}
+
+    \onslide<2->{\draw[avlgoldarrow,line width=1.5pt] (-0.9,-1.3) -- (0.5,-1.3);}
+
+    % after
+    \onslide<2->{
+    \begin{scope}[xshift=3.0cm]
+      % ghost: 3's OLD spot (down-left, as it was "before") -- shows it rising
+      \ghostnode{-0.7}{-1.3}{3}
+      \ghostpath{-0.7,-1.3}{0.7,-1.3}
+      \node[avlkeygold]  (q3) at (-0.7,0)   {3};
+      \node[avlkey]      (q1) at (-1.9,-1.3) {1};
+      \node[avlkeyalert] (q5) at (0.7,-1.3)  {5};
+      \node[avlkey]      (q4) at (0.2,-2.6)  {4};
+      \node[avlkey]      (q8) at (2.0,-2.6)  {8};
+      \draw[avledge] (q3) -- (q1);
+      \draw[avledge] (q3) -- (q5);
+      \draw[draw=avlfib,line width=1.4pt] (q5) -- (q4);
+      \draw[avledge] (q5) -- (q8);
+      \rotarc{-0.7,-1.3}{0.55}{200}{340}
+      \pivotdot{-0.7,-1.3}
+      \node[color=avlfib,font=\scriptsize] at (-0.7,0.75) {$\mathrm{bf}=0$};
+      \node[color=avlmuted,font=\small] at (0,-3.5) {after};
+    \end{scope}}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.2em}
+  \begin{center}
+  \only<1>{{\small\color{avlmuted}One node is too heavy on the right.
+            Watch what has to move to fix it.}}
+  \only<2->{{\small
+   \fib{3} goes \fib{up}. \viol{5} goes \viol{down}.
+   The orange subtree \fib{4} changes parent: it leaves 3 and joins 5.}\\[0.4em]
+  {\color{avlmuted}Three pointers change. Constant time --- $O(1)$.}}
+  \end{center}
+
+  \note{Concretely: 3 moves up, 5 moves down, and the middle subtree --- the
+  one bigger than 3 but smaller than 5 --- switches parent. Only three links
+  are touched, so a rotation costs constant time.}
+\end{frame}
+
+% ------------------------------------------------------------------ four cases
+\begin{frame}[label=p2]{Four cases, and what to do}
+  \vspace{0.3em}
+  \begin{center}
+  \setlength{\tabcolsep}{9pt}
+  \renewcommand{\arraystretch}{1.45}
+  {\small
+  \begin{tabular}{l|l|l}
+    {\color{avlmuted}case} & {\color{avlmuted}where the new node went} & {\color{avlmuted}fix}\\\hline
+    \textbf{LL} & left child's \emph{left} side  & \fib{one right rotation}\\
+    \textbf{RR} & right child's \emph{right} side & \fib{one left rotation}\\
+    \textbf{LR} & left child's \emph{right} side & \fib{left, then right}\\
+    \textbf{RL} & right child's \emph{left} side & \fib{right, then left}\\
+  \end{tabular}}
+  \end{center}
+
+  \vspace{1.0em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.8,every node/.style={transform shape}]
+    \foreach \i/\lab/\ax/\bx in {0/LL/{-0.6}/{-1.2}, 1/RR/{0.6}/{1.2},
+                                 2/LR/{-0.6}/{0.0}, 3/RL/{0.6}/{0.0}} {
+      \begin{scope}[xshift=\i*3.5cm-5.25cm]
+        \node[avlkeyalert,minimum size=5.2mm,font=\tiny] (r\i) at (0,0) {};
+        \node[avlkey,minimum size=5.2mm,font=\tiny] (m\i) at (\ax,-1.0) {};
+        \node[avlkeygold,minimum size=5.2mm,font=\tiny] (l\i) at (\bx,-2.0) {};
+        \draw[avledge] (r\i) -- (m\i);
+        \draw[avledge] (m\i) -- (l\i);
+        \node[color=avlink,font=\small\bfseries] at (0,-2.8) {\lab};
+      \end{scope}
+    }
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.2em}
+  \begin{center}
+    {\color{avlmuted}\small A double rotation is not new ---
+     it is just two single rotations, one after the other.}
+  \end{center}
+
+  \note{Four shapes, four fixes. The two straight ones need a single rotation.
+  The two bent ones need two rotations: first straighten the bend, then rotate
+  as normal.}
+\end{frame}
+
+% ------------------------------------------------------------------ insertion rule
+\begin{frame}[label=p2]{Insertion: the rule}
+  \vspace{0.9em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \node[draw=avlptwo,fill=avlptwo!8!avlground,rounded corners=3pt,
+          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s1) at (-4.4,0)
+          {\begin{minipage}{3.0cm}\centering Insert like a normal BST\end{minipage}};
+    \node[draw=avlptwo,fill=avlptwo!8!avlground,rounded corners=3pt,
+          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s2) at (0,0)
+          {\begin{minipage}{3.0cm}\centering Walk back up to the root\end{minipage}};
+    \node[draw=avlfib,fill=avlfib!10!avlground,rounded corners=3pt,
+          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s3) at (4.4,0)
+          {\begin{minipage}{3.0cm}\centering Rotate at the \textbf{first} bad node\end{minipage}};
+    \draw[avlgoldarrow,line width=1.1pt] (s1) -- (s2);
+    \draw[avlgoldarrow,line width=1.1pt] (s2) -- (s3);
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{1.6em}
+  \begin{center}
+    {\large\color{avlfib}\bfseries One rotation is always enough.}\\[0.7em]
+    {\color{avlmuted}After it, the subtree is back to the height it had
+     \emph{before} the insert.}\\[0.3em]
+    {\color{avlmuted}So no node above it sees any change, and the repair stops.}
+  \end{center}
+
+  \note{Three steps. Insert normally, walk up, fix the first bad node you meet.
+  And one rotation always finishes the job, because it puts the subtree back to
+  its original height, so nothing above notices.}
+\end{frame}
+
+% ------------------------------------------------------------------ INSERTION SIM
+\begin{frame}[label=p2]{Simulation: insert 1, 2, 3, 4, 5, 6, 7}
+  \vspace{0.1em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92,every node/.style={transform shape}]
+
+    % ---- step 1: 1,2,3 -> RR at 1 ----
+    \only<1>{
+      \node[avlkeyalert] (x1) at (-1.0,0)  {1};
+      \node[avlkey]      (x2) at (0,-1.15)  {2};
+      \node[avlkeygold]  (x3) at (1.0,-2.3) {3};
+      \draw[avledge] (x1) -- (x2); \draw[avledge] (x2) -- (x3);
+      \node[color=avlalert,font=\small,anchor=west] at (-0.7,0.6) {$\mathrm{bf}(1) = -2$ \ RR};
+      \node[color=avlmuted,font=\small] at (0,-3.3) {after inserting 3};
+    }
+    \only<2>{
+      \ghostnode{0}{-1.15}{2}
+      \ghostpath{0,-1.15}{0,0}
+      \node[avlkeygold] (y2) at (0,0)     {2};
+      \node[avlkey]     (y1) at (-1.1,-1.2) {1};
+      \node[avlkey]     (y3) at (1.1,-1.2)  {3};
+      \draw[avlgoldedge] (y2) -- (y1); \draw[avlgoldedge] (y2) -- (y3);
+      \rotarc{0,0}{0.65}{200}{340}
+      \pivotdot{0,0}
+      \node[color=avlfib,font=\small] at (0,0.9) {rotate left at 1};
+      \node[color=avlmuted,font=\small] at (0,-3.3) {balanced again --- height 1};
+    }
+
+    % ---- step 2: 4,5 -> RR at 3 ----
+    \only<3>{
+      \node[avlkey]      (z2) at (-0.6,0)   {2};
+      \node[avlkey]      (z1) at (-1.8,-1.2) {1};
+      \node[avlkeyalert] (z3) at (0.6,-1.2)  {3};
+      \node[avlkey]      (z4) at (1.6,-2.4)  {4};
+      \node[avlkeygold]  (z5) at (2.6,-3.6)  {5};
+      \draw[avledge] (z2) -- (z1); \draw[avledge] (z2) -- (z3);
+      \draw[avledge] (z3) -- (z4); \draw[avledge] (z4) -- (z5);
+      \node[color=avlalert,font=\small,anchor=west] at (0.9,-1.05) {$\mathrm{bf}(3) = -2$ \ RR};
+    }
+    \only<4>{
+      \ghostnode{1.6}{-2.4}{4}
+      \ghostpath{1.6,-2.4}{0.6,-1.2}
+      \node[avlkey]     (w2) at (-1.4,0)   {2};
+      \node[avlkey]     (w1) at (-2.6,-1.2) {1};
+      \node[avlkeygold] (w4) at (0.6,-1.2)  {4};
+      \node[avlkey]     (w3) at (-0.3,-2.4) {3};
+      \node[avlkey]     (w5) at (1.6,-2.4)  {5};
+      \draw[avledge] (w2) -- (w1); \draw[avlgoldedge] (w2) -- (w4);
+      \draw[avlgoldedge] (w4) -- (w3); \draw[avlgoldedge] (w4) -- (w5);
+      \rotarc{0.6,-1.2}{0.55}{200}{340}
+      \pivotdot{0.6,-1.2}
+      \node[color=avlfib,font=\small] at (0.6,-0.3) {rotate left at 3};
+    }
+
+    % ---- step 3: 6 -> RR at the root ----
+    \only<5>{
+      \node[avlkeyalert] (v2) at (-1.6,0)   {2};
+      \node[avlkey]      (v1) at (-2.8,-1.2) {1};
+      \node[avlkey]      (v4) at (0.4,-1.2)  {4};
+      \node[avlkey]      (v3) at (-0.6,-2.4) {3};
+      \node[avlkey]      (v5) at (1.4,-2.4)  {5};
+      \node[avlkeygold]  (v6) at (2.4,-3.6)  {6};
+      \draw[avledge] (v2) -- (v1); \draw[avledge] (v2) -- (v4);
+      \draw[avledge] (v4) -- (v3); \draw[avledge] (v4) -- (v5);
+      \draw[avledge] (v5) -- (v6);
+      \node[color=avlalert,font=\small,anchor=east] at (-1.9,0.15) {$\mathrm{bf}(2) = -2$ \ RR};
+    }
+    \only<6>{
+      \ghostnode{0.4}{-1.2}{4}
+      \ghostpath{0.4,-1.2}{0,0}
+      \node[avlkeygold] (u4) at (0,0)      {4};
+      \node[avlkey]     (u2) at (-1.6,-1.2) {2};
+      \node[avlkey]     (u5) at (1.6,-1.2)  {5};
+      \node[avlkey]     (u1) at (-2.4,-2.4) {1};
+      \node[avlkey]     (u3) at (-0.8,-2.4) {3};
+      \node[avlkey]     (u6) at (2.4,-2.4)  {6};
+      \draw[avlgoldedge] (u4) -- (u2); \draw[avlgoldedge] (u4) -- (u5);
+      \draw[avledge] (u2) -- (u1); \draw[avledge] (u2) -- (u3);
+      \draw[avledge] (u5) -- (u6);
+      \rotarc{0,0}{0.65}{200}{340}
+      \pivotdot{0,0}
+      \node[color=avlfib,font=\small] at (0,0.9) {rotate left at 2};
+    }
+
+    % ---- step 4: 7 -> RR at 5, final ----
+    \only<7>{
+      \ghostnode{2.4}{-2.4}{6}
+      \ghostpath{2.4,-2.4}{1.6,-1.2}
+    }
+    \only<7->{
+      \node[avlkeygold] (t4) at (0,0)      {4};
+      \node[avlkeygold] (t2) at (-1.6,-1.2) {2};
+      \node[avlkeygold] (t6) at (1.6,-1.2)  {6};
+      \node[avlkeygold] (t1) at (-2.4,-2.4) {1};
+      \node[avlkeygold] (t3) at (-0.8,-2.4) {3};
+      \node[avlkeygold] (t5) at (0.8,-2.4)  {5};
+      \node[avlkeygold] (t7) at (2.4,-2.4)  {7};
+      \foreach \p/\q in {t4/t2,t4/t6,t2/t1,t2/t3,t6/t5,t6/t7}
+        \draw[avlgoldedge,line width=1.1pt] (\p) -- (\q);
+    }
+    \only<7>{
+      \rotarc{1.6,-1.2}{0.55}{200}{340}
+      \pivotdot{1.6,-1.2}
+      \node[color=avlfib,font=\small] at (1.6,-0.4) {rotate left at 5};
+    }
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.2em}
+  \begin{center}
+    \only<1-6>{{\color{avlmuted}Sorted input keeps leaning right.
+                AVL keeps pushing it back.}}
+    \only<7->{{\large\color{avlfib}\bfseries Perfect tree. Height 2.}\\[0.35em]
+              {\color{avlmuted}The same input that made a 7-step list
+               now answers in 3 steps. \fib{4 rotations total.}}}
+  \end{center}
+
+  \note{Walk this slowly. Every time the chain leans too far right, one
+  rotation pushes it back. Four rotations across seven inserts, and the tree
+  that used to be a list is now perfectly balanced.}
+\end{frame}

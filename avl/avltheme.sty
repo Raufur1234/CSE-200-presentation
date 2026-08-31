@@ -1,0 +1,176 @@
+% ---------------------------------------------------------------------------
+%  avltheme -- original warm light Beamer theme for the AVL deck.
+%
+%  Colour semantics, enforced:
+%    ink    : body text
+%    muted  : structure, edges, de-emphasis
+%    fib    : burnt orange -- RESERVED for the Fibonacci / phi thread
+%    alert  : red -- invariant violations, |bf| = 2, the node that triggers
+%
+%  Part identity: each part owns a hue that DEEPENS as the talk escalates
+%  (orange -> rose -> plum). It appears on that part's transition slide, its
+%  frame-title rule, and its footer, so the three parts stay distinct
+%  throughout -- not only at the seams.
+%
+%  Part 1 deliberately shares the Fibonacci orange: Part 1 is where the thread
+%  is planted. Parts 2 and 3 carry their own hue while the orange thread keeps
+%  reappearing inside them.
+% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{avltheme}[2026/08/31 AVL deck theme -- warm light]
+
+\RequirePackage{tikz}
+\RequirePackage{xcolor}
+% Montserrat: geometric, open letterforms, heavy bold available. Chosen for
+% legibility with a non-native-English audience and for title weight.
+% Math deliberately stays Computer Modern -- maths should look like maths.
+\RequirePackage[defaultfam,tabular,lining]{montserrat}
+
+\mode<presentation>
+
+% ------------------------------------------------------------------ palette
+\definecolor{avlground}{HTML}{FDF7F0}   % warm cream ground
+\definecolor{avlpanel} {HTML}{F6EADC}   % raised panel
+\definecolor{avlink}   {HTML}{2B211A}   % warm near-black text
+\definecolor{avlmuted} {HTML}{9A8878}   % warm taupe: edges, secondary
+\definecolor{avlrule}  {HTML}{DCC9B4}   % hairlines
+\definecolor{avlfib}   {HTML}{C2610A}   % burnt orange -- THE thread
+\definecolor{avlalert} {HTML}{D62828}   % violation / trigger
+
+% part hues, deepening across the talk
+\definecolor{avlpone}  {HTML}{C2610A}   % Part 1 -- orange (plants the thread)
+\definecolor{avlptwo}  {HTML}{A8324F}   % Part 2 -- deep rose
+\definecolor{avlpthree}{HTML}{6E3560}   % Part 3 -- plum
+
+% ------------------------------------------------------------------ base
+\setbeamercolor{background canvas}{bg=avlground}
+\setbeamercolor{normal text}{fg=avlink,bg=avlground}
+\setbeamercolor{structure}{fg=avlfib}
+\setbeamercolor{alerted text}{fg=avlalert}
+\setbeamercolor{frametitle}{fg=avlink,bg=}
+\setbeamercolor{title}{fg=avlink}
+\setbeamercolor{itemize item}{fg=avlmuted}
+\setbeamercolor{math text}{fg=avlink}
+
+\usefonttheme{professionalfonts}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\small,series=\mdseries}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\raisebox{0.12ex}{\tiny$\blacksquare$}}
+
+% ------------------------------------------------------- current part state
+\newcommand{\avlpartname}{}
+\colorlet{avlpartcolor}{avlmuted}
+% \setavlpart{<footer label>}{<colour name>}
+\newcommand{\setavlpart}[2]{%
+  \renewcommand{\avlpartname}{#1}%
+  \colorlet{avlpartcolor}{#2}%
+}
+
+% --------------------------------------------------- frame title: assertion
+% Titles are claims, not labels, so they may run to two lines. The rule beneath
+% carries the current part's hue -- part identity on every slide.
+% Centred, heavy, in the part's colour, with a centred rule beneath.
+\setbeamertemplate{frametitle}{%
+  \vspace{0.75em}%
+  \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.8cm,rightskip=0.8cm]{frametitle}%
+    \centering\usebeamerfont{frametitle}\color{avlpartcolor}\insertframetitle\par%
+    \ifx\insertframesubtitle\@empty\else
+      {\usebeamerfont{framesubtitle}\color{avlmuted}\insertframesubtitle\par}%
+    \fi
+    \vspace{0.40em}%
+    {\color{avlpartcolor}\rule{3.2em}{1.4pt}}%
+  \end{beamercolorbox}%
+  \vspace{0.35em}%
+}
+
+% ------------------------------------------------------------------ footline
+\setbeamertemplate{footline}{%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1.4ex,leftskip=0.9cm,rightskip=0.9cm]{}%
+      {\scriptsize\color{avlpartcolor}\avlpartname\hfill\color{avlmuted}\insertframenumber}%
+    \end{beamercolorbox}%
+  }%
+}
+
+% ------------------------------------------------------------------ helpers
+\newcommand{\fib}[1]{{\color{avlfib}#1}}
+\newcommand{\viol}[1]{{\color{avlalert}#1}}
+\newcommand{\quietc}[1]{{\color{avlmuted}#1}}
+
+% ------------------------------------------------------- part transition slide
+% Full-bleed saturated colour: a hard visual break between speakers, and the
+% three-part map shows the audience exactly where the handoff lands.
+% \avldivider{<n>}{<title>}{<question>}{<colour>}
+\newcommand{\avldivider}[4]{%
+  \begingroup
+  \setbeamercolor{background canvas}{bg=#4}%
+  \begin{frame}[plain]
+    \vfill
+    \begin{center}
+      \begin{tikzpicture}[x=1cm,y=1cm]
+        \foreach \i/\lab in {1/{The problem}, 2/{Rotations}, 3/{Deletion}} {
+          \pgfmathsetmacro{\px}{(\i-2)*4.1}
+          \ifnum\i=#1\relax
+            \node[draw=white,fill=white,text=#4,rounded corners=2pt,
+                  minimum width=3.5cm,minimum height=0.9cm,
+                  font=\small\bfseries] at (\px,0) {\lab};
+          \else
+            \node[draw=white!55,text=white!75,rounded corners=2pt,
+                  minimum width=3.5cm,minimum height=0.9cm,
+                  font=\small] at (\px,0) {\lab};
+          \fi
+        }
+        \draw[white!45] (-2.3,0) -- (-1.85,0);
+        \draw[white!45] ( 1.85,0) -- ( 2.3,0);
+      \end{tikzpicture}
+
+      \vspace{1.9em}
+      {\color{white!80}\large Part #1}\\[0.55em]
+      {\color{white}\LARGE\bfseries #2}\\[1.0em]
+      {\color{white!85}\large #3}
+    \end{center}
+    \vfill
+  \end{frame}
+  \endgroup
+}
+
+% Full-bleed statement slide, in a given colour (used for the closing line)
+\newcommand{\avlstatement}[2]{%
+  \begingroup
+  \setbeamercolor{background canvas}{bg=#2}%
+  \begin{frame}[plain]
+    \vfill
+    \begin{center}
+      \begin{minipage}{0.80\paperwidth}
+        \centering\color{white}\Large #1
+      \end{minipage}
+    \end{center}
+    \vfill
+  \end{frame}
+  \endgroup
+}
+
+% ------------------------------------------------- tikz styles (light ground)
+\tikzset{
+  avldot/.style     = {circle, draw=avlmuted, fill=avlmuted, inner sep=0pt, minimum size=3.2pt},
+  avlgolddot/.style = {circle, draw=avlfib,  fill=avlfib,  inner sep=0pt, minimum size=3.2pt},
+  avlreddot/.style  = {circle, draw=avlalert, fill=avlalert, inner sep=0pt, minimum size=4.6pt},
+  avledge/.style    = {draw=avlmuted, line width=0.45pt},
+  avlgoldedge/.style= {draw=avlfib!80, line width=0.5pt},
+  % tints mix against avlground, never the implicit white
+  avlkey/.style     = {circle, draw=avlink!70, fill=white, text=avlink,
+                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
+  avlkeygold/.style = {circle, draw=avlfib, fill=avlfib!14!avlground, text=avlfib,
+                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
+  avlkeyalert/.style= {circle, draw=avlalert, fill=avlalert!12!avlground, text=avlalert,
+                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
+  avlarrow/.style   = {-{Stealth[length=4pt]}, draw=avlmuted, line width=0.5pt},
+  avlgoldarrow/.style={-{Stealth[length=4pt]}, draw=avlfib, line width=0.8pt},
+  avltri/.style     = {draw=avlmuted, fill=avlpanel, text=avlmuted,
+                       regular polygon, regular polygon sides=3, inner sep=0pt,
+                       font=\scriptsize},
+}
+
+\mode<all>
