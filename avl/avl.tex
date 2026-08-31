@@ -37,3 +37,42 @@
 \input{parts/part3.tex}
 
 \end{document}
+% ===========================================================================
+%  AVL Trees --- CSE 200
+%  A 9-minute, three-part talk. Beamer + TikZ only; every figure is computed
+%  and drawn natively (no external plotting language).
+%
+%  Compile:
+%    pdflatex -interaction=nonstopmode avl.tex   (twice, for the frame count)
+%
+%  Numbers on these slides are simulated ground truth from verify/ --- see
+%  verify/avl_verify.ps1 and verify/cascade_sweep.ps1. Do not edit a figure
+%  here without re-running those.
+% ===========================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing,
+                shapes.geometric,fit,backgrounds}
+
+% Load order matters: fibtree ships safe standalone defaults, the theme
+% overrides them for the dark ground. Theme must come second.
+\input{tikz/fibtree.tex}
+\input{tikz/motion.tex}
+\usepackage{avltheme}
+
+% Allow building one part alone for solo rehearsal:
+%   \includeonlyframes{p1}   % or p2 / p3
+%\includeonlyframes{p1}
+
+\begin{document}
+
+\input{parts/part1.tex}
+\input{parts/part2.tex}
+\input{parts/part3.tex}
+
+\end{document}

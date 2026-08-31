@@ -3,8 +3,12 @@
 %             Fibonacci property.
 %  Follows the requested flow:
 %    intro -> what is a BST -> what problem -> AVL idea -> how AVL solves it
-%    -> height property -> proof -> Fibonacci property
+%    -> height property -> proof -> build-up -> golden ratio -> exact count
 %  Wording rule: short sentences, common words, no idioms.
+%
+%  Height convention throughout the deck: h counts EDGES, so a single node is
+%  height 0 and N(0)=1. A lecture that calls a single node "height 1" gets
+%  N(h) = F(h+2)-1; ours is F(h+3)-1. Same fact, shifted index. Do not mix them.
 % ===========================================================================
 
 % ------------------------------------------------------------------ title
@@ -126,8 +130,8 @@
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm]
     \node[avlkeygold,minimum size=8mm] (r) at (0,0) {};
-    \node[avltri,minimum size=1.9cm] (L) at (-1.7,-1.6) {};
-    \node[avltri,minimum size=1.9cm] (R) at (1.7,-1.6) {};
+    \node[avltri,minimum size=2.4cm] (L) at (-1.7,-1.6) {};
+    \node[avltri,minimum size=2.4cm] (R) at (1.7,-1.6) {};
     \draw[avlgoldedge] (r) -- (L);
     \draw[avlgoldedge] (r) -- (R);
     \node[color=avlmuted,font=\small] at (-1.7,-1.75) {height $a$};
@@ -267,77 +271,205 @@
   from?}
 \end{frame}
 
-% ------------------------------------------------------------------ proof
+% ------------------------------------------------------------------ proof setup
+%  The framing beat only. The recurrence itself is NOT stated here any more --
+%  it is built from actual small trees on the next slide, so it arrives as
+%  something the audience has already watched happen four times.
 \begin{frame}[label=p1]{Proof: ask the question backwards}
-  \vspace{0.4em}
+  \vspace{1.4em}
   \begin{center}
-    {\color{avlmuted}\large Instead of ``how tall can it get?'', ask:}\\[0.5em]
-    {\large\color{avlfib}\bfseries What is the \emph{smallest} AVL tree of height $h$?}
+    {\color{avlmuted}\large Instead of ``how tall can it get?'', ask:}\\[0.9em]
+    {\LARGE\color{avlfib}\bfseries What is the \emph{smallest} AVL tree
+     of height $h$?}
   \end{center}
-  \vspace{0.7em}
+  \vspace{1.8em}
+  \begin{center}
+    {\color{avlmuted}If even the emptiest legal tree of height $h$ needs a lot
+     of nodes,\\[0.35em]
+     then a tree with few nodes \emph{cannot} be tall.}\\[1.2em]
+    {\color{avlmuted}Write \fib{$N(h)$} for that smallest node count.}
+  \end{center}
 
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.42\textwidth}
-      \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.88]
-        \node[avlkeygold] (r) at (0,0) {};
-        \node[avltri,draw=avlfib,text=avlfib,minimum size=1.8cm]
-          (L) at (-1.4,-1.7) {$T_{h-1}$};
-        \node[avltri,draw=avlfib,text=avlfib,minimum size=1.5cm]
-          (R) at (1.3,-1.85) {$T_{h-2}$};
-        \draw[avlgoldedge] (r) -- (L);
-        \draw[avlgoldedge] (r) -- (R);
-      \end{tikzpicture}
-      \end{center}
-    \end{column}
-    \begin{column}{0.54\textwidth}
-      \vspace{0.3em}
-      {\color{avlmuted}One side must be height $h-1$.}\\
-      {\color{avlmuted}The other can be $h-2$ --- but no less,}\\
-      {\color{avlmuted}because the rule forbids a gap of 2.}\\[1.2em]
-      Call $N(h)$ the smallest node count:
-      \[ \color{avlfib} N(h) = N(h-1) + N(h-2) + 1 \]
-    \end{column}
-  \end{columns}
-
-  \note{Turn the question around. Build the emptiest legal tree of height h.
-  Its root needs one side of height h minus one. The other side can be h minus
-  two, but not smaller, because the rule forbids a gap of two. So the smallest
-  tree of height h is one root plus the two smallest trees below it.}
+  \note{Turn the question around. Instead of bounding the tallest tree, build
+  the emptiest legal tree of a given height and count it. If the emptiest tree
+  of height h already needs a lot of nodes, then a tree with few nodes cannot
+  possibly be that tall. Same fact, and this direction we can actually count.}
 \end{frame}
 
-% ------------------------------------------------------------------ Fibonacci property
-\begin{frame}[label=p1]{The Fibonacci property}
-  \vspace{0.7em}
+% ------------------------------------------------------------------ BUILD-UP
+%  The four smallest minimal trees, revealed one at a time. Each new tree is
+%  visibly the two before it, joined under one root -- so the recurrence is
+%  SEEN before it is written down.
+%
+%  Coordinate map (per panel, origin at the panel's root):
+%    T_0  a(0,0)
+%    T_1  a(0,0)  b(-0.45,-0.8)
+%    T_2  a(0,0)  b(-0.62,-0.8) c(-1.05,-1.6)   d(0.62,-0.8)
+%    T_3  a(0,0)  b(-0.85,-0.8) c(-1.35,-1.6) d(-1.75,-2.4) e(-0.42,-1.6)
+%                 f(0.85,-0.8)  g(0.45,-1.6)
+%  Panel origins: -5.0, -2.9, 0.0, 3.8. Captions on a common baseline.
+%  NOTE: the style key must not be called "cap" -- that collides with TikZ's
+%  own line-cap key and the frame will not compile.
+\begin{frame}[label=p1]{Each smallest tree is the two before it, under one root}
+  \vspace{0.1em}
   \begin{center}
-  \setlength{\tabcolsep}{7pt}
-  \renewcommand{\arraystretch}{1.4}
-  \begin{tabular}{l|cccccccc}
-    {\color{avlmuted}height $h$} & 0 & 1 & 2 & 3 & 4  & 5  & 6  & \fib{\textbf{7}}\\\hline
-    {\color{avlink}$N(h)$ smallest} & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
-    \onslide<2->{{\color{avlmuted}Fibonacci $F(h{+}3)$} & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{55}}
-  \end{tabular}
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      mini/.style   = {circle, draw=avlfib, fill=avlfib!12!avlground,
+                       inner sep=0pt, minimum size=4.6mm},
+      miniroot/.style={circle, draw=avlfib, fill=avlfib, inner sep=0pt,
+                       minimum size=4.6mm},
+      medge/.style  = {draw=avlfib!75, line width=0.5pt},
+      blk/.style    = {draw=avlmuted, dashed, line width=0.5pt,
+                       rounded corners=2pt, inner sep=2.2pt},
+      blab/.style   = {font=\scriptsize, text=avlmuted, inner sep=1pt},
+      treecap/.style= {font=\small, text=avlink, align=center,
+                       minimum width=2cm, minimum height=8mm}]
+    % fixed extent so nothing shifts between overlays
+    \path (-5.9,-4.30) rectangle (5.5,0.75);
+
+    % ---------------- T_0 ----------------
+    \begin{scope}[xshift=-5.0cm]
+      \node[miniroot] (za) at (0,0) {};
+      \node[treecap] at (0,-3.25) {$T_0$\\ \fib{$N(0)=1$}};
+    \end{scope}
+
+    % ---------------- T_1 ----------------
+    \only<2->{\begin{scope}[xshift=-2.9cm]
+      \node[miniroot] (oa) at (0,0) {};
+      \node[mini] (ob) at (-0.45,-0.8) {};
+      \draw[medge] (oa) -- (ob);
+      \node[treecap] at (0,-3.25) {$T_1$\\ \fib{$N(1)=2$}};
+    \end{scope}}
+
+    % ---------------- T_2 = root + T_1 + T_0 ----------------
+    \only<3->{\begin{scope}[xshift=0cm]
+      \node[miniroot] (ta) at (0,0) {};
+      \node[mini] (tb) at (-0.62,-0.8) {};
+      \node[mini] (tc) at (-1.05,-1.6) {};
+      \node[mini] (td) at ( 0.62,-0.8) {};
+      \draw[medge] (ta) -- (tb);  \draw[medge] (tb) -- (tc);
+      \draw[medge] (ta) -- (td);
+      \node[blk, fit=(tb)(tc), label={[blab]below:$T_1$}] {};
+      \node[blk, fit=(td),     label={[blab]below:$T_0$}] {};
+      \node[treecap] at (0,-3.25) {$T_2$\\ \fib{$N(2)=1+2+1=4$}};
+    \end{scope}}
+
+    % ---------------- T_3 = root + T_2 + T_1 ----------------
+    \only<4->{\begin{scope}[xshift=3.8cm]
+      \node[miniroot] (ha) at (0,0) {};
+      \node[mini] (hb) at (-0.85,-0.8) {};
+      \node[mini] (hc) at (-1.35,-1.6) {};
+      \node[mini] (hd) at (-1.75,-2.4) {};
+      \node[mini] (he) at (-0.42,-1.6) {};
+      \node[mini] (hf) at ( 0.85,-0.8) {};
+      \node[mini] (hg) at ( 0.45,-1.6) {};
+      \draw[medge] (ha) -- (hb);  \draw[medge] (hb) -- (hc);
+      \draw[medge] (hc) -- (hd);  \draw[medge] (hb) -- (he);
+      \draw[medge] (ha) -- (hf);  \draw[medge] (hf) -- (hg);
+      \node[blk, fit=(hb)(hc)(hd)(he), label={[blab]below:$T_2$}] {};
+      \node[blk, fit=(hf)(hg),         label={[blab]below:$T_1$}] {};
+      \node[treecap] at (0,-3.45) {$T_3$\\ \fib{$N(3)=1+4+2=7$}};
+    \end{scope}}
+  \end{tikzpicture}
   \end{center}
 
-  \vspace{1.1em}
-  \onslide<3->{
+  \vspace{-0.4em}
   \begin{center}
-    {\LARGE\color{avlfib}$N(h) \;=\; F(h+3) \;-\; 1$}
+    \only<1>{{\color{avlmuted}The smallest legal tree of height 0 is one node.}}
+    \only<2>{{\color{avlmuted}For height 1 you need a child --- and one child
+              is enough, because a gap of 1 is legal.}}
+    \only<3>{{\color{avlmuted}For height 2, one side must reach height 1.
+              The other is as \emph{small} as the rule allows: height 0.}}
+    \only<4>{{\color{avlmuted}And again: one side $T_2$, the other side $T_1$.
+              \fib{The pattern does not change.}}}
+    \only<5->{{\large\color{avlfib}$N(h) \;=\; N(h-1) \;+\; N(h-2) \;+\; 1$}\\[0.3em]
+              {\color{avlmuted}one root, plus the two smallest trees that fit
+               under it}}
+  \end{center}
+
+  \note{Click through them slowly. Height zero: one node. Height one: add a
+  child. Height two: the left side has to reach height one, and the right side
+  is as small as the rule permits, which is height zero. Point at the two
+  dashed boxes. Height three: same again --- a T two and a T one. By now they
+  should be saying the recurrence before you write it. Then click and write it.}
+\end{frame}
+
+% ------------------------------------------------------- GOLDEN RATIO (algebra)
+\begin{frame}[label=p1]{Where the golden ratio comes from}
+  \vspace{0.3em}
+  \begin{center}
+    {\color{avlmuted}The $+1$ is in the way --- so absorb it.}\\[0.7em]
+    $N(h) = N(h-1) + N(h-2) + 1$
+    \\[0.7em]
+    \onslide<2->{add 1 to both sides:\quad
+      $\underbrace{N(h)+1}_{M(h)} =
+       \underbrace{\big(N(h{-}1)+1\big)}_{M(h-1)} +
+       \underbrace{\big(N(h{-}2)+1\big)}_{M(h-2)}$}
+    \\[0.9em]
+    \onslide<3->{{\large\fib{$M(h) = M(h-1) + M(h-2)$}}\quad
+      {\color{avlmuted}--- Fibonacci exactly, no $+1$ left}}
+  \end{center}
+
+  \vspace{0.35em}
+  \onslide<4->{
+  \begin{center}
+    {\color{avlmuted}Look for solutions of the form $M(h) = x^h$:}\\[0.35em]
+    $x^h = x^{h-1} + x^{h-2}
+     \;\Longrightarrow\; x^2 = x + 1
+     \;\Longrightarrow\; x = \dfrac{1 \pm \sqrt5}{2}$
+  \end{center}}
+
+  \vspace{0.3em}
+  \onslide<5->{
+  \begin{center}
+    {\color{avlmuted}The larger root dominates:}\quad
+    \fib{$\varphi = \tfrac{1+\sqrt5}{2} \approx 1.618$}\quad
+    {\color{avlmuted}so}\quad \fib{$N(h) \sim \varphi^{\,h}$}
+  \end{center}}
+
+  \note{The recurrence is almost Fibonacci but for the plus one. Adding one to
+  both sides makes it vanish --- M of h is exactly Fibonacci. Then the standard
+  trick: guess a geometric solution, divide through by x to the h minus two,
+  and you are left with x squared equals x plus one. That is the defining
+  equation of the golden ratio. So the smallest AVL tree grows like phi to the
+  h --- and that is the only reason 1.44 appears anywhere in this talk.}
+\end{frame}
+
+% --------------------------------------------------------- the exact identity
+\begin{frame}[label=p1]{The exact count}
+  \vspace{1.1em}
+  \begin{center}
+    {\Huge\fib{$N(h) \;=\; F(h+3) \;-\; 1$}}
+  \end{center}
+  \vspace{1.0em}
+  \begin{center}
+    {\color{avlmuted}because $M(h) = N(h)+1$ is Fibonacci, starting at
+     $M(0) = 2 = F(3)$}
+  \end{center}
+  \vspace{0.9em}
+  \onslide<2->{
+  \begin{center}
+  \setlength{\tabcolsep}{9pt}
+  \renewcommand{\arraystretch}{1.25}
+  {\small
+  \begin{tabular}{l|cccccccc}
+    {\color{avlmuted}$h$}      & 0 & 1 & 2 & 3 & 4 & 5 & 6 & \fib{\textbf{7}}\\\hline
+    {\color{avlmuted}$N(h)$}   & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
+    {\color{avlmuted}$F(h{+}3)$} & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{55}\\
+  \end{tabular}}
   \end{center}}
 
   \vspace{0.9em}
-  \onslide<4->{
+  \onslide<3->{
   \begin{center}
-    {\color{avlmuted}Fibonacci grows like $\varphi^h$, where
-     $\varphi = 1.618$ is the golden ratio.}\\[0.5em]
-    {\large\color{avlfib}$1 / \log_2 \varphi = \mathbf{1.44}$
-     \quad\quietc{$\leftarrow$}\quad that is where the 1.44 comes from}
+    {\color{avlmuted}and taking logs of $N(h)\sim\varphi^h$:}\quad
+    {\large\fib{$h \approx \dfrac{\log_2 n}{\log_2\varphi} = 1.44\,\log_2 n$}}
   \end{center}}
 
-  \note{Line up the smallest node counts. Then put Fibonacci underneath. They
-  are the same numbers, shifted by three and off by one. And because Fibonacci
-  grows like the golden ratio, the golden ratio is exactly what produces the
-  1.44 in the height bound.}
+  \note{One line. The plus-one substitution we just made IS the minus one here.
+  Read the last column out loud: at height seven the smallest AVL tree has 54
+  nodes, and 55 is a Fibonacci number. Hold onto 54 --- Part 3 will build this
+  exact tree and break it.}
 \end{frame}
 
 % ------------------------------------------------------------------ THE PLANT
@@ -358,12 +490,12 @@
     {\large\color{avlink}This is the \fib{worst tree AVL allows} at height 7.}\\[0.5em]
     {\color{avlmuted}It has the fewest nodes possible:
      $N(7) = F(10) - 1 = 55 - 1 = $ \fib{\textbf{54}}}\\[0.7em]
-    {\color{avlpthree}\bfseries In Part 3 we will build this exact tree by
-     simulation --- and count 54.}
+    {\color{avlpthree}\bfseries In Part 3 we will delete one leaf from this
+     exact tree --- and watch it come apart.}
   \end{center}
 
   \note{This is the emptiest legal AVL tree of height seven. Fibonacci predicts
-  it has 54 nodes. Remember that number. In Part 3 we will run the worst case
-  by hand and land on it. Handoff: we know the tree stays short. Now, how does
+  it has 54 nodes. Remember that number. In Part 3 we will take one leaf out of
+  it and count the damage. Handoff: we know the tree stays short. Now, how does
   it fix itself?}
 \end{frame}
