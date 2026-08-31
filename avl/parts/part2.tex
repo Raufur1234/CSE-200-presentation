@@ -152,14 +152,16 @@
   \node[ggold] at (0,0) {#1}; \node[ggold] at (-0.55,-0.60) {#2};
   \node[ggold] at (0.55,-0.60) {#3};}
 
-\begin{frame}[label=p2]{Four cases, four pivots}
+\begin{frame}[label=p2]{\only<1>{Four cases, four pivots}%
+    \only<2>{LR and RL just become LL and RR}%
+    \only<3->{Four arrivals, one tree}}
   \vspace{-0.7em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92,every node/.style={transform shape},
       gkey/.style ={avlkey,      minimum size=5.4mm,font=\tiny,inner sep=0pt},
       ggold/.style={avlkeygold,  minimum size=5.4mm,font=\tiny,inner sep=0pt},
       gred/.style ={avlkeyalert, minimum size=5.4mm,font=\tiny,inner sep=0pt},
-      tag/.style  ={font=\tiny,align=center,text=avlmuted,anchor=north,
+      tag/.style  ={font=\small,align=center,text=avlmuted,anchor=north,
                     inner sep=1pt}]
     % pin scaled to the cell's smaller nodes, so the gap under them matches
     % every other pin in the deck
@@ -210,22 +212,50 @@
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.7em}
-  \begin{center}
-    \only<1>{{\color{avlmuted}\small Same three keys, four arrival orders,
-              a different pin each time.}}
-    \only<2>{{\color{avlmuted}\small One turn finishes LL and RR ---
-              and \fib{LR and RL have just become LL and RR}.}}
-    \only<3->{{\color{avlmuted}\small A second turn finishes those.
-               \fib{Four arrivals, one tree.}}}
-  \end{center}
-
   \note{Four cells, same three keys, only the arrival order changes. Point at
   each pin and each arc: LL turns clockwise about 30, RR turns anticlockwise
   about 10. Click. LL and RR are done. Now the important beat: the bent ones
   are no longer bent --- LR has turned into an LL chain and RL into an RR
   chain. Click again. Same pin, same turn as the cell directly above, and all
   four land on the same tree.}
+\end{frame}
+
+% ------------------------------------------------------------------ rotation power
+\begin{frame}[label=p2]{The beauty: one constant operation fixes everything}
+  \vspace{-0.2em}
+  \begin{center}
+  {\large\bfseries\color{avlptwo}What makes a rotation elegant}
+  \end{center}
+
+  \vspace{0.35em}
+  \begin{center}
+  \begin{minipage}{0.78\textwidth}
+  \begin{itemize}
+    \setlength{\itemsep}{0.45em}
+    \item {\color{avlfib}\bfseries Only three links change}\\
+      {\color{avlmuted}\small $O(1)$ no matter the tree size}
+    \item {\color{avlfib}\bfseries Restores subtree height}\\
+      {\color{avlmuted}\small Parent sees no change, repair stops}
+    \item {\color{avlfib}\bfseries Search order is safe}\\
+      {\color{avlmuted}\small Left-right order never breaks}
+    \item {\color{avlfib}\bfseries One rotation suffices}\\
+      {\color{avlmuted}\small No need to check nodes above}
+  \end{itemize}
+  \end{minipage}
+  \end{center}
+
+  \vspace{0.4em}
+  \begin{center}
+    {\footnotesize\color{avlmuted}A rotation changes only three pointers ---
+     no recursion, no loops. That is why it}\\[0.15em]
+    {\normalsize\bfseries\color{avlfib}runs in constant time.}\\[0.35em]
+    {\normalsize\color{avlfib}Four cases. \quad One pattern. \quad Perfect balance.}
+  \end{center}
+
+  \note{The heart of AVL. A rotation is O(1): only three pointers move. It
+  restores the subtree to its original height, so the parent tree sees nothing
+  has changed. That is why one rotation is always enough for insertion. This is
+  the elegant core that makes AVL practical.}
 \end{frame}
 
 % ------------------------------------------------------------------ insertion rule
@@ -389,14 +419,14 @@
     % squeezed between four different arcs never all fit.
     \only<1>{{\color{avlmuted}\viol{$\mathrm{bf}(1) = -2$}, an RR chain.
               Pin 1 and turn left.}}
-    \only<2>{{\color{avlmuted}Balanced again --- height 1.
+    \only<2>{{\color{avlmuted} Balanced again --- height 1.
               \fib{One rotation.}}}
     \only<3>{{\color{avlmuted}4 and 5 arrive.
               \viol{$\mathrm{bf}(3) = -2$}, RR again. Pin 3 and turn left.}}
-    \only<4>{{\color{avlmuted}Balanced again. \fib{Two rotations.}}}
+    \only<4>{{\color{avlmuted} Balanced again. \fib{Two rotations.}}}
     \only<5>{{\color{avlmuted}6 arrives and the \emph{root} breaks:
               \viol{$\mathrm{bf}(2) = -2$}. Pin 2 and turn left.}}
-    \only<6>{{\color{avlmuted}Balanced again. \fib{Three rotations.}}}
+    \only<6>{{\color{avlmuted} Balanced again. \fib{Three rotations.}}}
     \only<7>{{\color{avlmuted}7 arrives. \viol{$\mathrm{bf}(5) = -2$}.
               Pin 5 and turn left --- the last one.}}
     \only<8->{{\large\color{avlfib}\bfseries Perfect tree. Height 2.}\\[0.35em]
@@ -410,3 +440,91 @@
   to sit so they can see it come up a level. Four rotations across seven
   inserts, and the tree that used to be a list is perfectly balanced.}
 \end{frame}
+
+% ------------------------------------------------------------------ time complexity
+\begin{frame}[label=p2]{Insertion: the cost and the gain}
+  \vspace{-0.2em}
+  \begin{center}
+  \begin{tikzpicture}[x=0.95cm,y=0.95cm,scale=0.95]
+    % Box and table dimensions (consistent across both)
+    \def\boxwidth{3.0}
+    \def\boxheight{0.75}
+    
+    % AVL: logarithmic
+    \begin{scope}[xshift=-4.5cm]
+      % Box
+      \node[draw=avlfib,fill=avlfib!12!avlground,rounded corners=3pt,
+            minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
+            text=avlink,anchor=south] (avlbox) at (0,0) {\bfseries AVL Tree};
+
+      % Table -- natural-width left column so "Walk down" never wraps.
+      % Pinned below the box itself, not a guessed offset, so it can never
+      % run into the box above it.
+      \node[font=\small,color=avlink,anchor=north,
+            below=0.45cm of avlbox] (avltab) {%
+        \begin{tabular}{@{}l@{\hspace{0.3cm}}r@{}}
+          \color{avlmuted}Walk down & \color{avlmuted}$O(\log n)$ \\
+          \color{avlmuted}Rotate & \color{avlmuted}$O(1)$ \\
+          \hline
+          \color{avlfib}\bfseries Insert & \color{avlfib}\bfseries$O(\log n)$
+        \end{tabular}%
+      };
+
+      % Concrete example -- pinned below the table's actual height, so a
+      % taller or shorter table can never overlap it.
+      \node[font=\scriptsize,color=avlmuted,text width=2.8cm,text centered,
+            anchor=north,below=0.3cm of avltab] (avlex) {%
+        For 1M keys:\\[0.08em]\color{avlfib}\textbf{\(\sim 20\) steps}%
+      };
+    \end{scope}
+
+    % Unbalanced BST: worst case linear (same dimensions)
+    \begin{scope}[xshift=4.5cm]
+      % Box
+      \node[draw=avlalert,fill=avlalert!12!avlground,rounded corners=3pt,
+            minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
+            text=avlink,anchor=south] (bstbox) at (0,0) {\bfseries Unbalanced BST};
+
+      % Table -- identical column layout
+      \node[font=\small,color=avlink,anchor=north,
+            below=0.45cm of bstbox] (bsttab) {%
+        \begin{tabular}{@{}l@{\hspace{0.3cm}}r@{}}
+          \color{avlmuted}Walk down & \color{avlmuted}$O(n)$ worst \\
+          \color{avlmuted}No repair & \color{avlmuted}$---$ \\
+          \hline
+          \color{avlalert}\bfseries Insert & \color{avlalert}\bfseries$O(n)$ worst
+        \end{tabular}%
+      };
+
+      % Concrete example
+      \node[font=\scriptsize,color=avlmuted,text width=2.8cm,text centered,
+            anchor=north,below=0.3cm of bsttab] (bstex) {%
+        For 1M keys:\\[0.08em]\color{avlalert}\textbf{\(\sim 1\text{M}\) steps}%
+      };
+    \end{scope}
+
+    % The comparison arrow -- pinned below the example blocks' actual row
+    % (both sides share the same structure, so their tops line up), instead
+    % of a guessed absolute y that drifts whenever the text above reflows.
+    \path let \p1 = (avlex.south) in coordinate (rowY) at (0,\y1);
+    \draw[line width=2pt,-{Stealth[length=5pt]},color=avlfib]
+      ($(rowY)+(-1.0,-0.55)$) -- ($(rowY)+(1.0,-0.55)$);
+    \node[color=avlfib,font=\small\bfseries,anchor=south] at
+      ($(rowY)+(0,-0.60)$) {50,000\(\times\) faster};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.3em}
+  \begin{center}
+    {\normalsize\color{avlfib}\bfseries Three links, logarithmic height.}\\[0.1em]
+    {\color{avlmuted}\footnotesize That is the contract.}
+  \end{center}
+
+  \note{Here is the payoff. Insertion in an AVL tree is logarithmic: walk down
+  log n steps to the leaf, then walk back up log n steps, rotating at most once.
+  Total: O(log n). Without rebalancing, a sorted insertion into a normal BST is
+  linear: a million keys takes a million comparisons. With AVL, it takes 20.
+  That is fifty thousand times faster. For a few pointers, you get guaranteed
+  logarithmic time no matter what keys arrive and in what order.}
+\end{frame}
+
