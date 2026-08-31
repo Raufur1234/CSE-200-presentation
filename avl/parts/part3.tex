@@ -1,13 +1,15 @@
 % ===========================================================================
 %  PART 3 --- Deletion, the worst case simulation, and the Fibonacci payoff
-%  Flow: deletion rule -> why deletion is worse -> worst case simulation
-%        (height shrinks 7 -> 6 step by step) -> the Fibonacci match
+%  Flow: deletion rule -> why deletion is worse -> every layer is a Fibonacci
+%        tree -> worst case simulation run on that fact -> the Fibonacci match
 %
 %  Every number is simulated ground truth (verify/):
 %    worst-case deletion rotations = floor(h/2) exactly, h = 2..14
 %    worst-case insertion rotations = 1 at every height tested
 %    h=7 tree: deleting key 33 fires 3 rotations at depths 3 -> 2 -> 1
 %    node ids from verify/locate_nodes.ps1: target f34; sites f31, f23, f2
+%    per-layer subtree sizes from verify/layers.ps1: 54 33 20 12 7 4 2 1,
+%      and the rotation sites are the T_2, T_4, T_6 layers -- every second one
 % ===========================================================================
 
 \avldivider{3}{Deletion}{The expensive one.}{avlpthree}
@@ -51,12 +53,12 @@
   \vspace{0.5em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.47\textwidth}
-      \vspace{1.0em}
+      \vspace{0.2em}
       {\bfseries\color{avlfib}Insertion}\\[0.4em]
       {\color{avlmuted}The rotation puts the subtree back to its
        \emph{old} height.}\\[0.4em]
       The parent sees no change.\\[0.3em]
-      \fib{So the repair stops.}\\[1.6em]
+      \fib{So the repair stops.}\\[1.1em]
 
       {\bfseries\color{avlalert}Deletion}\\[0.4em]
       {\color{avlmuted}The rotation leaves the subtree \emph{one shorter}.}\\[0.4em]
@@ -68,19 +70,19 @@
       \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92]
         \node[avltri,draw=avlfib,minimum size=2.0cm] at (-1.4,0) {};
         \node[color=avlfib,font=\scriptsize] at (-1.4,-1.45) {height $h$};
-        \node[color=avlmuted,font=\scriptsize] at (-1.4,0.95) {after insert};
+        \node[color=avlmuted,font=\scriptsize] at (-1.4,1.20) {after insert};
 
         \node[avltri,draw=avlalert,minimum size=1.65cm] at (1.5,-0.18) {};
         \node[color=avlalert,font=\scriptsize] at (1.5,-1.45) {height $h-1$};
-        \node[color=avlmuted,font=\scriptsize] at (1.5,0.95) {after delete};
+        \node[color=avlmuted,font=\scriptsize] at (1.5,1.20) {after delete};
 
         \draw[draw=avlalert,line width=1.2pt,-{Stealth[length=4pt]}]
-          (1.5,-1.85) -- (1.5,-2.6);
-        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-2.7)
+          (1.5,-1.85) -- (1.5,-2.45);
+        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-2.55)
           {parent must be checked};
         \draw[draw=avlalert,line width=1.2pt,-{Stealth[length=4pt]}]
-          (1.5,-3.25) -- (1.5,-3.9);
-        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-4.0)
+          (1.5,-3.05) -- (1.5,-3.65);
+        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-3.75)
           {and its parent \dots};
       \end{tikzpicture}
       \end{center}
@@ -93,90 +95,162 @@
   depending on not happening.}
 \end{frame}
 
-% ------------------------------------------------------------------ WORST CASE SIM
-\begin{frame}[label=p3]{Worst case simulation: delete one leaf}
-  \vspace{-0.4em}
+% ------------------------------------------------------------------ LAYERS
+%  The setup slide for the simulation. Part 1 proved N(h) = F(h+3) - 1 for the
+%  WHOLE tree; this says the same thing holds at every layer inside it, which
+%  is the fact the cascade on the next slide runs on.
+%
+%  \drawfib emits nodes in pre-order, so the left spine of T_7 is exactly
+%  f1..f8 = T_7, T_6, ..., T_0. Sizes are simulated ground truth, printed by
+%  verify/layers.ps1 --- 54 33 20 12 7 4 2 1, which is F(k+3)-1 term by term.
+\begin{frame}[label=p3]{Every layer is a Fibonacci tree}
+  \vspace{0.4em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,
       avldot/.style={avlgolddot},
       avledge/.style={avlgoldedge}]
-    \setavlscale{0.55}{0.58}
+    \setavlscale{0.47}{0.48}
     \resetavl
     \drawfib{7}{0}{0}
 
-    % Node ids are NOT guessed -- verify/locate_nodes.ps1 maps the verified
-    % worst-case target (in-order key 33) and its rotation-site ancestors to
-    % the pre-order ids this macro emits:
-    %   target -> f34 (depth 4); sites depth 3 -> f31, 2 -> f23, 1 -> f2
-    %
-    % Each rotation gets TWO beats: a PAUSE (circle the node, nothing moves
-    % yet) then the ARC (the rotation fires). That is the "cover, then
-    % animate" cadence -- the audience sees the trigger before the fix.
-    \only<2->{\draw[draw=avlalert,line width=1.1pt] (f34) circle (0.20);}
+    % The root's tag would sit under the title rule if it went left like the
+    % rest, so it is the one that leans right instead.
+    \node[color=avlfib,font=\tiny,anchor=west,inner sep=1.2pt]
+      at ($(f1)+(0.22,0.10)$) {$T_{7}$\,:\,\textbf{54}};
+    \foreach \i/\k/\N in {2/6/33, 3/5/20, 4/4/12,
+                          5/3/7, 6/2/4, 7/1/2, 8/0/1} {
+      \draw[avlfib!45,line width=0.4pt]
+        ($(f\i)+(-0.14,0)$) -- ($(f\i)+(-0.30,0)$);
+      \node[color=avlfib,font=\tiny,anchor=east,inner sep=1.2pt]
+        at ($(f\i)+(-0.32,0.01)$) {$T_{\k}$\,:\,\textbf{\N}};
+    }
+  \end{tikzpicture}
+  \end{center}
 
-    % --- rotation 1 : pause at f31, then fire ---
-    \only<3>{\draw[draw=avlalert,line width=1.3pt] (f34) -- (f31);
-             \draw[draw=avlalert,line width=1.4pt] (f31) circle (0.30);}
-    \only<4->{\draw[draw=avlalert,line width=1.3pt] (f34) -- (f31);}
-    \only<4>{\rotarcalert{f31}{0.42}{200}{340}
-             \fill[avlalert] (f31) circle (1.6pt);}
-    \only<5->{\draw[draw=avlalert,line width=1.1pt] (f31) circle (0.20);}
+  \vspace{0.5em}
+  \begin{center}
+    {\color{avlmuted}\small Every subtree down the left edge is itself the
+     \emph{smallest} tree of its height:}\\[0.3em]
+    {\color{avlfib}54, \ 33, \ 20, \ 12, \ 7, \ 4, \ 2, \ 1
+     \quad\quietc{---}\quad $N(k) = F(k{+}3) - 1$ \ at \emph{every} layer}\\[0.45em]
+    \onslide<2->{{\color{avlpthree}\bfseries\small Nothing here has a spare
+     node. Take one away and something has to get shorter.}}
+  \end{center}
 
-    % --- rotation 2 : pause at f23, then fire ---
-    \only<5>{\draw[draw=avlalert,line width=1.3pt] (f31) -- (f23);
-             \draw[draw=avlalert,line width=1.4pt] (f23) circle (0.30);}
-    \only<6->{\draw[draw=avlalert,line width=1.3pt] (f31) -- (f23);}
-    \only<6>{\rotarcalert{f23}{0.42}{200}{340}
-             \fill[avlalert] (f23) circle (1.6pt);}
-    \only<7->{\draw[draw=avlalert,line width=1.1pt] (f23) circle (0.20);}
+  \note{Part 1 counted the whole tree and got 54, a Fibonacci number. Now look
+  inside it. The subtree hanging off the left edge at depth one is the smallest
+  tree of height six: 33 nodes. Below it, 20. Then 12, 7, 4, 2, 1. The same
+  Fibonacci formula, layer by layer, all the way down. That is the property
+  that makes the next slide behave the way it does: nothing here has slack.}
+\end{frame}
 
-    % --- rotation 3 : pause at f2, then fire ---
-    \only<7>{\draw[draw=avlalert,line width=1.3pt] (f23) -- (f2);
-             \draw[draw=avlalert,line width=1.4pt] (f2) circle (0.30);}
-    \only<8->{\draw[draw=avlalert,line width=1.3pt] (f23) -- (f2);}
-    \only<8>{\rotarcalert{f2}{0.42}{200}{340}
-             \fill[avlalert] (f2) circle (1.6pt);}
-    \only<9->{\draw[draw=avlalert,line width=1.3pt] (f2) -- (f1);}
+% ------------------------------------------------------------------ WORST CASE SIM
+%  The simulation. Every number on this slide comes from verify/layers.ps1 and
+%  verify/locate_nodes.ps1 against a real AVL implementation:
+%    target key 33 -> node f34 (T_0, depth 4)
+%    rotation sites: f31 (T_2, depth 3), f23 (T_4, depth 2), f2 (T_6, depth 1)
+%    sequence 3:LL 2:LL 1:LL -- all three are RIGHT rotations
+%    result: 53 nodes, height 6, still a valid AVL tree
+%  The sites are T_2, T_4, T_6 --- every SECOND layer. That is the floor(h/2).
+\begin{frame}[label=p3]{Worst case: the count fails all the way up}
+  \vspace{-0.1em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      avldot/.style={avlgolddot},
+      avledge/.style={avlgoldedge},
+      cell/.style={draw=avlrule,fill=avlground,rounded corners=2pt,
+                   text=avlmuted,minimum width=2.75cm,minimum height=0.78cm,
+                   font=\tiny,align=center},
+      hotcell/.style={draw=avlalert,fill=avlalert!8!avlground,rounded corners=2pt,
+                   text=avlalert,minimum width=2.75cm,minimum height=0.78cm,
+                   font=\tiny,align=center}]
+    \setavlscale{0.50}{0.47}
+    \resetavl
+    \drawfib{7}{0}{0}
 
-    % --- height ruler on the left: visibly drops 7 -> 6 ---
-    \begin{scope}[xshift=-6.6cm]
+    % ---- the ledger: what each layer on the path is REQUIRED to hold ----
+    % Two lines even when dim, so the hot cell that replaces it is the same
+    % size and the dim one cannot peek out from behind it.
+    \foreach \x/\k/\N in {-4.7/0/1, -1.57/2/4, 1.57/4/12, 4.7/6/33}
+      \node[cell] at (\x,-4.15) {$T_{\k}$ needs \N\\has \N};
+
+    % ---- beat 2: the leaf goes ----
+    \only<2->{\draw[draw=avlalert,line width=1.1pt] (f34) circle (0.18);}
+    \only<2->{\node[hotcell] at (-4.7,-4.15) {$T_0$ needs 1\\has \textbf{0}};}
+
+    % ---- beat 3-4: T_2 is one short -> rotation 1 ----
+    \only<3->{\draw[draw=avlalert,line width=1.2pt] (f34) -- (f31);
+              \node[hotcell] at (-1.57,-4.15) {$T_2$ needs 4\\has \textbf{3}};}
+    \only<3>{\draw[draw=avlalert,line width=1.3pt] (f31) circle (0.27);}
+    % All three are LL, so all three turn clockwise, and all three use the same
+    % radius: the arc says "this one turns", it does not measure the subtree.
+    % No pin here on purpose -- the nodes are 3pt dots, so a pin under one is
+    % bigger than the node it points at. The arc alone carries the rotation.
+    \only<4>{\rotright[avlalert]{f31}{0.50}}
+    \only<5->{\draw[draw=avlalert,line width=1.1pt] (f31) circle (0.18);}
+
+    % ---- beat 5-6: T_4 is one short -> rotation 2 ----
+    \only<5->{\draw[draw=avlalert,line width=1.2pt] (f31) -- (f23);
+              \node[hotcell] at (1.57,-4.15) {$T_4$ needs 12\\has \textbf{11}};}
+    \only<5>{\draw[draw=avlalert,line width=1.3pt] (f23) circle (0.27);}
+    \only<6>{\rotright[avlalert]{f23}{0.50}}
+    \only<7->{\draw[draw=avlalert,line width=1.1pt] (f23) circle (0.18);}
+
+    % ---- beat 7-8: T_6 is one short -> rotation 3 ----
+    \only<7->{\draw[draw=avlalert,line width=1.2pt] (f23) -- (f2);
+              \node[hotcell] at (4.7,-4.15) {$T_6$ needs 33\\has \textbf{32}};}
+    \only<7>{\draw[draw=avlalert,line width=1.3pt] (f2) circle (0.27);}
+    \only<8>{\rotright[avlalert]{f2}{0.50}}
+    \only<9->{\draw[draw=avlalert,line width=1.2pt] (f2) -- (f1);
+              \draw[draw=avlpthree,line width=1.3pt] (f1) circle (0.27);}
+
+    % ---- height ruler: visibly drops 7 -> 6 ----
+    \begin{scope}[xshift=-6.15cm]
       \only<1-8>{
         \draw[decorate,decoration={brace,amplitude=5pt},avlfib,line width=0.8pt]
-          (0,0.15) -- (0,-4.35);
-        \node[color=avlfib,font=\small,anchor=east,rotate=90] at (-0.28,-2.1) {height 7};
+          (0,0.14) -- (0,-3.43);
+        \node[color=avlfib,font=\scriptsize,anchor=east,rotate=90] at (-0.28,-1.65) {height 7};
       }
       \only<9->{
         \draw[decorate,decoration={brace,amplitude=5pt},avlpthree,line width=1pt]
-          (0,0.15) -- (0,-3.77);
-        \node[color=avlpthree,font=\small\bfseries,anchor=east,rotate=90]
-          at (-0.28,-1.8) {height 6};
+          (0,0.14) -- (0,-2.96);
+        \node[color=avlpthree,font=\scriptsize\bfseries,anchor=east,rotate=90]
+          at (-0.28,-1.40) {height 6};
       }
     \end{scope}
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.5em}
+  \vspace{-0.9em}
   \begin{center}
-    \only<1>{{\color{avlmuted}The smallest AVL tree of height 7.
-              Every internal node is at $\pm1$ --- \fib{no spare room anywhere}.}}
-    \only<2>{{\color{avlmuted}Delete \viol{one leaf}. Just one.}}
-    \only<3>{{\color{avlmuted}Depth 3 is now unbalanced.}}
-    \only<4>{{\color{avlmuted}\viol{Rotation 1} fires. The subtree gets shorter.}}
-    \only<5>{{\color{avlmuted}That shortness breaks depth 2.}}
-    \only<6>{{\color{avlmuted}\viol{Rotation 2} fires. Still shorter.}}
-    \only<7>{{\color{avlmuted}That shortness breaks depth 1.}}
-    \only<8>{{\color{avlmuted}\viol{Rotation 3} fires. It reaches the top.}}
+    \only<1>{{\color{avlmuted}Four layers sit on the path to one leaf,
+              and each one has an exact quota.}}
+    \only<2>{{\color{avlmuted}Delete \viol{one leaf}. $T_0$ is now empty.}}
+    \only<3>{{\color{avlmuted}$T_2$ holds 3, and $N(2) = 4$.
+              \viol{One short} --- so it \emph{cannot} still be height 2.}}
+    \only<4>{{\color{avlmuted}\viol{Rotation 1.} $T_2$ drops to height 1 ---
+              and that shortens what $T_4$ was counting on.}}
+    \only<5>{{\color{avlmuted}$T_4$ holds 11, and $N(4) = 12$. \viol{One short} again.}}
+    \only<6>{{\color{avlmuted}\viol{Rotation 2.} $T_4$ drops to height 3.}}
+    \only<7>{{\color{avlmuted}$T_6$ holds 32, and $N(6) = 33$. \viol{One short} again.}}
+    \only<8>{{\color{avlmuted}\viol{Rotation 3.} $T_6$ drops to height 5, and it
+              reaches the root.}}
     \only<9->{{\large\viol{\textbf{3 rotations}}\quad\quietc{$\cdot$}\quad
+               54 nodes $\rightarrow$ 53 \quad\quietc{$\cdot$}\quad
                height \textbf{7} $\rightarrow$ \color{avlpthree}\textbf{6}}\\[0.3em]
-              {\color{avlmuted}One leaf removed. The whole tree got shorter.}}
+              {\color{avlmuted}They fired at $T_2$, $T_4$, $T_6$ --- every
+               \emph{second} layer. That is where $\lfloor h/2 \rfloor$ comes from.}}
   \end{center}
 
-  \note{Step through this one click at a time. One leaf leaves. Circle the
-  node that breaks first --- pause there, let the audience see WHY before
-  anything moves. Then the arc fires and the rotation happens. Each fix makes
-  that subtree shorter, which breaks the node above it, so the same two-beat
-  pattern repeats at depth two, then depth one. The damage climbs all the way
-  to the top and the whole tree drops from height seven to height six.}
+  \note{One click at a time. The leaf goes. Now read the ledger, not the
+  picture: T two is supposed to hold four nodes and it holds three. One short
+  of a Fibonacci number means it is too tall for its own size, so it must
+  shrink --- that is rotation one. But shrinking it makes T four one short,
+  eleven where twelve is required. Rotation two. Then T six is one short,
+  thirty-two where thirty-three is required. Rotation three, and it reaches the
+  root. Notice which layers fired: T two, T four, T six. Every second one,
+  because each rotation costs the tree exactly one level of height. Three
+  rotations in a tree of height seven --- floor of seven over two.}
 \end{frame}
 
 % ------------------------------------------------------------------ the law

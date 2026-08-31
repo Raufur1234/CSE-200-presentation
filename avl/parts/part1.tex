@@ -84,8 +84,8 @@
         \draw[avledge] (\a) -- (\b);
       \draw[avlgoldarrow,line width=1.1pt] (b4) -- (b6);
       \draw[avlgoldarrow,line width=1.1pt] (b6) -- (b7);
-      \node[color=avlmuted,font=\small] at (0,-3.1) {inserted 4,2,6,1,3,5,7};
-      \node[color=avlfib,font=\large\bfseries] at (0,-3.9) {3 steps};
+      \node[color=avlmuted,font=\small] at (0,-3.6) {inserted 4,2,6,1,3,5,7};
+      \node[color=avlfib,font=\large\bfseries] at (0,-4.3) {3 steps};
     \end{scope}
 
     \begin{scope}[xshift=3.6cm,yshift=0.3cm]
@@ -96,8 +96,10 @@
       }
       \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
         \draw[draw=avlalert,line width=0.8pt] (\a) -- (\b);
-      \node[color=avlmuted,font=\small] at (1.0,-4.0) {inserted 1,2,3,4,5,6,7};
-      \node[color=avlalert,font=\large\bfseries] at (1.0,-4.7) {7 steps};
+      % y chosen so both captions land on the same baseline as the left tree's,
+      % which sits 0.3cm lower because this scope is shifted up by that much
+      \node[color=avlmuted,font=\small] at (1.0,-3.9) {inserted 1,2,3,4,5,6,7};
+      \node[color=avlalert,font=\large\bfseries] at (1.0,-4.6) {7 steps};
     \end{scope}
   \end{tikzpicture}
   \end{center}
