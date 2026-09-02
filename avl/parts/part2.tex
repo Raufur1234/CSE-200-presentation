@@ -46,10 +46,11 @@
     % ---------------- after: 20 came up, 30 came down -----------------
     \only<4->{
       % ghosts first, so the live tree is drawn on top of them
-      % 10's ghost is left out: it would sit on the order strip, and the two
-      % nodes that swapped roles are the ones worth tracking anyway.
+      % 10 rose too, but from overlay 5 the order strip claims that space, so
+      % its ghost lives on the "where they were" beat only.
       \ghostnode{1.9}{0.8}{30}  \ghostpath{1.9,0.45}{1.9,-0.15}
       \ghostnode{0}{-0.5}{20}   \ghostpath{0,-0.15}{0,0.45}
+      \only<4>{\ghostnode{-1.9}{-1.8}{10} \ghostpath{-1.9,-1.45}{-1.9,-0.85}}
       \draw[avlgoldedge,line width=1.1pt] (-1.9,-0.5) -- (0,0.8) -- (1.9,-0.5);
       \node[avlkeygold]  at (0,0.8)     {20};
       \node[avlkey]      at (-1.9,-0.5) {10};
@@ -131,26 +132,30 @@
 %  Cell shapes are written once here: the four cases are just the same three
 %  nodes in four arrangements, and the doubles turn into the singles after
 %  their first rotation, which is the point the frame is making.
-\newcommand{\cellchainL}[3]{%   leans left -- the LL shape
-  \draw[avledge,line width=0.6pt] (0,0) -- (-0.55,-0.60) -- (-1.10,-1.20);
-  \node[gred] at (0,0) {#1}; \node[gkey] at (-0.55,-0.60) {#2};
-  \node[ggold] at (-1.10,-1.20) {#3};}
-\newcommand{\cellchainR}[3]{%   leans right -- the RR shape
-  \draw[avledge,line width=0.6pt] (0,0) -- (0.55,-0.60) -- (1.10,-1.20);
-  \node[gred] at (0,0) {#1}; \node[gkey] at (0.55,-0.60) {#2};
-  \node[ggold] at (1.10,-1.20) {#3};}
-\newcommand{\cellbentL}[3]{%    left then right -- the LR shape
-  \draw[avledge,line width=0.6pt] (0,0) -- (-0.55,-0.60) -- (0,-1.20);
-  \node[gred] at (0,0) {#1}; \node[gkey] at (-0.55,-0.60) {#2};
-  \node[ggold] at (0,-1.20) {#3};}
-\newcommand{\cellbentR}[3]{%    right then left -- the RL shape
-  \draw[avledge,line width=0.6pt] (0,0) -- (0.55,-0.60) -- (0,-1.20);
-  \node[gred] at (0,0) {#1}; \node[gkey] at (0.55,-0.60) {#2};
-  \node[ggold] at (0,-1.20) {#3};}
-\newcommand{\cellflat}[3]{%     the balanced result every case lands on
+% Cell lattice, the same rule as the simulation frame: 10 always sits at
+% x = -0.55, 20 at x = 0, 30 at x = +0.55, in every shape. A click therefore
+% moves a node straight up or straight down and never sideways, and the bent
+% shapes visibly straighten into the chains directly above them.
+\newcommand{\cellchainL}{%   leans left -- the LL shape
+  \draw[avledge,line width=0.6pt] (0.55,0) -- (0,-0.60) -- (-0.55,-1.20);
+  \node[gred] at (0.55,0) {30}; \node[gkey] at (0,-0.60) {20};
+  \node[ggold] at (-0.55,-1.20) {10};}
+\newcommand{\cellchainR}{%   leans right -- the RR shape
+  \draw[avledge,line width=0.6pt] (-0.55,0) -- (0,-0.60) -- (0.55,-1.20);
+  \node[gred] at (-0.55,0) {10}; \node[gkey] at (0,-0.60) {20};
+  \node[ggold] at (0.55,-1.20) {30};}
+\newcommand{\cellbentL}{%    left then right -- the LR shape
+  \draw[avledge,line width=0.6pt] (0.55,0) -- (-0.55,-0.60) -- (0,-1.20);
+  \node[gred] at (0.55,0) {30}; \node[gkey] at (-0.55,-0.60) {10};
+  \node[ggold] at (0,-1.20) {20};}
+\newcommand{\cellbentR}{%    right then left -- the RL shape
+  \draw[avledge,line width=0.6pt] (-0.55,0) -- (0.55,-0.60) -- (0,-1.20);
+  \node[gred] at (-0.55,0) {10}; \node[gkey] at (0.55,-0.60) {30};
+  \node[ggold] at (0,-1.20) {20};}
+\newcommand{\cellflat}{%     the balanced result every case lands on
   \draw[avlgoldedge,line width=0.9pt] (-0.55,-0.60) -- (0,0) -- (0.55,-0.60);
-  \node[ggold] at (0,0) {#1}; \node[ggold] at (-0.55,-0.60) {#2};
-  \node[ggold] at (0.55,-0.60) {#3};}
+  \node[ggold] at (0,0) {20}; \node[ggold] at (-0.55,-0.60) {10};
+  \node[ggold] at (0.55,-0.60) {30};}
 
 \begin{frame}[label=p2]{\only<1>{Four cases, four pivots}%
     \only<2>{LR and RL just become LL and RR}%
@@ -174,16 +179,16 @@
     % ================= LL : 30, 20, 10 =================
     \begin{scope}[shift={(-3.8,0)}]
       % arc first, so the nodes always sit on top of it
-      \only<1>{\rotright{0,0}{0.80}\cellchainL{30}{20}{10}\pivotpin{0,0}}
-      \only<2->{\cellflat{20}{10}{30}}
+      \only<1>{\rotright{0.55,0}{0.80}\cellchainL\pivotpin{0.55,0}}
+      \only<2->{\cellflat}
       \node[tag] at (0,-1.62) {\textbf{\color{avlink}LL}\ \ 30, 20, 10\\
         \fib{one right rotation at 30}};
     \end{scope}
 
     % ================= RR : 10, 20, 30 =================
     \begin{scope}[shift={(3.8,0)}]
-      \only<1>{\rotleft{0,0}{0.80}\cellchainR{10}{20}{30}\pivotpin{0,0}}
-      \only<2->{\cellflat{20}{10}{30}}
+      \only<1>{\rotleft{-0.55,0}{0.80}\cellchainR\pivotpin{-0.55,0}}
+      \only<2->{\cellflat}
       \node[tag] at (0,-1.62) {\textbf{\color{avlink}RR}\ \ 10, 20, 30\\
         \fib{one left rotation at 10}};
     \end{scope}
@@ -193,9 +198,9 @@
     % second turn is then literally the LL cell sitting above it.
     \begin{scope}[shift={(-3.8,-3.25)}]
       \only<1>{\rotleft{-0.55,-0.60}{0.62}
-               \cellbentL{30}{10}{20}\pivotpin{-0.55,-0.60}}
-      \only<2>{\rotright{0,0}{0.80}\cellchainL{30}{20}{10}\pivotpin{0,0}}
-      \only<3->{\cellflat{20}{10}{30}}
+               \cellbentL\pivotpin{-0.55,-0.60}}
+      \only<2>{\rotright{0.55,0}{0.80}\cellchainL\pivotpin{0.55,0}}
+      \only<3->{\cellflat}
       \node[tag] at (0,-1.62) {\textbf{\color{avlink}LR}\ \ 30, 10, 20\\
         \fib{left at 10, then right at 30}};
     \end{scope}
@@ -203,9 +208,9 @@
     % ================= RL : 10, 30, 20 =================
     \begin{scope}[shift={(3.8,-3.25)}]
       \only<1>{\rotright{0.55,-0.60}{0.62}
-               \cellbentR{10}{30}{20}\pivotpin{0.55,-0.60}}
-      \only<2>{\rotleft{0,0}{0.80}\cellchainR{10}{20}{30}\pivotpin{0,0}}
-      \only<3->{\cellflat{20}{10}{30}}
+               \cellbentR\pivotpin{0.55,-0.60}}
+      \only<2>{\rotleft{-0.55,0}{0.80}\cellchainR\pivotpin{-0.55,0}}
+      \only<3->{\cellflat}
       \node[tag] at (0,-1.62) {\textbf{\color{avlink}RL}\ \ 10, 30, 20\\
         \fib{right at 30, then left at 10}};
     \end{scope}
@@ -290,155 +295,207 @@
   its original height, so nothing above notices.}
 \end{frame}
 % ------------------------------------------------------------------ INSERTION SIM
-%  Same two-beat cadence as the board and as the grid slide:
-%    ODD  beat -- the broken tree, pin in the named node, arc showing the turn
-%    EVEN beat -- the result, with a ghost where the node that rose used to be
+%  Insert 1..7 in order, one key per beat. The uneventful inserts are KEPT: the
+%  whole point is that 1 and 2 land with nothing to fix, and only when 3 arrives
+%  does the tree break. Rotations keep the deck's two-beat cadence:
+%    break beat  -- the broken tree, pin in the named node, arc showing the turn
+%    result beat -- the answer, with ghosts at the slots that were vacated
 %  Never both at once: the audience must see the turn BEFORE the answer.
+%
+%  LAYOUT RULE -- the reason this frame is smooth. A key's COLUMN is its position
+%  in sorted order and never changes; only its ROW (depth) does. Every node
+%  therefore travels straight up or straight down between overlays: the pinned
+%  node is pushed down one row and the node that rises takes the slot it left.
+%  The named coordinates (n<key>-<depth>) make sideways drift unwritable.
+%
+%  Ghost rule on every result beat, three ghosts exactly: the node that came
+%  DOWN, the node that went UP, and the newly-arrived key. All three threads are
+%  vertical, so each dotted arrow is a pure rise or fall.
 \begin{frame}[label=p2]{Simulation: insert 1, 2, 3, 4, 5, 6, 7}
-  \vspace{0.1em}
+  \vspace{-0.5em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.88,every node/.style={transform shape}]
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.style={transform shape}]
+    \setpinscale{1}
+    % column = sorted position, row = depth
+    \foreach \kk in {1,...,7}{\foreach \dd in {0,1,2,3}{
+      \coordinate (n\kk-\dd) at ({(\kk-4)*1.25},{-\dd*1.20});}}
+
     % Fixed extent: without it the picture is sized by whichever overlay is on
-    % screen, and the tree jumps sideways between clicks. Top clearance is set
-    % by the tallest arc (step 3, radius 1.45 about a node at y = 0).
-    \path (-3.5,-4.1) rectangle (3.5,1.65);
+    % screen and the tree jumps between clicks. Symmetric about x = 0 so key 4 --
+    % the eventual root -- sits dead centre and the finished tree is centred.
+    % The left edge is set by the widest arc (radius 1.45 about key 1 at -3.75).
+    \path (-5.4,-4.05) rectangle (5.4,1.60);
 
-    % ================= step 1: 1, 2, 3 -> RR at 1 =================
+    % ================= 1 arrives =================
     \only<1>{
-      \draw[avledge] (-1.0,0) -- (0,-1.15) -- (1.0,-2.3);
-      \node[avlkeyalert] at (-1.0,0)  {1};
-      \node[avlkey]      at (0,-1.15) {2};
-      \node[avlkeygold]  at (1.0,-2.3){3};
-      \pivotpin{-1.0,0}
-      \rotleft{-1.0,0}{1.5}
-      \node[color=avlfib,font=\small,anchor=west] at (0.75,1.05) {rotate left at 1};
-    }
-    \only<2>{
-      \ghostnode{-1.0}{0}{1}    \ghostpath{-1.0,-0.35}{-1.1,-0.85}
-      \ghostnode{1.0}{-2.3}{3}  \ghostpath{1.0,-1.95}{1.1,-1.55}
-      \draw[avlgoldedge,line width=1.1pt] (-1.1,-1.2) -- (0,0) -- (1.1,-1.2);
-      \node[avlkeygold] at (0,0)      {2};
-      \node[avlkey]     at (-1.1,-1.2){1};
-      \node[avlkey]     at (1.1,-1.2) {3};
-      \node[color=avlmuted,font=\small] at (0,-3.3) {balanced again --- height 1};
+      \node[avlkeygold] at (n1-0) {1};
     }
 
-    % ================= step 2: 4, 5 -> RR at 3 =================
+    % ================= 2 arrives -- still legal =================
+    \only<2>{
+      \draw[avledge] (n1-0) -- (n2-1);
+      \node[avlkey]     at (n1-0) {1};
+      \node[avlkeygold] at (n2-1) {2};
+    }
+
+    % ================= 3 arrives -- RR at 1 =================
     \only<3>{
-      \draw[avledge] (-1.0,0) -- (-2.2,-1.2);
-      \draw[avledge] (-1.0,0) -- (0.2,-1.2) -- (1.2,-2.4) -- (2.2,-3.6);
-      \node[avlkey]      at (-1.0,0)   {2};
-      \node[avlkey]      at (-2.2,-1.2){1};
-      \node[avlkeyalert] at (0.2,-1.2) {3};
-      \node[avlkey]      at (1.2,-2.4) {4};
-      \node[avlkeygold]  at (2.2,-3.6) {5};
-      \pivotpin{0.2,-1.2}
-      \rotleft{0.2,-1.2}{1.4}
-      \node[color=avlfib,font=\small,anchor=west] at (1.75,0.15) {rotate left at 3};
+      \draw[avledge] (n1-0) -- (n2-1) -- (n3-2);
+      \node[avlkeyalert] at (n1-0) {1};
+      \node[avlkey]      at (n2-1) {2};
+      \node[avlkeygold]  at (n3-2) {3};
+      \pivotpin{n1-0}
+      \rotleft{n1-0}{1.45}
+      \node[color=avlfib,font=\small,anchor=west] at (-2.30,1.05) {rotate left at 1};
     }
     \only<4>{
-      \ghostnode{0.2}{-1.2}{3}  \ghostpath{0.2,-1.55}{0.2,-2.05}
-      \ghostnode{2.2}{-3.6}{5}  \ghostpath{2.2,-3.25}{2.1,-2.75}
-      \draw[avledge] (-0.9,0) -- (-2.1,-1.2);
-      \draw[avlgoldedge,line width=1.1pt] (-0.9,0) -- (1.1,-1.2);
-      \draw[avlgoldedge,line width=1.1pt] (0.2,-2.4) -- (1.1,-1.2) -- (2.1,-2.4);
-      \node[avlkey]     at (-0.9,0)   {2};
-      \node[avlkey]     at (-2.1,-1.2){1};
-      \node[avlkeygold] at (1.1,-1.2) {4};
-      \node[avlkey]     at (0.2,-2.4) {3};
-      \node[avlkey]     at (2.1,-2.4) {5};
+      \ghostnode{-3.75}{0}{1}     \ghostpath{-3.75,-0.35}{-3.75,-0.85}
+      \ghostnode{-2.50}{-1.20}{2} \ghostpath{-2.50,-0.85}{-2.50,-0.35}
+      \ghostnode{-1.25}{-2.40}{3} \ghostpath{-1.25,-2.05}{-1.25,-1.55}
+      \draw[avlgoldedge,line width=1.1pt] (n1-1) -- (n2-0) -- (n3-1);
+      \node[avlkeygold] at (n2-0) {2};
+      \node[avlkey]     at (n1-1) {1};
+      \node[avlkey]     at (n3-1) {3};
     }
 
-    % ================= step 3: 6 -> RR at the root =================
+    % ================= 4 arrives -- nothing breaks =================
     \only<5>{
-      \draw[avledge] (-1.4,0) -- (-2.6,-1.2);
-      \draw[avledge] (-1.4,0) -- (0.6,-1.2);
-      \draw[avledge] (-0.4,-2.4) -- (0.6,-1.2) -- (1.6,-2.4) -- (2.6,-3.6);
-      \node[avlkeyalert] at (-1.4,0)   {2};
-      \node[avlkey]      at (-2.6,-1.2){1};
-      \node[avlkey]      at (0.6,-1.2) {4};
-      \node[avlkey]      at (-0.4,-2.4){3};
-      \node[avlkey]      at (1.6,-2.4) {5};
-      \node[avlkeygold]  at (2.6,-3.6) {6};
-      \pivotpin{-1.4,0}
-      \rotleft{-1.4,0}{1.45}
-      \node[color=avlfib,font=\small,anchor=west] at (0.30,1.00) {rotate left at 2};
-    }
-    \only<6>{
-      \ghostnode{-1.4}{0}{2}   \ghostpath{-1.4,-0.35}{-1.6,-0.85}
-      \ghostnode{2.6}{-3.6}{6} \ghostpath{2.6,-3.25}{2.4,-2.75}
-      \draw[avlgoldedge,line width=1.1pt] (-1.6,-1.2) -- (0,0) -- (1.6,-1.2);
-      \draw[avledge] (-2.4,-2.4) -- (-1.6,-1.2) -- (-0.8,-2.4);
-      \draw[avledge] (1.6,-1.2) -- (2.4,-2.4);
-      \node[avlkeygold] at (0,0)      {4};
-      \node[avlkey]     at (-1.6,-1.2){2};
-      \node[avlkey]     at (1.6,-1.2) {5};
-      \node[avlkey]     at (-2.4,-2.4){1};
-      \node[avlkey]     at (-0.8,-2.4){3};
-      \node[avlkey]     at (2.4,-2.4) {6};
+      \draw[avledge] (n1-1) -- (n2-0) -- (n3-1) -- (n4-2);
+      \node[avlkey]     at (n2-0) {2};
+      \node[avlkey]     at (n1-1) {1};
+      \node[avlkey]     at (n3-1) {3};
+      \node[avlkeygold] at (n4-2) {4};
     }
 
-    % ================= step 4: 7 -> RR at 5 =================
-    % Only the new key gets a ghost here: 5's old spot is where 6 lands, so a
-    % second ghost would sit on top of a live node.
-    \only<7>{
-      \draw[avlgoldedge,line width=1.1pt] (-1.6,-1.2) -- (0,0) -- (1.2,-1.2);
-      \draw[avledge] (-2.4,-2.4) -- (-1.6,-1.2) -- (-0.8,-2.4);
-      \draw[avledge] (1.2,-1.2) -- (2.1,-2.4) -- (3.0,-3.6);
-      \node[avlkeygold]  at (0,0)      {4};
-      \node[avlkey]      at (-1.6,-1.2){2};
-      \node[avlkeyalert] at (1.2,-1.2) {5};
-      \node[avlkey]      at (-2.4,-2.4){1};
-      \node[avlkey]      at (-0.8,-2.4){3};
-      \node[avlkey]      at (2.1,-2.4) {6};
-      \node[avlkeygold]  at (3.0,-3.6) {7};
-      \pivotpin{1.2,-1.2}
-      \rotleft{1.2,-1.2}{1.4}
-      \node[color=avlfib,font=\small,anchor=west] at (2.75,0.15) {rotate left at 5};
+    % ================= 5 arrives -- RR at 3 =================
+    \only<6>{
+      \draw[avledge] (n1-1) -- (n2-0) -- (n3-1) -- (n4-2) -- (n5-3);
+      \node[avlkey]      at (n2-0) {2};
+      \node[avlkey]      at (n1-1) {1};
+      \node[avlkeyalert] at (n3-1) {3};
+      \node[avlkey]      at (n4-2) {4};
+      \node[avlkeygold]  at (n5-3) {5};
+      \pivotpin{n3-1}
+      \rotleft{n3-1}{1.25}
+      \node[color=avlfib,font=\small,anchor=west] at (0.20,-0.15) {rotate left at 3};
     }
-    \only<8->{
-      \only<8>{\ghostnode{3.0}{-3.6}{7} \ghostpath{3.0,-3.25}{2.5,-2.75}}
-      \draw[avlgoldedge,line width=1.1pt] (-1.6,-1.2) -- (0,0) -- (1.6,-1.2);
-      \foreach \a/\b in {{-2.4,-2.4}/{-1.6,-1.2}, {-0.8,-2.4}/{-1.6,-1.2},
-                         {0.8,-2.4}/{1.6,-1.2},   {2.4,-2.4}/{1.6,-1.2}}
+    \only<7>{
+      \ghostnode{-1.25}{-1.20}{3} \ghostpath{-1.25,-1.55}{-1.25,-2.05}
+      \ghostnode{0}{-2.40}{4}     \ghostpath{0,-2.05}{0,-1.55}
+      \ghostnode{1.25}{-3.60}{5}  \ghostpath{1.25,-3.25}{1.25,-2.75}
+      \draw[avledge] (n1-1) -- (n2-0);
+      \draw[avlgoldedge,line width=1.1pt] (n2-0) -- (n4-1);
+      \draw[avlgoldedge,line width=1.1pt] (n3-2) -- (n4-1) -- (n5-2);
+      \node[avlkey]     at (n2-0) {2};
+      \node[avlkey]     at (n1-1) {1};
+      \node[avlkeygold] at (n4-1) {4};
+      \node[avlkey]     at (n3-2) {3};
+      \node[avlkey]     at (n5-2) {5};
+    }
+
+    % ================= 6 arrives -- the ROOT breaks =================
+    \only<8>{
+      \draw[avledge] (n1-1) -- (n2-0) -- (n4-1);
+      \draw[avledge] (n3-2) -- (n4-1) -- (n5-2) -- (n6-3);
+      \node[avlkeyalert] at (n2-0) {2};
+      \node[avlkey]      at (n1-1) {1};
+      \node[avlkey]      at (n4-1) {4};
+      \node[avlkey]      at (n3-2) {3};
+      \node[avlkey]      at (n5-2) {5};
+      \node[avlkeygold]  at (n6-3) {6};
+      \pivotpin{n2-0}
+      \rotleft{n2-0}{1.45}
+      \node[color=avlfib,font=\small,anchor=west] at (-1.05,1.05) {rotate left at 2};
+    }
+    \only<9>{
+      \ghostnode{-2.50}{0}{2}    \ghostpath{-2.50,-0.35}{-2.50,-0.85}
+      \ghostnode{0}{-1.20}{4}    \ghostpath{0,-0.85}{0,-0.35}
+      \ghostnode{2.50}{-3.60}{6} \ghostpath{2.50,-3.25}{2.50,-2.75}
+      \draw[avlgoldedge,line width=1.1pt] (n2-1) -- (n4-0) -- (n5-1);
+      \draw[avledge] (n1-2) -- (n2-1) -- (n3-2);
+      \draw[avledge] (n5-1) -- (n6-2);
+      \node[avlkeygold] at (n4-0) {4};
+      \node[avlkey]     at (n2-1) {2};
+      \node[avlkey]     at (n5-1) {5};
+      \node[avlkey]     at (n1-2) {1};
+      \node[avlkey]     at (n3-2) {3};
+      \node[avlkey]     at (n6-2) {6};
+    }
+
+    % ================= 7 arrives -- RR at 5, the last one =================
+    \only<10>{
+      \draw[avledge] (n2-1) -- (n4-0) -- (n5-1);
+      \draw[avledge] (n1-2) -- (n2-1) -- (n3-2);
+      \draw[avledge] (n5-1) -- (n6-2) -- (n7-3);
+      \node[avlkey]      at (n4-0) {4};
+      \node[avlkey]      at (n2-1) {2};
+      \node[avlkeyalert] at (n5-1) {5};
+      \node[avlkey]      at (n1-2) {1};
+      \node[avlkey]      at (n3-2) {3};
+      \node[avlkey]      at (n6-2) {6};
+      \node[avlkeygold]  at (n7-3) {7};
+      \pivotpin{n5-1}
+      \rotleft{n5-1}{1.25}
+      \node[color=avlfib,font=\small,anchor=west] at (2.55,-0.15) {rotate left at 5};
+    }
+    % The payoff beat doubles as the result beat, so it keeps its three ghosts
+    % and then goes gold everywhere -- the whole tree, not just the new links.
+    \only<11>{
+      \ghostnode{1.25}{-1.20}{5} \ghostpath{1.25,-1.55}{1.25,-2.05}
+      \ghostnode{2.50}{-2.40}{6} \ghostpath{2.50,-2.05}{2.50,-1.55}
+      \ghostnode{3.75}{-3.60}{7} \ghostpath{3.75,-3.25}{3.75,-2.75}
+      \draw[avlgoldedge,line width=1.1pt] (n2-1) -- (n4-0) -- (n6-1);
+      \foreach \a/\b in {n1-2/n2-1, n3-2/n2-1, n5-2/n6-1, n7-2/n6-1}
         \draw[avlgoldedge,line width=1.1pt] (\a) -- (\b);
-      \node[avlkeygold] at (0,0)      {4};
-      \node[avlkeygold] at (-1.6,-1.2){2};
-      \node[avlkeygold] at (1.6,-1.2) {6};
-      \node[avlkeygold] at (-2.4,-2.4){1};
-      \node[avlkeygold] at (-0.8,-2.4){3};
-      \node[avlkeygold] at (0.8,-2.4) {5};
-      \node[avlkeygold] at (2.4,-2.4) {7};
+      \node[avlkeygold] at (n4-0) {4};
+      \node[avlkeygold] at (n2-1) {2};
+      \node[avlkeygold] at (n6-1) {6};
+      \node[avlkeygold] at (n1-2) {1};
+      \node[avlkeygold] at (n3-2) {3};
+      \node[avlkeygold] at (n5-2) {5};
+      \node[avlkeygold] at (n7-2) {7};
     }
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.5em}
+  \vspace{-1.65em}
   \begin{center}
-    % The balance factor lives here rather than on the picture: four labels
-    % squeezed between four different arcs never all fit.
-    \only<1>{{\color{avlmuted}\viol{$\mathrm{bf}(1) = -2$}, an RR chain.
-              Pin 1 and turn left.}}
-    \only<2>{{\color{avlmuted} Balanced again --- height 1.
-              \fib{One rotation.}}}
-    \only<3>{{\color{avlmuted}4 and 5 arrive.
-              \viol{$\mathrm{bf}(3) = -2$}, RR again. Pin 3 and turn left.}}
-    \only<4>{{\color{avlmuted} Balanced again. \fib{Two rotations.}}}
-    \only<5>{{\color{avlmuted}6 arrives and the \emph{root} breaks:
+  % Fixed-height box: the balance factor lives here rather than on the picture
+  % (four labels squeezed between four arcs never all fit), and the fixed height
+  % stops the two-line payoff caption from shifting the one-line captions.
+  \begin{minipage}[t][3.4em][t]{0.86\textwidth}
+  \centering
+    \only<1>{{\color{avlmuted}1 arrives. A single node --- there is nothing to
+              break yet.}}
+    \only<2>{{\color{avlmuted}2 goes right. $\mathrm{bf}(1) = -1$ --- still
+              legal, nothing to do.}}
+    \only<3>{{\color{avlmuted}3 goes right again. \viol{$\mathrm{bf}(1) = -2$},
+              an RR chain. Pin 1 and turn left.}}
+    \only<4>{{\color{avlmuted}Balanced again --- height 1. \fib{One rotation.}}}
+    \only<5>{{\color{avlmuted}4 hangs off 3. Every balance factor is still
+              $\pm 1$ --- nothing breaks.}}
+    \only<6>{{\color{avlmuted}5 arrives. \viol{$\mathrm{bf}(3) = -2$}, RR again.
+              Pin 3 and turn left.}}
+    \only<7>{{\color{avlmuted}Balanced again. \fib{Two rotations.}}}
+    \only<8>{{\color{avlmuted}6 arrives and the \emph{root} breaks:
               \viol{$\mathrm{bf}(2) = -2$}. Pin 2 and turn left.}}
-    \only<6>{{\color{avlmuted} Balanced again. \fib{Three rotations.}}}
-    \only<7>{{\color{avlmuted}7 arrives. \viol{$\mathrm{bf}(5) = -2$}.
+    \only<9>{{\color{avlmuted}Balanced again. \fib{Three rotations.}}}
+    \only<10>{{\color{avlmuted}7 arrives. \viol{$\mathrm{bf}(5) = -2$}.
               Pin 5 and turn left --- the last one.}}
-    \only<8->{{\large\color{avlfib}\bfseries Perfect tree. Height 2.}\\[0.35em]
+    \only<11>{{\large\color{avlfib}\bfseries Perfect tree. Height 2.}\\[0.35em]
               {\color{avlmuted}The same input that made a 7-step list
                now answers in 3 steps. \fib{4 rotations total.}}}
+  \end{minipage}
   \end{center}
 
-  \note{Two clicks per rotation, every time. First click: the tree is broken,
-  the pin goes into the node that is broken, and the arc says which way it
-  turns. Second click: the result, with a faded circle where the new key used
-  to sit so they can see it come up a level. Four rotations across seven
-  inserts, and the tree that used to be a list is perfectly balanced.}
+  \note{One click per key, so they see the quiet inserts too. 1 lands, nothing
+  breaks. 2 lands, still legal. 3 lands and now the root is broken --- pin it,
+  turn left, and on the next click 1 has been pushed straight down while 2 has
+  come straight up into its place. Say that out loud: nobody slides sideways,
+  they only change level. 4 arrives and nothing breaks --- that beat matters,
+  it is why we do not rotate every time. Then 5 breaks it at 3, 6 breaks it at
+  the root, 7 breaks it at 5. Four rotations across seven inserts, and the tree
+  that used to be a list is perfectly balanced.}
 \end{frame}
 
 % ------------------------------------------------------------------ time complexity
