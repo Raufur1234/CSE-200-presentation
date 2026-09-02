@@ -75,14 +75,13 @@
 
   \vspace{-0.3em}
   \begin{center}
-    \only<1>{{\color{avlmuted}30, 20, 10 arrive. Every key goes left, so
-              \viol{30 is broken}.}}
-    \only<2>{{\color{avlmuted}Push the pin into \fib{30} --- the node the
+    \only<1>{{\color{avlmuted}Left skewed tree.  
+              \viol{30 has a balance factor of +2}.}}
+    \only<2>{{\color{avlmuted}Push the pin into \fib{30}, the node the
               rotation is \emph{named} at.}}
     \only<3>{{\color{avlmuted}Now turn the whole tree \fib{clockwise} about
               that pin. That is a \fib{right rotation}.}}
-    \only<4>{{\color{avlmuted}20 came up, 30 came down on the right ---
-              dashed circles show where they were.}}
+    \only<4>{{\color{avlmuted}20 became the parent, 30 came down on the right.\fib{This Tree is now Balanced}}}
     \only<5->{{\color{avlmuted}Nothing moved sideways, so the order is safe,
               and only \fib{three links} changed.}}
   \end{center}
@@ -113,10 +112,9 @@
 
   \vspace{1.6em}
   \begin{center}
-    {\color{avlmuted}The case is named after the two steps the new node took
+    {\color{avlmuted}Each case is named after the two steps the new node took
      down from the broken node.}\\[0.7em]
-    {\large\color{avlfib}A double rotation is not new --- it is two single
-     rotations, one after the other.}\\[0.7em]
+    {\large\color{avlfib}A zig-zag imbalance requires two successive rotations. First on the child then on the broken node}\\[0.7em]
   \end{center}
 
   \note{Four shapes, four fixes. The two straight ones need a single rotation.
