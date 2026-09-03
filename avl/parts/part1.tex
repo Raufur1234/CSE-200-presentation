@@ -13,42 +13,86 @@
 
 % ------------------------------------------------------------------ title
 \begin{frame}[plain,label=p1]
+  % 5 px three-hue top bar: the three parts, in the order they arrive.
+  % Anchored to the page itself, not to the text block, so it bleeds edge to
+  % edge; the same picture carries the progress mark at the opposite corner.
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[avlpone]   (current page.north west) rectangle
+                     ($(current page.north west)+(0.3333\paperwidth,-5\pxl)$);
+    \fill[avlptwo]   ($(current page.north west)+(0.3333\paperwidth,0)$) rectangle
+                     ($(current page.north west)+(0.6666\paperwidth,-5\pxl)$);
+    \fill[avlpthree] ($(current page.north west)+(0.6666\paperwidth,0)$) rectangle
+                     ($(current page.north east)+(0,-5\pxl)$);
+    \fill[avlpone]   (current page.south west) rectangle
+                     ($(current page.south west)+
+                       (\dimexpr\paperwidth/\inserttotalframenumber\relax,3\pxl)$);
+    % Course mark sits on the footer line the content frames use: same 84 px
+    % gutter, clear of the progress tick in the corner below it.
+    \node[anchor=west,inner sep=0pt]
+      at ($(current page.south west)+(84\pxl,42\pxl)$) {\eyebrow{CSE 200}};
+  \end{tikzpicture}
   \vfill
   \begin{center}
-    {\Huge\bfseries\color{avlink}AVL Trees}\\[0.8em]
-    {\large\color{avlfib}Trees which balance all on their own}\\[2.6em]
-    {\color{avlmuted}\small
-      Sheikh Raufur Rahim \quad$\cdot$\quad Md Ishtiak Moin
-      \quad$\cdot$\quad Abhijnan Podder}\\[0.7em]
-    {\color{avlmuted}\scriptsize CSE 200}
+    {\avlfDeck\wxbold\color{avlink}AVL Trees}\\[18\pxl]
+    {\avlfLead\wmed\color{avlfib}Trees which balance all on their own}\\[34\pxl]
+    % Fibonacci glyph, flanked by hairlines: the thread, planted before a word
+    % of it is spoken. leafSep 13 px, levSep 16 px, per the spec.
+    \begin{tikzpicture}[x=1\pxl,y=1\pxl,
+        avldot/.style={circle,draw=avlfib!62!avlground,
+                       fill=avlfib!62!avlground,inner sep=0pt,minimum size=6.4\pxl},
+        avledge/.style={draw=avlfib!42!avlground,line width=1.4\pxl}]
+      \setavlscale{13}{16}
+      \resetavl
+      \drawfib{7}{0}{-46}
+      \draw[avlrule,line width=1\pxl] (-243,-46) -- (-155,-46);
+      \draw[avlrule,line width=1\pxl] ( 155,-46) -- ( 243,-46);
+    \end{tikzpicture}\\[30\pxl]
+    % Three equal-width columns, so the roll centres under its own name and the
+    % blocks space evenly however long the names are. The roll takes the
+    % eyebrow treatment -- faint and tracked -- so it reads as a subtitle to the
+    % name rather than competing with it.
+    \begin{minipage}[b]{0.30\textwidth}\centering
+      {\avlfBody\wmed\color{avlbody}Md Ishtiak Moin}\\[7\pxl]
+      {\avlfEyebrow\wsemi\color{avlfaint}\avltrack{2305011}}
+    \end{minipage}%
+    \begin{minipage}[b]{0.30\textwidth}\centering
+      {\avlfBody\wmed\color{avlbody}Sheikh Raufur Rahim}\\[7\pxl]
+      {\avlfEyebrow\wsemi\color{avlfaint}\avltrack{2305010}}
+    \end{minipage}%
+    \begin{minipage}[b]{0.30\textwidth}\centering
+      {\avlfBody\wmed\color{avlbody}Abhijnan Podder}\\[7\pxl]
+      {\avlfEyebrow\wsemi\color{avlfaint}\avltrack{2305007}}
+    \end{minipage}
   \end{center}
   \vfill
 \end{frame}
 
-\avldivider{1}{The problem}{When can a search tree stop being fast?}{avlpone}
+\avldivider{1}{The problem}{When can a search tree stop being fast?}{avlpone}{avlponeA}{avlponeB}{avlponeC}
 
-\setavlpart{Part 1 --- The problem}{avlpone}
+\setavlpart{1}{Part 1 --- The problem}{avlpone}
 
 % ------------------------------------------------------------------ what is a BST
 \begin{frame}[label=p1]{First, the rule every BST follows}
   \vspace{0.3em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
-      \vspace{0.8em}
-      {\large\bfseries\color{avlink}Binary Search Tree}\\[0.9em]
-      For \emph{every} node:
+      {\avlfLead\wbold\color{avlink}Binary Search Tree}\\[0.7em]
+      {\color{avlbody}For \emph{every} node:}
       \begin{itemize}
-        \setlength{\itemsep}{0.55em}
+        \setlength{\itemsep}{0.35em}
         \item everything on the \fib{left} is \fib{smaller}
         \item everything on the \fib{right} is \fib{bigger}
       \end{itemize}
-      \vspace{1.1em}
-      {\color{avlmuted}To search, you compare once and drop one whole side.}\\[0.6em]
-      Cost of a search $=$ \fib{the height of the tree}.
+      \vspace{0.6em}
+      {\avlfSec\color{avlmuted}To search, you compare once and drop one whole
+       side.}\\[0.9em]
+      \begin{avlpanel*}
+        Cost of a search $=$ \fib{the height of the tree}.
+      \end{avlpanel*}
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.95]
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.98]
         \node[avlkey] (n4) at (0,0)       {4};
         \node[avlkey] (n2) at (-1.35,-1.2) {2};
         \node[avlkey] (n6) at (1.35,-1.2)  {6};
@@ -58,9 +102,12 @@
         \node[avlkey] (n7) at (2.1,-2.4)   {7};
         \foreach \a/\b in {n4/n2,n4/n6,n2/n1,n2/n3,n6/n5,n6/n7}
           \draw[avledge] (\a) -- (\b);
-        \node[color=avlmuted,font=\scriptsize] at (-2.0,-0.55) {smaller};
-        \node[color=avlmuted,font=\scriptsize] at (2.0,-0.55) {bigger};
-        \node[color=avlfib,font=\small] at (0,-3.2) {height $=2$};
+        \node[avlannot] at (-2.05,-0.50) {smaller};
+        \node[avlannot] at ( 2.05,-0.50) {bigger};
+        % annotation row under the figure: hairline, key, hairline
+        \draw[avlrule,line width=1\pxl] (-2.55,-3.15) -- (-0.95,-3.15);
+        \draw[avlrule,line width=1\pxl] ( 0.95,-3.15) -- ( 2.55,-3.15);
+        \node[color=avlfib,font=\avlfSec\wmed] at (0,-3.15) {height $=2$};
       \end{tikzpicture}
       \end{center}
     \end{column}
@@ -73,44 +120,50 @@
 
 % ------------------------------------------------------------------ the problem
 \begin{frame}[label=p1]{The problem: sorted input destroys it}
-  \vspace{0.2em}
+  % Captions sit ABOVE each tree, a hairline divides the two halves, and the
+  % colour carries the verdict: green is the legal-and-short tree, red the list.
+  % The green nodes on the left are the search path to 7 -- three of them.
+  \vspace{0.1em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
-    \begin{scope}[xshift=-3.7cm]
-      \node[avlkey] (b4) at (0,0)       {4};
-      \node[avlkey] (b2) at (-1.25,-1.1) {2};
-      \node[avlkey] (b6) at (1.25,-1.1)  {6};
-      \node[avlkey] (b1) at (-1.95,-2.2) {1};
-      \node[avlkey] (b3) at (-0.55,-2.2) {3};
-      \node[avlkey] (b5) at (0.55,-2.2)  {5};
-      \node[avlkeygold] (b7) at (1.95,-2.2) {7};
-      \foreach \a/\b in {b4/b2,b4/b6,b2/b1,b2/b3,b6/b5,b6/b7}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.94,every node/.style={transform shape}]
+    \figdivider{0}{0.95}{-3.75}
+
+    \begin{scope}[xshift=-3.55cm,yshift=-0.55cm]
+      \node[avlannot,text=avlmuted] at (0,1.35) {inserted 4, 2, 6, 1, 3, 5, 7};
+      \node[avlkeyok]  (b4) at (0,0)        {4};
+      \node[avlkey]    (b2) at (-1.25,-1.0) {2};
+      \node[avlkeyok]  (b6) at (1.25,-1.0)  {6};
+      \node[avlkey]    (b1) at (-1.95,-2.0) {1};
+      \node[avlkey]    (b3) at (-0.55,-2.0) {3};
+      \node[avlkey]    (b5) at (0.55,-2.0)  {5};
+      \node[avlkeyok]  (b7) at (1.95,-2.0)  {7};
+      \foreach \a/\b in {b4/b2,b2/b1,b2/b3,b6/b5}
         \draw[avledge] (\a) -- (\b);
-      \draw[avlgoldarrow,line width=1.1pt] (b4) -- (b6);
-      \draw[avlgoldarrow,line width=1.1pt] (b6) -- (b7);
-      \node[color=avlmuted,font=\small] at (0,-3.6) {inserted 4,2,6,1,3,5,7};
-      \node[color=avlfib,font=\large\bfseries] at (0,-4.3) {3 steps};
+      \foreach \a/\b in {b4/b6,b6/b7}
+        \draw[draw=avlbalance,line width=1.6\pxl] (\a) -- (\b);
+      % both verdicts share one baseline: this scope sits 0.40 lower than the
+      % right-hand one, so its label y is 0.40 higher to compensate
+      \node[color=avlbalance,font=\avlfStmt\wbold] at (0,-2.95) {3 steps};
     \end{scope}
 
-    \begin{scope}[xshift=3.6cm,yshift=0.3cm]
+    \begin{scope}[xshift=3.55cm,yshift=-0.15cm]
+      \node[avlannot,text=avlmuted] at (0,0.95) {inserted 1, 2, 3, 4, 5, 6, 7};
+      % step must exceed the disc diameter or the edges vanish inside the nodes
       \foreach \k [count=\i from 0] in {1,2,3,4,5,6,7} {
-        \pgfmathsetmacro{\yy}{-\i*0.55}
-        \pgfmathsetmacro{\xx}{\i*0.32}
-        \node[avlkeyalert,minimum size=5.4mm,font=\scriptsize] (c\k) at (\xx,\yy) {\k};
+        \pgfmathsetmacro{\yy}{-\i*0.44}
+        \pgfmathsetmacro{\xx}{-1.20+\i*0.40}
+        \node[avlkeyalert,minimum size=34\pxl,font=\avlfAnnot] (c\k) at (\xx,\yy) {\k};
       }
       \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
-        \draw[draw=avlalert,line width=0.8pt] (\a) -- (\b);
-      % y chosen so both captions land on the same baseline as the left tree's,
-      % which sits 0.3cm lower because this scope is shifted up by that much
-      \node[color=avlmuted,font=\small] at (1.0,-3.9) {inserted 1,2,3,4,5,6,7};
-      \node[color=avlalert,font=\large\bfseries] at (1.0,-4.6) {7 steps};
+        \draw[draw=avlalert,line width=1.6\pxl] (\a) -- (\b);
+      \node[color=avlalert,font=\avlfStmt\wbold] at (0,-3.35) {7 steps};
     \end{scope}
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.2em}
+  \vspace{0.4em}
   \begin{center}
-    {\color{avlmuted}Same seven keys. Both are legal BSTs.
+    {\avlfSec\color{avlmuted}Same seven keys. Both are legal BSTs.
      The right one is now a \viol{list}, not a tree.}
   \end{center}
 
@@ -123,24 +176,32 @@
 \begin{frame}[label=p1]{The idea: check the height at every node}
   \vspace{0.6em}
   \begin{center}
-    {\large\color{avlmuted}The tree got tall because one side grew and
+    {\avlfLead\color{avlbody}The tree got tall because one side grew and
      \emph{nobody checked}.}
   \end{center}
-  \vspace{1.3em}
+  \vspace{0.6em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
-    \node[avlkeygold,minimum size=8mm] (r) at (0,0) {};
-    \node[avltri,minimum size=2.4cm] (L) at (-1.7,-1.6) {};
-    \node[avltri,minimum size=2.4cm] (R) at (1.7,-1.6) {};
-    \draw[avlgoldedge] (r) -- (L);
-    \draw[avlgoldedge] (r) -- (R);
-    \node[color=avlmuted,font=\small] at (-1.7,-1.75) {height $a$};
-    \node[color=avlmuted,font=\small] at (1.7,-1.75) {height $b$};
-    \draw[decorate,decoration={brace,amplitude=5pt,mirror},avlmuted]
-      (-2.9,-2.8) -- (2.9,-2.8);
-    \node[color=avlfib,font=\large] at (0,-3.6)
-      {rule: $a$ and $b$ may differ by at most \textbf{1}};
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.style={transform shape}]
+    \node[avlkey,minimum size=42\pxl] (r) at (0,0) {};
+    % subtrees as ember triangles, each carrying its height as the symbol
+    \node[avltri,minimum size=2.3cm,font=\avlfLead,text=avlfib] (L) at (-1.75,-1.55) {$a$};
+    \node[avltri,minimum size=1.75cm,font=\avlfLead,text=avlfib] (R) at (1.75,-1.25) {$b$};
+    \draw[avledge] (r) -- (L);
+    \draw[avledge] (r) -- (R);
+    % height rulers, one per side, measured from the root row to each base
+    \heightbrace{-3.05}{-0.30}{-2.32}{height $a$}{avlfaint}
+    \heightbrace{3.05}{-0.30}{-1.75}{height $b$}{avlfaint}
+    \draw[avlrule,line width=1\pxl,dotted] (-3.05,-0.30) -- (3.05,-0.30);
+    \draw[avlrule,line width=1\pxl] (-2.55,-2.72) -- (2.55,-2.72);
+    \node[avlannot,anchor=north] at (0,-2.80) {one node, two subtree heights};
   \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.5em}
+  \begin{center}
+    \begin{avlpanel}[0.62\textwidth]
+      The rule: $a$ and $b$ may differ by at most \fib{\textbf{1}}
+    \end{avlpanel}
   \end{center}
 
   \note{The fix is simple to state. At every node, look at the height of the
@@ -153,39 +214,39 @@
   \vspace{0.2em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.55\textwidth}
-      \vspace{0.5em}
-      {\color{avlmuted}\small Adelson-Velsky and Landis, 1962.
-       The first self-balancing search tree.}\\[1.0em]
+      \vspace{0.1em}
+      {\avlfSec\color{avlmuted}Adelson-Velsky and Landis, 1962. The first
+       self-balancing search tree.}\\[0.8em]
 
-      {\bfseries\color{avlink}Balance factor} of a node:
-      \[ \mathrm{bf} \;=\; (\text{height of left}) - (\text{height of right}) \]
-      \vspace{-0.4em}
+      \begin{avlpanel*}
+        Balance factor of a node\\[6\pxl]
+        $\mathrm{bf} = (\text{height of left}) - (\text{height of right})$
+      \end{avlpanel*}\\[0.7em]
 
-      {\bfseries\color{avlink}An AVL tree is:}
+      {\strong{An AVL tree is:}}
       \begin{itemize}
-        \setlength{\itemsep}{0.45em}
+        \setlength{\itemsep}{0.25em}
         \item a binary search tree, \emph{and}
-        \item every node has \fib{$\mathrm{bf} = -1$, $0$, or $+1$}
+        \item every node has \ok{$\mathrm{bf} = -1$, $0$, or $+1$}
       \end{itemize}
-      \vspace{0.8em}
-      {\color{avlmuted}If any node reaches $+2$ or $-2$, the tree is
+      \vspace{0.4em}
+      {\avlfSec\color{avlmuted}If any node reaches $+2$ or $-2$, the tree is
        \viol{broken} and must be fixed.}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92]
-        \node[avlkey] (a) at (0,0) {};
-        \node[color=avlfib,font=\small,anchor=west] at (0.42,0.12) {$+1$};
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92,every node/.style={transform shape}]
+        \node[avlkeyok] (a) at (0,0) {};
+        \node[avlannotok,anchor=west] at (0.40,0.16) {$+1$};
         \node[avlkey] (b) at (-1.15,-1.25) {};
-        \node[color=avlfib,font=\small,anchor=east] at (-1.55,-1.1) {$0$};
+        \node[avlannotok,anchor=east] at (-1.52,-1.06) {$0$};
         \node[avlkey] (c) at (1.15,-1.25) {};
-        \node[color=avlfib,font=\small,anchor=west] at (1.55,-1.1) {$0$};
+        \node[avlannotok,anchor=west] at (1.52,-1.06) {$0$};
         \node[avlkey] (d) at (-1.9,-2.5) {};
         \node[avlkey] (e) at (-0.4,-2.5) {};
         \foreach \p/\q in {a/b,a/c,b/d,b/e} \draw[avledge] (\p) -- (\q);
-        \node[color=avlmuted,font=\scriptsize] at (0,-3.35)
-          {left height 2, right height 1};
-        \node[color=avlfib,font=\small] at (0,-4.0) {legal AVL tree};
+        \node[avlannot] at (0,-3.30) {left height 2, right height 1};
+        \node[color=avlbalance,font=\avlfSec] at (0,-3.85) {legal AVL tree};
       \end{tikzpicture}
       \end{center}
     \end{column}
@@ -199,45 +260,47 @@
 
 % ------------------------------------------------------------------ how it solves it
 \begin{frame}[label=p1]{How AVL fixes the bad case}
-  \vspace{0.3em}
+  \vspace{-0.2em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.86,every node/.style={transform shape}]
     \begin{scope}[xshift=-3.6cm,yshift=0.4cm]
       \foreach \k [count=\i from 0] in {1,2,3,4,5,6,7} {
         \pgfmathsetmacro{\yy}{-\i*0.55}
         \pgfmathsetmacro{\xx}{\i*0.30}
-        \node[avlkeyalert,minimum size=5.0mm,font=\tiny] (c\k) at (\xx,\yy) {\k};
+        \node[avlkeyalert,minimum size=36\pxl,font=\avlfAnnot] (c\k) at (\xx,\yy) {\k};
       }
       \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
-        \draw[draw=avlalert,line width=0.8pt] (\a) -- (\b);
-      \node[color=avlmuted,font=\small] at (0.9,-4.2) {plain BST};
-      \node[color=avlalert,font=\small\bfseries] at (0.9,-4.9) {height 6};
+        \draw[draw=avlalert,line width=1.6\pxl] (\a) -- (\b);
+      \node[avlannot,text=avlmuted] at (0.9,-4.2) {plain BST};
+      \node[color=avlalert,font=\avlfLead\wbold] at (0.9,-4.85) {height 6};
     \end{scope}
 
-    \draw[avlgoldarrow,line width=1.4pt] (-0.9,-1.6) -- (0.5,-1.6);
-    \node[color=avlfib,font=\scriptsize,above=1pt] at (-0.2,-1.55) {same input};
+    % neutral arrow: the transformation is not part of the Fibonacci thread
+    \draw[avlarrow] (-0.9,-1.6) -- (0.5,-1.6);
+    \node[avlannot,above=2pt] at (-0.2,-1.55) {same input};
 
     \begin{scope}[xshift=3.4cm,yshift=-0.6cm]
-      \node[avlkeygold] (a4) at (0,0)       {4};
-      \node[avlkeygold] (a2) at (-1.3,-1.15) {2};
-      \node[avlkeygold] (a6) at (1.3,-1.15)  {6};
-      \node[avlkeygold] (a1) at (-2.0,-2.3)  {1};
-      \node[avlkeygold] (a3) at (-0.6,-2.3)  {3};
-      \node[avlkeygold] (a5) at (0.6,-2.3)   {5};
-      \node[avlkeygold] (a7) at (2.0,-2.3)   {7};
+      \node[avlkeyok] (a4) at (0,0)        {4};
+      \node[avlkeyok] (a2) at (-1.3,-1.15) {2};
+      \node[avlkeyok] (a6) at (1.3,-1.15)  {6};
+      \node[avlkeyok] (a1) at (-2.0,-2.3)  {1};
+      \node[avlkeyok] (a3) at (-0.6,-2.3)  {3};
+      \node[avlkeyok] (a5) at (0.6,-2.3)   {5};
+      \node[avlkeyok] (a7) at (2.0,-2.3)   {7};
       \foreach \a/\b in {a4/a2,a4/a6,a2/a1,a2/a3,a6/a5,a6/a7}
-        \draw[avlgoldedge] (\a) -- (\b);
-      \node[color=avlmuted,font=\small] at (0,-3.2) {AVL tree};
-      \node[color=avlfib,font=\small\bfseries] at (0,-3.9) {height 2};
+        \draw[draw=avlbalance!70,line width=1.6\pxl] (\a) -- (\b);
+      \node[avlannot,text=avlmuted] at (0,-3.2) {AVL tree};
+      \node[color=avlbalance,font=\avlfLead\wbold] at (0,-3.85) {height 2};
     \end{scope}
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.3em}
+  \vspace{0.7em}
   \begin{center}
-    {\color{avlmuted}Insert 1,2,3,4,5,6,7 into both.
-     AVL rebalances as it goes. \fib{7 steps become 3.}}
+    {\avlfSec\color{avlmuted}Insert 1, 2, 3, 4, 5, 6, 7 into both.
+     AVL rebalances as it goes. \ok{7 steps become 3.}}
   \end{center}
+  \vspace{0.5em}
 
   \note{Same sorted input that destroyed the plain tree. The AVL tree fixes
   itself while you insert, and stays short. We will see exactly how it does
@@ -246,23 +309,34 @@
 
 % ------------------------------------------------------------------ height property
 \begin{frame}[label=p1]{The height property}
-  \vspace{1.0em}
+  \vspace{0.1em}
   \begin{center}
-    {\color{avlmuted}\large A local rule at every node gives a
-     \emph{global} guarantee:}\\[1.2em]
-    {\Huge\color{avlfib}$h \;<\; 1.44 \, \log_2 n$}\\[1.6em]
+    {\avlfLead\color{avlbody}A local rule at every node gives a
+     \emph{global} guarantee:}\\[0.9em]
+    \begin{avlpanel}[0.50\textwidth]
+      {\avlfDivider\color{avlfib}$h < 1.44 \, \log_2 n$}
+    \end{avlpanel}
   \end{center}
-  \begin{center}
-  \setlength{\tabcolsep}{14pt}
-  \renewcommand{\arraystretch}{1.3}
-  \begin{tabular}{lcc}
-    \color{avlmuted}nodes & \color{avlmuted}perfect tree & \color{avlmuted}worst AVL tree\\\hline
-    $1\,000\,000$ & 20 steps & \fib{28 steps}\\
-  \end{tabular}
-  \end{center}
+
+  % Three columns, a single hairline under the header, no rules between rows
+  % and no fills: the payoff cell is carried by colour alone.
   \vspace{0.9em}
   \begin{center}
-    {\color{avlmuted}Never a list. Always close to the best possible.}
+  \setlength{\tabcolsep}{20\pxl}
+  \renewcommand{\arraystretch}{1.45}
+  \setlength{\arrayrulewidth}{1\pxl}
+  \arrayrulecolor{avlrule}
+  {\avlfSec
+  \begin{tabular}{lcc}
+    \color{avlfaint}nodes & \color{avlfaint}perfect tree
+      & \color{avlfaint}worst AVL tree\\\hline
+    $1\,000\,000$ & 20 steps & \fib{\textbf{28 steps}}\\
+  \end{tabular}}
+  \end{center}
+
+  \vspace{0.7em}
+  \begin{center}
+    {\avlfSec\color{avlmuted}Never a list. Always close to the best possible.}
   \end{center}
 
   \note{This is the promise. No matter what order the data arrives in, the
@@ -276,18 +350,27 @@
 %  it is built from actual small trees on the next slide, so it arrives as
 %  something the audience has already watched happen four times.
 \begin{frame}[label=p1]{Proof: ask the question backwards}
-  \vspace{1.4em}
+  \vspace{0.9em}
   \begin{center}
-    {\color{avlmuted}\large Instead of ``how tall can it get?'', ask:}\\[0.9em]
-    {\LARGE\color{avlfib}\bfseries What is the \emph{smallest} AVL tree
-     of height $h$?}
+    {\avlfLead\color{avlmuted}Instead of ``how tall can it get?'', ask:}\\[0.8em]
+    % the pivot line: the turned question, with the turn itself in ink
+    {\avlfStmt\color{avlfib}\wbold What is the
+     {\color{avlink}\mdseries smallest} AVL tree of height $h$?}
   \end{center}
-  \vspace{1.8em}
+
+  \vspace{0.7em}
+  \centerline{{\color{avlrule}\rule[2\pxl]{70\pxl}{1\pxl}}\hskip10\pxl
+              {\color{avlfaint}\rule{4\pxl}{4\pxl}}\hskip10\pxl
+              {\color{avlrule}\rule[2\pxl]{70\pxl}{1\pxl}}}
+
+  \vspace{0.7em}
   \begin{center}
-    {\color{avlmuted}If even the emptiest legal tree of height $h$ needs a lot
-     of nodes,\\[0.35em]
-     then a tree with few nodes \emph{cannot} be tall.}\\[1.2em]
-    {\color{avlmuted}Write \fib{$N(h)$} for that smallest node count.}
+    {\avlfBody\color{avlbody}If even the emptiest legal tree of height $h$
+     needs a lot of nodes,\\[0.3em]
+     then a tree with few nodes \emph{cannot} be tall.}\\[0.9em]
+    \begin{avlpanel}[0.58\textwidth]
+      Write \fib{$N(h)$} for that smallest node count.
+    \end{avlpanel}
   \end{center}
 
   \note{Turn the question around. Instead of bounding the tallest tree, build
@@ -310,22 +393,30 @@
 %  Panel origins: -5.0, -2.9, 0.0, 3.8. Captions on a common baseline.
 %  NOTE: the style key must not be called "cap" -- that collides with TikZ's
 %  own line-cap key and the frame will not compile.
-\begin{frame}[label=p1]{Each smallest tree is the two before it, under one root}
-  \vspace{0.1em}
+% Title kept to a single line on purpose: a second line pushes the rule down
+% and steals the height the ladder and its panel need.
+\begin{frame}[label=p1]{Each tree is the two before it, under one root}
+  \vspace{-0.7em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,
+  % Vertical axis only (y=0.86cm), and no `transform shape`: the ladder loses
+  % height so the panel below gets air, while the horizontal pitch stays at
+  % 1 cm -- the T_k / N(h) captions are set at full size and would collide with
+  % each other if the columns closed up. Node discs shrink by their own key.
+  \begin{tikzpicture}[x=1cm,y=0.86cm,
       mini/.style   = {circle, draw=avlfib, fill=avlfib!12!avlground,
-                       inner sep=0pt, minimum size=4.6mm},
+                       line width=1.3\pxl, inner sep=0pt, minimum size=4.0mm},
       miniroot/.style={circle, draw=avlfib, fill=avlfib, inner sep=0pt,
-                       minimum size=4.6mm},
-      medge/.style  = {draw=avlfib!75, line width=0.5pt},
-      blk/.style    = {draw=avlmuted, dashed, line width=0.5pt,
+                       line width=1.3\pxl, minimum size=4.0mm},
+      medge/.style  = {avlminiedge},
+      blk/.style    = {draw=avlfaint, dashed, line width=1\pxl,
                        rounded corners=2pt, inner sep=2.2pt},
-      blab/.style   = {font=\scriptsize, text=avlmuted, inner sep=1pt},
-      treecap/.style= {font=\small, text=avlink, align=center,
+      blab/.style   = {avlannot},
+      treecap/.style= {font=\avlfSec, text=avlink, align=center,
                        minimum width=2cm, minimum height=8mm}]
     % fixed extent so nothing shifts between overlays
-    \path (-5.9,-4.30) rectangle (5.5,0.75);
+    % Extent trimmed to what the beats actually occupy (deepest caption sits at
+    % -3.85), so the panel below gets its room without shrinking the figure.
+    \path (-5.9,-3.95) rectangle (5.5,0.30);
 
     % ---------------- T_0 ----------------
     \begin{scope}[xshift=-5.0cm]
@@ -373,18 +464,25 @@
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.4em}
+  % The caption block reserves its own height, so no beat shifts the figure.
   \begin{center}
-    \only<1>{{\color{avlmuted}The smallest legal tree of height 0 is one node.}}
-    \only<2>{{\color{avlmuted}For height 1 you need a child --- and one child
-              is enough, because a gap of 1 is legal.}}
-    \only<3>{{\color{avlmuted}For height 2, one side must reach height 1.
-              The other is as \emph{small} as the rule allows: height 0.}}
-    \only<4>{{\color{avlmuted}And again: one side $T_2$, the other side $T_1$.
-              \fib{The pattern does not change.}}}
-    \only<5->{{\large\color{avlfib}$N(h) \;=\; N(h-1) \;+\; N(h-2) \;+\; 1$}\\[0.3em]
-              {\color{avlmuted}one root, plus the two smallest trees that fit
-               under it}}
+  \begin{minipage}[t][112\pxl][c]{0.86\textwidth}\centering
+    \only<1>{{\avlfSec\color{avlmuted}The smallest legal tree of height 0 is
+              one node.}}
+    \only<2>{{\avlfSec\color{avlmuted}For height 1 you need a child --- and one
+              child is enough, because a gap of 1 is legal.}}
+    \only<3>{{\avlfSec\color{avlmuted}For height 2, one side must reach
+              height 1. The other is as \emph{small} as the rule allows:
+              height 0.}}
+    \only<4>{{\avlfSec\color{avlmuted}And again: one side $T_2$, the other side
+              $T_1$. \fib{The pattern does not change.}}}
+    % the recurrence arrives in a panel -- it is the payoff, not a caption
+    \only<5->{\begin{avlpanel}[0.74\textwidth]
+                {\avlfTitle\color{avlfib}$N(h) = N(h-1) + N(h-2) + 1$}\\[8\pxl]
+                {\avlfEyebrow\color{avlmuted}one root, plus the two smallest
+                 trees that fit under it}
+              \end{avlpanel}}
+  \end{minipage}
   \end{center}
 
   \note{Click through them slowly. Height zero: one node. Height one: add a
@@ -396,35 +494,61 @@
 
 % ------------------------------------------------------- GOLDEN RATIO (algebra)
 \begin{frame}[label=p1]{Where the golden ratio comes from}
-  \vspace{0.3em}
+  % Beats 1-4 build the algebra top-down: a faint eyebrow announces each move,
+  % the maths follows in serif, and the line that matters turns ember. Beat 5
+  % clears the board for the payoff -- phi itself.
+  \only<1-4>{
+  \vspace{-0.8em}
   \begin{center}
-    {\color{avlmuted}The $+1$ is in the way --- so absorb it.}\\[0.7em]
-    $N(h) = N(h-1) + N(h-2) + 1$
+    {\avlfSec\color{avlmuted}The $+1$ is in the way --- so absorb it.}\\[0.6em]
+    {\avlfLead $N(h) = N(h-1) + N(h-2) + 1$}\\[0.6em]
+
+    \onslide<2->{%
+      \eyebrow{add 1 to both sides, and write $M(h) = N(h)+1$}\\[0.4em]
+      {\avlfBody $\big(N(h)+1\big) = \big(N(h{-}1)+1\big) + \big(N(h{-}2)+1\big)$}}
     \\[0.7em]
-    \onslide<2->{add 1 to both sides:\quad
-      $\underbrace{N(h)+1}_{M(h)} =
-       \underbrace{\big(N(h{-}1)+1\big)}_{M(h-1)} +
-       \underbrace{\big(N(h{-}2)+1\big)}_{M(h-2)}$}
-    \\[0.9em]
-    \onslide<3->{{\large\fib{$M(h) = M(h-1) + M(h-2)$}}\quad
-      {\color{avlmuted}--- Fibonacci exactly, no $+1$ left}}
+
+    \onslide<3->{%
+      {\avlfLead\color{avlfib}$M(h) = M(h-1) + M(h-2)$}\\[0.25em]
+      {\avlfEyebrow\color{avlmuted}Fibonacci exactly, no $+1$ left}}
   \end{center}
 
-  \vspace{0.35em}
   \onslide<4->{
+  \vspace{0.1em}
   \begin{center}
-    {\color{avlmuted}Look for solutions of the form $M(h) = x^h$:}\\[0.35em]
-    $x^h = x^{h-1} + x^{h-2}
-     \;\Longrightarrow\; x^2 = x + 1
-     \;\Longrightarrow\; x = \dfrac{1 \pm \sqrt5}{2}$
-  \end{center}}
+    {\color{avlrule}\rule{0.72\textwidth}{1\pxl}}\\[0.3em]
+    \eyebrow{look for solutions of the form $M(h) = x^h$}\\[0.25em]
+    {\avlfBody $x^h = x^{h-1} + x^{h-2}
+      \;\Longrightarrow\; x^2 = x + 1
+      \;\Longrightarrow\; x = (1 \pm \sqrt5)\,/\,2$}
+  \end{center}}}
 
-  \vspace{0.3em}
-  \onslide<5->{
+  % Beat 5 -- the phi payoff. A split panel: the glyph, a rule, the value.
+  \only<5>{
+  \vspace{0.1em}
   \begin{center}
-    {\color{avlmuted}The larger root dominates:}\quad
-    \fib{$\varphi = \tfrac{1+\sqrt5}{2} \approx 1.618$}\quad
-    {\color{avlmuted}so}\quad \fib{$N(h) \sim \varphi^{\,h}$}
+    \eyebrow{$x^2 = x+1$ has one root above 1, and it dominates}\\[1.0em]
+    % Laid out in tikz so the glyph, the rule and the two value lines all
+    % share one vertical centre -- baseline stacking put phi low in the box.
+    % The glyph and its value, filling the panel: phi set large and bold in
+    % ink, the number in ember so the two are told apart at a glance.
+    \begin{avlpanel}[0.38\textwidth]
+      \begin{tikzpicture}[baseline=(mid.base)]
+        \coordinate (mid) at (0,-0.08);
+        \node[anchor=east,inner sep=0pt] at (-0.30,0)
+          {\fontsize{50}{50}\selectfont\color{avlink}$\boldsymbol{\varphi}$};
+        \draw[avlrule,line width=1\pxl] (0,-0.46) -- (0,0.46);
+        \node[anchor=west,inner sep=0pt] at (0.30,0)
+          {\fontsize{26}{26}\selectfont\wbold\color{avlfib}1.618};
+      \end{tikzpicture}
+    \end{avlpanel}\\[0.9em]
+    {\avlfTitle\color{avlink}$N(h) \sim \varphi^{\,h}$}\\[0.9em]
+    \begin{minipage}{0.74\textwidth}\centering
+      {\avlfBody\color{avlbody}The smallest legal tree multiplies by
+       \fib{1.618 every level}. Nodes grow exponentially, so height can only
+       grow like a logarithm --- \fib{this is the whole reason 1.44 appears in
+       this talk.}}
+    \end{minipage}
   \end{center}}
 
   \note{The recurrence is almost Fibonacci but for the plus one. Adding one to
@@ -437,33 +561,39 @@
 
 % --------------------------------------------------------- the exact identity
 \begin{frame}[label=p1]{The exact count}
-  \vspace{1.1em}
+  % The identity is set bare, big and ember -- it needs no box; the panel at
+  % the foot of the frame is where the consequence lands.
+  \vspace{0.2em}
   \begin{center}
-    {\Huge\fib{$N(h) \;=\; F(h+3) \;-\; 1$}}
-  \end{center}
-  \vspace{1.0em}
-  \begin{center}
-    {\color{avlmuted}because $M(h) = N(h)+1$ is Fibonacci, starting at
+    {\avlfDivider\color{avlfib}$N(h) = F(h+3) - 1$}\\[0.7em]
+    {\avlfSec\color{avlmuted}because $M(h) = N(h)+1$ is Fibonacci, starting at
      $M(0) = 2 = F(3)$}
   \end{center}
-  \vspace{0.9em}
+
+  % No vertical rules, no zebra: a hairline under the header, avlrule2 between
+  % body rows, and the payoff column carries the ember tint.
+  \vspace{0.7em}
   \onslide<2->{
   \begin{center}
-  \setlength{\tabcolsep}{9pt}
-  \renewcommand{\arraystretch}{1.25}
-  {\small
-  \begin{tabular}{l|cccccccc}
-    {\color{avlmuted}$h$}      & 0 & 1 & 2 & 3 & 4 & 5 & 6 & \fib{\textbf{7}}\\\hline
-    {\color{avlmuted}$N(h)$}   & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
-    {\color{avlmuted}$F(h{+}3)$} & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{55}\\
+  \setlength{\tabcolsep}{10\pxl}
+  \renewcommand{\arraystretch}{1.35}
+  \setlength{\arrayrulewidth}{1\pxl}
+  {\avlfSec
+  \begin{tabular}{r|cccccccc}
+    \color{avlfaint}$h$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & \fib{\textbf{7}}\\
+    \color{avlfaint}$N(h)$ & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
+    \color{avlfaint}$F(h{+}3)$ & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{\textbf{55}}\\
   \end{tabular}}
   \end{center}}
 
-  \vspace{0.9em}
+  \vspace{0.8em}
   \onslide<3->{
   \begin{center}
-    {\color{avlmuted}and taking logs of $N(h)\sim\varphi^h$:}\quad
-    {\large\fib{$h \approx \dfrac{\log_2 n}{\log_2\varphi} = 1.44\,\log_2 n$}}
+    \begin{avlpanel}[0.58\textwidth]
+      \panellabel{taking logs of $N(h) \sim \varphi^h$}
+      {\avlfTitle\color{avlfib}$h \approx \log_2 n \,/\, \log_2\varphi
+        = 1.44 \log_2 n$}
+    \end{avlpanel}
   \end{center}}
 
   \note{One line. The plus-one substitution we just made IS the minus one here.
@@ -474,24 +604,30 @@
 
 % ------------------------------------------------------------------ THE PLANT
 \begin{frame}[label=p1]{Remember this number: 54}
-  \vspace{-0.2em}
+  \vspace{-0.4em}
   \begin{center}
+  % height-7 Fibonacci tree: leafSep 44 px, levSep 38 px (spec section 5)
   \begin{tikzpicture}[x=1cm,y=1cm,
-      avldot/.style={avlgolddot},
-      avledge/.style={avlgoldedge}]
-    \setavlscale{0.55}{0.60}
+      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
+                     minimum size=5.8\pxl},
+      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
+    \setavlscale{0.48}{0.37}
     \resetavl
     \drawfib{7}{0}{0}
   \end{tikzpicture}
   \end{center}
 
-  \vspace{-0.3em}
+  \vspace{0.1em}
   \begin{center}
-    {\large\color{avlink}This is the \fib{worst tree AVL allows} at height 7.}\\[0.5em]
-    {\color{avlmuted}It has the fewest nodes possible:
-     $N(7) = F(10) - 1 = 55 - 1 = $ \fib{\textbf{54}}}\\[0.7em]
-    {\color{avlpthree}\bfseries In Part 3 we will delete one leaf from this
-     exact tree --- and watch it come apart.}
+    {\avlfLead\color{avlink}This is the \fib{worst tree AVL allows} at
+     height 7.}\\[0.4em]
+    {\avlfSec\color{avlmuted}It has the fewest nodes possible:
+     $N(7) = F(10) - 1 = 55 - 1 =$ \fib{\textbf{54}}}\\[0.7em]
+    % the Part 3 plant, in Part 3's hue -- the only plum on a Part 1 slide
+    \begin{avlpanelh}[0.98\textwidth]{avlpthree}
+      {\color{avlpthree}In Part 3 we will delete one leaf from this exact tree
+       --- and watch it come apart.}
+    \end{avlpanelh}
   \end{center}
 
   \note{This is the emptiest legal AVL tree of height seven. Fibonacci predicts

@@ -1,6 +1,4 @@
-# Bare minimum repo: only the source needed to open and compile the deck
-# in a LaTeX editor. Everything else (build output, rendered previews,
-# verification scripts, tool config) is regenerated or is local-only.
+
 *
 !.gitignore
 

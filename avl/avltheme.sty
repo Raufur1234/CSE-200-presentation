@@ -1,151 +1,387 @@
 % ---------------------------------------------------------------------------
 %  avltheme -- original warm light Beamer theme for the AVL deck.
 %
+%  This file is the LaTeX side of the design spec in AvlDeck.dc.html.
+%  Canvas: 1280x720 px design == 16cm x 9cm beamer paper (aspectratio=169).
+%    1 px = 0.0125 cm  (\pxl)          1 px = 0.3543 pt  (font sizes)
+%  Read a value from the spec table, convert with those two factors, and it
+%  lands where the HTML puts it.
+%
 %  Colour semantics, enforced:
-%    ink    : body text
-%    muted  : structure, edges, de-emphasis
-%    fib    : burnt orange -- RESERVED for the Fibonacci / phi thread
-%    alert  : red -- invariant violations, |bf| = 2, the node that triggers
+%    ink     : headings inside body, strong text
+%    body    : body sentences
+%    muted   : secondary sentences
+%    faint   : figure annotations, page numbers, eyebrows
+%    fib     : burnt orange -- RESERVED for the Fibonacci / phi thread
+%    alert   : red -- |bf| = 2 and the node that triggers, only
+%    balance : green -- "legal / restored" (frees the ember for the thread)
 %
 %  Part identity: each part owns a hue that DEEPENS as the talk escalates
-%  (orange -> rose -> plum). It appears on that part's transition slide, its
-%  frame-title rule, and its footer, so the three parts stay distinct
-%  throughout -- not only at the seams.
-%
-%  Part 1 deliberately shares the Fibonacci orange: Part 1 is where the thread
-%  is planted. Parts 2 and 3 carry their own hue while the orange thread keeps
-%  reappearing inside them.
+%  (orange -> rose -> plum). It appears on that part's divider, its rail
+%  segment, its frame title, its title rule, its footer square and its
+%  progress line -- part identity on every slide, not only at the seams.
 % ---------------------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{avltheme}[2026/08/31 AVL deck theme -- warm light]
+\ProvidesPackage{avltheme}[2026/09/03 AVL deck theme -- warm light, spec-aligned]
 
 \RequirePackage{tikz}
 \RequirePackage{xcolor}
-% Montserrat: geometric, open letterforms, heavy bold available. Chosen for
-% legibility with a non-native-English audience and for title weight.
-% Math deliberately stays Computer Modern -- maths should look like maths.
+\RequirePackage{letterspace}   % \textls -- tracking on eyebrows and numerals
+\usetikzlibrary{shadings,calc}
+% Montserrat: geometric, open letterforms, full weight axis (thin..black).
+% Chosen for legibility with a non-native-English audience and for title
+% weight. Math deliberately stays Computer Modern -- maths should look like
+% maths.
 \RequirePackage[defaultfam,tabular,lining]{montserrat}
 
 \mode<presentation>
 
+% ============================================================ px conversion
+\newlength{\pxl}\setlength{\pxl}{0.0125cm}   % 720 px == 9 cm
+% Gutters are length registers, not macros: they get used with a coefficient
+% (2\avlgutter), and a macro would splice the digits instead of multiplying.
+\newlength{\avlgutter}\setlength{\avlgutter}{84\pxl}
+\newlength{\avltextgutter}\setlength{\avltextgutter}{96\pxl}
+% Half the side margin. The frametitle box begins at the text margin, so
+% centring "on the slide" means stepping back by exactly this much first --
+% \beamer@leftmargin is NOT a length register and silently mis-shifts.
+\newlength{\avlsidemargin}
+\AtBeginDocument{\setlength{\avlsidemargin}{\dimexpr(\paperwidth-\textwidth)/2\relax}}
+
 % ------------------------------------------------------------------ palette
 \definecolor{avlground}{HTML}{FDF7F0}   % warm cream ground
-\definecolor{avlpanel} {HTML}{F6EADC}   % raised panel
-\definecolor{avlink}   {HTML}{2B211A}   % warm near-black text
-\definecolor{avlmuted} {HTML}{6E5D4F}   % warm taupe: edges, secondary
+\definecolor{avlgroundhi}{HTML}{FEFBF7} % ground warm-up, centre
+\definecolor{avlgroundlo}{HTML}{F6E9DA} % ground warm-up, edge
+\definecolor{avlpanel} {HTML}{F6EADC}   % raised panel (legacy alias)
+\definecolor{avlink}   {HTML}{2B211A}   % warm near-black: headings, strong
+\definecolor{avlbody}  {HTML}{4A392E}   % body sentences
+\definecolor{avlmuted} {HTML}{6E5D4F}   % secondary sentences
+\definecolor{avlfaint} {HTML}{A2907F}   % annotations, page numbers, eyebrows
 \definecolor{avlrule}  {HTML}{DCC9B4}   % hairlines
+\definecolor{avlrule2} {HTML}{EADCC9}   % inactive rail, inner table rules
 \definecolor{avlfib}   {HTML}{C2610A}   % burnt orange -- THE thread
 \definecolor{avlalert} {HTML}{D62828}   % violation / trigger
+\definecolor{avlbalance}{HTML}{2F6F5E}  % legal / restored
+\definecolor{avlghost} {HTML}{E4807F}   % deleted node, later beats
 
 % part hues, deepening across the talk
 \definecolor{avlpone}  {HTML}{C2610A}   % Part 1 -- orange (plants the thread)
 \definecolor{avlptwo}  {HTML}{A8324F}   % Part 2 -- deep rose
 \definecolor{avlpthree}{HTML}{6E3560}   % Part 3 -- plum
 
+% divider / closing shading stops (157 degrees, three stops)
+\definecolor{avlponeA}{HTML}{D67C25}\definecolor{avlponeB}{HTML}{A44F06}\definecolor{avlponeC}{HTML}{833E05}
+\definecolor{avlptwoA}{HTML}{C04A67}\definecolor{avlptwoB}{HTML}{A8324F}\definecolor{avlptwoC}{HTML}{85273E}
+\definecolor{avlpthreeA}{HTML}{8A4478}\definecolor{avlpthreeB}{HTML}{6E3560}\definecolor{avlpthreeC}{HTML}{552948}
+
+% ============================================================== type scale
+% px at 1280x720 -> pt via x0.3543. Sentence case everywhere; emphasis is
+% weight + colour, never italic (except maths).
+% Weight ladder, shifted one step heavier than the nominal design weights:
+% the body reads at medium rather than regular, and everything that was
+% already emphasised gains a step to keep the contrast.
+\renewcommand{\mddefault}{medium}
+\renewcommand{\bfdefault}{extrabold}
+\newcommand{\wmed}{\fontseries{semibold}\selectfont}
+\newcommand{\wsemi}{\fontseries{bold}\selectfont}
+\newcommand{\wbold}{\fontseries{extrabold}\selectfont}
+\newcommand{\wxbold}{\fontseries{black}\selectfont}
+
+\newcommand{\avlfDeck}    {\fontsize{25.2}{27.7}\selectfont}  % 71 px / 800
+\newcommand{\avlfDivider} {\fontsize{20.9}{23.4}\selectfont}  % 59 px / 700
+\newcommand{\avlfStmt}    {\fontsize{17.4}{23.4}\selectfont}  % 49 px / 500-700
+\newcommand{\avlfTitle}   {\fontsize{14.5}{17.1}\selectfont}  % 41 px / 700
+\newcommand{\avlfHuge}    {\fontsize{34.0}{36.0}\selectfont}  % 96 px
+\newcommand{\avlfBig}     {\fontsize{25.2}{27.7}\selectfont}  % 71 px
+\newcommand{\avlfLead}    {\fontsize{12.1}{16.3}\selectfont}  % 34 px
+\newcommand{\avlfBody}    {\fontsize{9.9}{14.4}\selectfont}   % 28 px
+\newcommand{\avlfSec}     {\fontsize{8.9}{12.8}\selectfont}   % 25 px
+\newcommand{\avlfEyebrow} {\fontsize{7.8}{9.4}\selectfont}    % 22 px
+\newcommand{\avlfAnnot}   {\fontsize{6.7}{8.0}\selectfont}    % 19 px, in tikz
+\newcommand{\avlfAnnotS}  {\fontsize{6.0}{7.2}\selectfont}    % 17 px, in tikz
+\newcommand{\avltrack}[1]{\textls[80]{#1}}                    % +0.08em
+
 % ------------------------------------------------------------------ base
-\setbeamercolor{background canvas}{bg=avlground}
-\setbeamercolor{normal text}{fg=avlink,bg=avlground}
+\setbeamercolor{normal text}{fg=avlbody,bg=avlground}
 \setbeamercolor{structure}{fg=avlfib}
 \setbeamercolor{alerted text}{fg=avlalert}
 \setbeamercolor{frametitle}{fg=avlink,bg=}
 \setbeamercolor{title}{fg=avlink}
-\setbeamercolor{itemize item}{fg=avlmuted}
+\setbeamercolor{itemize item}{fg=avlfaint}
 \setbeamercolor{math text}{fg=avlink}
 
 \usefonttheme{professionalfonts}
-\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
-\setbeamerfont{framesubtitle}{size=\small,series=\mdseries}
-
+\setbeamerfont{normal text}{size=\avlfBody}
+\AtBeginDocument{\avlfBody}
 \setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{itemize item}{\raisebox{0.12ex}{\tiny$\blacksquare$}}
+% Bullet: a small faint square, set on the text baseline (the deck's mark).
+\setbeamertemplate{itemize item}{\raisebox{0.20ex}{\color{avlfaint}\rule{5\pxl}{5\pxl}}}
 
-% ------------------------------------------------------- current part state
+% Emphasis is weight + colour, never italic (maths excepted). This one
+% redefinition retires every italic run in the body copy at once.
+\renewcommand{\emph}[1]{{\wsemi\color{avlink}#1}}
+
+% ------------------------------------------------- current part / mode state
 \newcommand{\avlpartname}{}
+\newcommand{\avlpartnum}{0}
 \colorlet{avlpartcolor}{avlmuted}
-% \setavlpart{<footer label>}{<colour name>}
-\newcommand{\setavlpart}[2]{%
-  \renewcommand{\avlpartname}{#1}%
-  \colorlet{avlpartcolor}{#2}%
+\newif\ifavldark \avldarkfalse    % dark = divider / closing: white chrome
+
+% \setavlpart{<n>}{<footer label>}{<colour name>}
+\newcommand{\setavlpart}[3]{%
+  \renewcommand{\avlpartnum}{#1}%
+  \renewcommand{\avlpartname}{#2}%
+  \colorlet{avlpartcolor}{#3}%
 }
 
-% --------------------------------------------------- frame title: assertion
-% Titles are claims, not labels, so they may run to two lines. The rule beneath
-% carries the current part's hue -- part identity on every slide.
-% Centred, heavy, in the part's colour, with a centred rule beneath.
+% ============================================================== background
+% Content ground carries a near-invisible warm-up, radial, centred on the top
+% edge. The least important effect in the deck -- if a viewer fights it, a
+% flat avlground is acceptable.
+\colorlet{avldkA}{avlponeA}\colorlet{avldkB}{avlponeB}\colorlet{avldkC}{avlponeC}
+\setbeamertemplate{background}{%
+  \ifavldark
+    \begin{tikzpicture}[overlay]
+      \shade[shading=axis,shading angle=157,
+             top color=avldkA,middle color=avldkB,bottom color=avldkC]
+        (0,0) rectangle (\paperwidth,-\paperheight);
+    \end{tikzpicture}%
+  \else
+    % Warm-up on the content ground: near-white at the top, deepening to cream
+    % at the bottom. It is an ELLIPSE, 120% of the width by 100% of the height,
+    % centred 12% above the top edge -- a circle makes the ramp depend on
+    % horizontal distance too, which flattens the sides to a single flat tone
+    % and is why this effect looked absent. Shift first, then stretch x about
+    % that centre, so the vertical ramp runs the full height of the slide.
+    \begin{tikzpicture}[overlay]
+      \fill[avlgroundlo] (0,0) rectangle (\paperwidth,-\paperheight);
+      \begin{scope}
+        \clip (0,0) rectangle (\paperwidth,-\paperheight);
+        \begin{scope}[shift={(0.5\paperwidth,0.12\paperheight)},xscale=2.133]
+          \shade[inner color=avlgroundhi,outer color=avlgroundlo]
+            (0,0) circle (\paperheight);
+        \end{scope}
+      \end{scope}
+    \end{tikzpicture}%
+  \fi
+}
+
+% ================================================================= chrome
+% 1. Part rail -- 3 segments, 92x4 px, 8 px gap, centred, 24 px from the top.
+\newcommand{\avlrailseg}[1]{%
+  \ifnum#1=\avlpartnum\relax
+    {\color{avlpartcolor}\rule[0.6\pxl]{92\pxl}{4\pxl}}%
+  \else
+    {\color{avlrule2}\rule[0.6\pxl]{92\pxl}{4\pxl}}%
+  \fi
+}
+\setbeamertemplate{headline}{%
+  \ifavldark\else
+    \vskip 16\pxl
+    \hbox to\paperwidth{\hfil\avlrailseg{1}\hskip8\pxl
+                             \avlrailseg{2}\hskip8\pxl
+                             \avlrailseg{3}\hfil}%
+  \fi
+}
+
+% 2-3. Frame title (centred, part hue, <=2 lines) + centred title rule group.
 \setbeamertemplate{frametitle}{%
-  \vspace{0.75em}%
-  \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.8cm,rightskip=0.8cm]{frametitle}%
-    \centering\usebeamerfont{frametitle}\color{avlpartcolor}\insertframetitle\par%
-    \ifx\insertframesubtitle\@empty\else
-      {\usebeamerfont{framesubtitle}\color{avlmuted}\insertframesubtitle\par}%
-    \fi
-    \vspace{0.40em}%
-    {\color{avlpartcolor}\rule{3.2em}{1.4pt}}%
-  \end{beamercolorbox}%
-  \vspace{0.35em}%
+  \ifavldark\else
+  \vskip 16\pxl
+  % the frametitle box starts at the text margin, not the paper edge -- pull
+  % back so "centred" means centred on the slide, not on the text block
+  \makebox[0pt][l]{\hspace*{-\avlsidemargin}\hbox to\paperwidth{\hfil
+    \begin{minipage}{\dimexpr\paperwidth-2\avltextgutter\relax}
+      \centering\avlfTitle\wbold\color{avlpartcolor}\insertframetitle\par
+      \ifx\insertframesubtitle\@empty\else
+        \vskip 6\pxl
+        {\avlfSec\normalfont\color{avlmuted}\insertframesubtitle\par}%
+      \fi
+    \end{minipage}\hfil}}%
+  \vskip 11\pxl
+  \makebox[0pt][l]{\hspace*{-\avlsidemargin}\hbox to\paperwidth{\hfil
+    {\color{avlrule}\rule[1.5\pxl]{22\pxl}{1\pxl}}\hskip8\pxl
+    {\color{avlpartcolor}\rule{64\pxl}{3\pxl}}\hskip8\pxl
+    {\color{avlrule}\rule[1.5\pxl]{22\pxl}{1\pxl}}\hfil}}%
+  \vskip 0pt
+  \fi
 }
 
-% ------------------------------------------------------------------ footline
+% 5-6. Footer (56 px, hairline top border, part square + label / frame no.)
+%      and progress line (3 px, flush bottom-left).
+\newcommand{\avlfno}{\ifnum\insertframenumber<10 0\fi\insertframenumber}
+\newcommand{\avlprogress}[1]{%
+  \hbox to\paperwidth{%
+    {\color{#1}\rule{\dimexpr\insertframenumber\paperwidth/\inserttotalframenumber\relax}{3\pxl}}\hfil}%
+}
 \setbeamertemplate{footline}{%
-  \hbox{%
-    \begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1.4ex,leftskip=0.9cm,rightskip=0.9cm]{}%
-      {\scriptsize\color{avlpartcolor}\avlpartname\hfill\color{avlmuted}\insertframenumber}%
-    \end{beamercolorbox}%
-  }%
+  \ifavldark
+    % Dark chrome (dividers, closing): the same footer in white, no rail.
+    \hbox to\paperwidth{\hskip\avlgutter
+      \vbox{%
+        {\color{white!28!avldkC}\hrule height 1\pxl}%
+        \vskip 20\pxl
+        \hbox to\dimexpr\paperwidth-2\avlgutter\relax{%
+          \avlfEyebrow\normalfont\color{white!70!avldkC}%
+          \avltrack{AVL Trees}\hfill\avltrack{\avlfno}}%
+        \vskip 20\pxl
+      }\hskip\avlgutter}%
+    \avlprogress{white!90!avldkC}%
+  \else
+    \hbox to\paperwidth{\hskip\avlgutter
+      \vbox{%
+        {\color{avlrule}\hrule height 1\pxl}%
+        \vskip 20\pxl
+        \hbox to\dimexpr\paperwidth-2\avlgutter\relax{%
+          \avlfEyebrow\normalfont
+          {\color{avlpartcolor}\rule{8\pxl}{8\pxl}}\hskip10\pxl
+          {\color{avlpartcolor}\avlpartname}%
+          \hfill
+          {\color{avlfaint}\avltrack{\avlfno}}}%
+        \vskip 20\pxl
+      }\hskip\avlgutter}%
+    \avlprogress{avlpartcolor}%
+  \fi
 }
 
 % ------------------------------------------------------------------ helpers
-\newcommand{\fib}[1]{{\color{avlfib}#1}}
-\newcommand{\viol}[1]{{\color{avlalert}#1}}
+\newcommand{\fib}[1]{{\color{avlfib}\wmed #1}}
+\newcommand{\viol}[1]{{\color{avlalert}\wmed #1}}
+\newcommand{\ok}[1]{{\color{avlbalance}\wmed #1}}
 \newcommand{\quietc}[1]{{\color{avlmuted}#1}}
+\newcommand{\strong}[1]{{\color{avlink}\wmed #1}}
+\newcommand{\dstrong}[1]{{\color{white}\wbold #1}}  % emphasis on a dark ground
+\newcommand{\eyebrow}[1]{{\avlfEyebrow\color{avlfaint}\avltrack{#1}}}
+
+% ------------------------------------------------------------- panel / callout
+% PANEL -- the deck's signature device. Nearly every content frame closes on
+% one: it is where the payoff line, the formula or the claim sits apart from
+% the argument. Design-system geometry, exactly:
+%   border 1.5 px, radius 6 px, padding 22 px vertical / 28 px horizontal,
+%   fill = hue!8!ground, border = hue!45!ground (never mixed against white).
+%
+%   \begin{avlpanel}[<width>]        centred content, ember (the default)
+%   \begin{avlpanel*}[<width>]       left-aligned content, ember
+%   \begin{avlpanelh}[<width>]{<hue>}  centred, in a named hue
+% An optional eyebrow line inside a panel is \panellabel{...}.
+\newsavebox{\avlpbox}
+\colorlet{avlpanelhue}{avlfib}
+\newcommand{\panellabel}[1]{%
+  {\avlfAnnot\wsemi\color{avlpanelhue}\avltrack{\MakeUppercase{#1}}}\\[6\pxl]}
+
+\newcommand{\avlpanelbox}{%
+  \begin{tikzpicture}[baseline]
+    \node[rounded corners=6pt,draw=avlpanelhue!45!avlground,line width=1.5\pxl,
+          fill=avlpanelhue!8!avlground,inner xsep=28\pxl,inner ysep=22\pxl]
+      {\usebox{\avlpbox}};
+  \end{tikzpicture}}
+
+\newenvironment{avlpanel}[1][\linewidth]
+  {\colorlet{avlpanelhue}{avlfib}%
+   \begin{lrbox}{\avlpbox}%
+   \begin{minipage}{\dimexpr#1-59\pxl\relax}\centering}
+  {\end{minipage}\end{lrbox}\avlpanelbox}
+
+\newenvironment{avlpanel*}[1][\linewidth]
+  {\colorlet{avlpanelhue}{avlfib}%
+   \begin{lrbox}{\avlpbox}%
+   \begin{minipage}{\dimexpr#1-59\pxl\relax}\raggedright}
+  {\end{minipage}\end{lrbox}\avlpanelbox}
+
+\newenvironment{avlpanelh}[2][\linewidth]
+  {\colorlet{avlpanelhue}{#2}%
+   \begin{lrbox}{\avlpbox}%
+   \begin{minipage}{\dimexpr#1-59\pxl\relax}\centering}
+  {\end{minipage}\end{lrbox}\avlpanelbox}
+
+% Callout: no box. A 3 px left bar in the part hue, 30 px text indent,
+% part-tint fill, 16 px vertical padding.
+% \avlcalloutcolor defaults to the current part hue; set it locally when the
+% callout speaks for a different part (the Part 3 plant inside Part 1).
+\colorlet{avlcalloutcolor}{avlmuted}
+\newsavebox{\avlcbox}
+\newenvironment{avlcallout}[1][\linewidth]
+  {\colorlet{avlcalloutcolor}{avlpartcolor}%
+   \begin{lrbox}{\avlcbox}%
+   \begin{minipage}{\dimexpr#1-46\pxl\relax}}
+  {\end{minipage}\end{lrbox}%
+   \begin{tikzpicture}[baseline]
+     \node[inner xsep=0pt,inner ysep=16\pxl,fill=avlcalloutcolor!6!avlground,
+           anchor=west] (avlc) at (0,0)
+       {\hspace{30\pxl}\usebox{\avlcbox}\hspace{16\pxl}};
+     \fill[avlcalloutcolor] (avlc.north west) rectangle
+       ($(avlc.south west)+(3\pxl,0)$);
+   \end{tikzpicture}}
+% same box, in an explicitly named hue
+\newenvironment{avlcalloutc}[2][\linewidth]
+  {\colorlet{avlcalloutcolor}{#2}%
+   \begin{lrbox}{\avlcbox}\begin{minipage}{\dimexpr#1-46\pxl\relax}}
+  {\end{minipage}\end{lrbox}%
+   \begin{tikzpicture}[baseline]
+     \node[inner xsep=0pt,inner ysep=16\pxl,fill=avlcalloutcolor!6!avlground,
+           anchor=west] (avlc) at (0,0)
+       {\hspace{30\pxl}\usebox{\avlcbox}\hspace{16\pxl}};
+     \fill[avlcalloutcolor] (avlc.north west) rectangle
+       ($(avlc.south west)+(3\pxl,0)$);
+   \end{tikzpicture}}
+
+% Stat row: label 28 px left, value 49 px bold right, 1 px avlrule2 between.
+\newcommand{\avlstatrow}[3][avlink]{%
+  \hbox to\linewidth{\avlfBody\color{avlmuted}#2\hfill
+    {\avlfStmt\wbold\color{#1}#3}}%
+  \vskip 8\pxl{\color{avlrule2}\hrule height 1\pxl}\vskip 8\pxl}
 
 % ------------------------------------------------------- part transition slide
-% Full-bleed saturated colour: a hard visual break between speakers, and the
-% three-part map shows the audience exactly where the handoff lands.
-% \avldivider{<n>}{<title>}{<question>}{<colour>}
-\newcommand{\avldivider}[4]{%
+% Full-bleed 157-degree shading: a hard visual break between speakers. The
+% three-chip part map shows the audience exactly where the handoff lands.
+% \avldivider{<n>}{<title>}{<question>}{<hue>}{<A>}{<B>}{<C>}
+\newcommand{\avldivider}[7]{%
   \begingroup
-  \setbeamercolor{background canvas}{bg=#4}%
-  \begin{frame}[plain]
-    \vfill
+  \avldarktrue
+  \colorlet{avldkA}{#5}\colorlet{avldkB}{#6}\colorlet{avldkC}{#7}%
+  \begin{frame}[t]
+    \vskip 20\pxl
     \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm]
+      \begin{tikzpicture}[x=1\pxl,y=1\pxl]
         \foreach \i/\lab in {1/{The problem}, 2/{Rotations}, 3/{Deletion}} {
-          \pgfmathsetmacro{\px}{(\i-2)*4.1}
+          \pgfmathsetmacro{\px}{(\i-2)*262}
           \ifnum\i=#1\relax
             \node[draw=white,fill=white,text=#4,rounded corners=2pt,
-                  minimum width=3.5cm,minimum height=0.9cm,
-                  font=\small\bfseries] at (\px,0) {\lab};
+                  minimum width=248\pxl,inner ysep=14\pxl,
+                  font=\avlfSec\wbold] at (\px,0) {\lab};
           \else
-            \node[draw=white!55,text=white!75,rounded corners=2pt,
-                  minimum width=3.5cm,minimum height=0.9cm,
-                  font=\small] at (\px,0) {\lab};
+            \node[draw=white!50!#6,line width=1.5\pxl,text=white!72!#6,
+                  rounded corners=2pt,minimum width=248\pxl,inner ysep=14\pxl,
+                  font=\avlfSec] at (\px,0) {\lab};
           \fi
         }
-        \draw[white!45] (-2.3,0) -- (-1.85,0);
-        \draw[white!45] ( 1.85,0) -- ( 2.3,0);
       \end{tikzpicture}
-
-      \vspace{1.9em}
-      {\color{white!80}\large Part #1}\\[0.55em]
-      {\color{white}\LARGE\bfseries #2}\\[1.0em]
-      {\color{white!85}\large #3}
+    \end{center}
+    \vfill
+    \begin{center}
+      {\avlfSec\color{white!78!#6}\avltrack{Part #1}}\\[22\pxl]
+      {\avlfDivider\wbold\color{white}#2}\\[22\pxl]
+      {\color{white!85!#6}\rule{88\pxl}{3\pxl}}\\[22\pxl]
+      {\avlfLead\color{white!88!#6}#3}
     \end{center}
     \vfill
   \end{frame}
   \endgroup
 }
 
-% Full-bleed statement slide, in a given colour (used for the closing line)
-\newcommand{\avlstatement}[2]{%
+% Full-bleed closing statement, plum shading, white rules above and below.
+\newcommand{\avlstatement}[4]{%
   \begingroup
-  \setbeamercolor{background canvas}{bg=#2}%
-  \begin{frame}[plain]
+  \avldarktrue
+  \colorlet{avldkA}{#2}\colorlet{avldkB}{#3}\colorlet{avldkC}{#4}%
+  \begin{frame}
     \vfill
     \begin{center}
-      \begin{minipage}{0.80\paperwidth}
-        \centering\color{white}\Large #1
-      \end{minipage}
+      {\color{white!70!#3}\rule{64\pxl}{3\pxl}}\\[34\pxl]
+      \begin{minipage}{\dimexpr\paperwidth-160\pxl\relax}
+        \centering\avlfStmt\wmed\color{white}#1
+      \end{minipage}\\[34\pxl]
+      {\color{white!70!#3}\rule{64\pxl}{3\pxl}}
     \end{center}
     \vfill
   \end{frame}
@@ -153,24 +389,67 @@
 }
 
 % ------------------------------------------------- tikz styles (light ground)
+% Figure vocabulary. A node's x is its position in sorted order and never
+% changes -- rotations move nodes vertically only. Ember means the Fibonacci
+% argument and nothing else.
 \tikzset{
-  avldot/.style     = {circle, draw=avlmuted, fill=avlmuted, inner sep=0pt, minimum size=3.2pt},
-  avlgolddot/.style = {circle, draw=avlfib,  fill=avlfib,  inner sep=0pt, minimum size=3.2pt},
-  avlreddot/.style  = {circle, draw=avlalert, fill=avlalert, inner sep=0pt, minimum size=4.6pt},
-  avledge/.style    = {draw=avlmuted, line width=0.45pt},
-  avlgoldedge/.style= {draw=avlfib!80, line width=0.5pt},
-  % tints mix against avlground, never the implicit white
-  avlkey/.style     = {circle, draw=avlink!70, fill=white, text=avlink,
-                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
-  avlkeygold/.style = {circle, draw=avlfib, fill=avlfib!14!avlground, text=avlfib,
-                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
-  avlkeyalert/.style= {circle, draw=avlalert, fill=avlalert!12!avlground, text=avlalert,
-                       inner sep=1pt, minimum size=6.5mm, font=\footnotesize},
-  avlarrow/.style   = {-{Stealth[length=4pt]}, draw=avlmuted, line width=0.5pt},
-  avlgoldarrow/.style={-{Stealth[length=4pt]}, draw=avlfib, line width=0.8pt},
-  avltri/.style     = {draw=avlmuted, fill=avlpanel, text=avlmuted,
-                       regular polygon, regular polygon sides=3, inner sep=0pt,
-                       font=\scriptsize},
+  % cascade dots 7.2 px, small unlabelled nodes 22 px, full nodes 52 px
+  avldot/.style     = {circle, draw=avlfaint, fill=avlfaint, inner sep=0pt, minimum size=7.2\pxl},
+  avlgolddot/.style = {circle, draw=avlfib,  fill=avlfib,  inner sep=0pt, minimum size=7.2\pxl},
+  avlreddot/.style  = {circle, draw=avlalert, fill=avlalert, inner sep=0pt, minimum size=9\pxl},
+  avledge/.style    = {draw=avlfaint, line width=1.6\pxl},
+  avlthread/.style  = {draw=avlfib, line width=2.2\pxl},
+  avlminiedge/.style= {draw=avlfib!75, line width=1.3\pxl},
+  avlgoldedge/.style= {draw=avlfib, line width=2.2\pxl},
+  % Full-size figure node: 52 px diameter, 1.5 px border, white fill, label in
+  % the border colour. A node is neutral (ink) unless it is making a point:
+  % green = legal / restored, red = violating, ember = on the Fibonacci thread.
+  avlkey/.style     = {circle, draw=avlink!70, fill=white!96!avlground, text=avlink,
+                       line width=1.5\pxl, inner sep=0pt, minimum size=52\pxl,
+                       font=\avlfEyebrow},
+  avlkeygold/.style = {circle, draw=avlfib, fill=avlfib!7!white, text=avlfib,
+                       line width=1.5\pxl, inner sep=0pt, minimum size=52\pxl,
+                       font=\avlfEyebrow},
+  avlkeyalert/.style= {circle, draw=avlalert, fill=avlalert!6!white, text=avlalert,
+                       line width=1.5\pxl, inner sep=0pt, minimum size=52\pxl,
+                       font=\avlfEyebrow},
+  avlkeyok/.style   = {circle, draw=avlbalance, fill=avlbalance!7!white, text=avlbalance,
+                       line width=1.5\pxl, inner sep=0pt, minimum size=52\pxl,
+                       font=\avlfEyebrow},
+  avlsmall/.style   = {circle, draw=avlfib, fill=avlfib!8!avlground,
+                       line width=1.3\pxl, inner sep=0pt, minimum size=22\pxl},
+  avlghostnode/.style={circle, draw=avlfaint, dashed, fill=none, opacity=0.55,
+                       line width=1.6\pxl, inner sep=0pt, minimum size=52\pxl},
+  avlghostline/.style={draw=avlfaint, dotted, line width=1.4\pxl, opacity=0.7},
+  % arrow-tip lengths must be literal: the tip parser does not survive a
+  % length register inside its option list.  5/6/7 px -> 1.8/2.1/2.5 pt.
+  avlarrow/.style   = {-{Stealth[length=1.8pt]}, draw=avlfaint, line width=1.6\pxl},
+  avlgoldarrow/.style={-{Stealth[length=2.1pt]}, draw=avlfib, line width=2.2\pxl},
+  avlarc/.style     = {-{Stealth[length=2.5pt]}, draw=avlpartcolor, line width=2.2\pxl},
+  % subtree triangle
+  avltri/.style     = {draw=avlfib!55, fill=avlfib!8!avlground, text=avlfib!75!black,
+                       line width=1.6\pxl, regular polygon,
+                       regular polygon sides=3, inner sep=0pt, font=\avlfAnnot},
+  avlannot/.style   = {font=\avlfAnnot, text=avlfaint, inner sep=1.5\pxl},
+  avlannotfib/.style= {font=\avlfAnnot, text=avlfib, inner sep=1.5\pxl},
+  avlannotok/.style = {font=\avlfAnnot, text=avlbalance, inner sep=1.5\pxl},
+  avlannotalert/.style={font=\avlfAnnot\wmed, text=avlalert, inner sep=1.5\pxl},
 }
+
+% ---------------------------------------------------- figure furniture
+% Vertical height brace: a 1.2 px rule with 12 px end caps and a rotated
+% label, sitting to the LEFT of the leftmost node.
+% \heightbrace{<x>}{<y top>}{<y bottom>}{<label>}{<colour>}
+\newcommand{\heightbrace}[5]{%
+  \draw[#5,line width=1.2\pxl] (#1,#2) -- (#1,#3);
+  \draw[#5,line width=1.2\pxl] ($(#1,#2)+(-0.075,0)$) -- ($(#1,#2)+(0.075,0)$);
+  \draw[#5,line width=1.2\pxl] ($(#1,#3)+(-0.075,0)$) -- ($(#1,#3)+(0.075,0)$);
+  \node[font=\avlfAnnot,text=#5,rotate=90,anchor=south]
+    at ($(#1,{(#2+#3)/2})+(-0.10,0)$) {#4};}
+
+% Horizontal hairline that separates two figures side by side.
+% \figdivider{<x>}{<y top>}{<y bottom>}
+\newcommand{\figdivider}[3]{%
+  \draw[avlrule,line width=1\pxl] (#1,#2) -- (#1,#3);}
 
 \mode<all>

@@ -10,9 +10,9 @@
 %  The result is always a SEPARATE overlay, with ghosts at the old positions.
 % ===========================================================================
 
-\avldivider{2}{Rotations}{How the tree fixes itself.}{avlptwo}
+\avldivider{2}{Rotations}{How the tree fixes itself.}{avlptwo}{avlptwoA}{avlptwoB}{avlptwoC}
 
-\setavlpart{Part 2 --- Rotations}{avlptwo}
+\setavlpart{2}{Part 2 --- Rotations}{avlptwo}
 
 % ------------------------------------------------------------------ ONE ROTATION
 %  The whole idea in one frame: pin a node, turn the tree about it.
@@ -38,23 +38,26 @@
       \node[avlkey]      at (0,-0.5)    {20};
       \node[avlkeygold]  at (-1.9,-1.8) {10};
     }
-    \only<1>{\node[color=avlalert,font=\small,anchor=west] at (2.35,0.95)
-        {$\mathrm{bf}(30) = +2$};}
+    \only<1>{%
+      \draw[avlalert,line width=2\pxl] (1.9,0.8) circle (0.42);
+      \node[avlannotalert,anchor=west] at (2.42,0.98) {$\mathrm{bf} = +2$};}
     \only<2-3>{\pivotpin{1.9,0.8}}
     \only<3>{\rotright{1.9,0.8}{1.65}}
 
     % ---------------- after: 20 came up, 30 came down -----------------
     \only<4->{
-      % ghosts first, so the live tree is drawn on top of them
-      % 10 rose too, but from overlay 5 the order strip claims that space, so
-      % its ghost lives on the "where they were" beat only.
-      \ghostnode{1.9}{0.8}{30}  \ghostpath{1.9,0.45}{1.9,-0.15}
-      \ghostnode{0}{-0.5}{20}   \ghostpath{0,-0.15}{0,0.45}
-      \only<4>{\ghostnode{-1.9}{-1.8}{10} \ghostpath{-1.9,-1.45}{-1.9,-0.85}}
-      \draw[avlgoldedge,line width=1.1pt] (-1.9,-0.5) -- (0,0.8) -- (1.9,-0.5);
-      \node[avlkeygold]  at (0,0.8)     {20};
-      \node[avlkey]      at (-1.9,-0.5) {10};
-      \node[avlkeyalert] at (1.9,-0.5)  {30};
+      % Afterimages on the result beat ONLY. They carry the eye across the jump
+      % cut from the turn; by the next beat the order strip is making the point
+      % instead, and three dashed discs would just read as extra nodes.
+      \only<4>{%
+        \ghostnode{1.9}{0.8}{30}  \ghostpath{1.9,0.45}{1.9,-0.15}
+        \ghostnode{0}{-0.5}{20}   \ghostpath{0,-0.15}{0,0.45}
+        \ghostnode{-1.9}{-1.8}{10} \ghostpath{-1.9,-1.45}{-1.9,-0.85}}
+      % restored: the tree that comes out of the turn is legal, so it is green
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (-1.9,-0.5) -- (0,0.8) -- (1.9,-0.5);
+      \node[avlkeyok] at (0,0.8)     {20};
+      \node[avlkeyok] at (-1.9,-0.5) {10};
+      \node[avlkeyok] at (1.9,-0.5)  {30};
       % No pin on these beats. The pin was a fixed post; redrawing it under 30
       % after the turn would say it travelled with the node, which is the one
       % thing the whole picture is trying not to say.
@@ -62,28 +65,31 @@
 
     % ---------------- the order strip, from the payoff beat on --------
     \only<5->{
-      \draw[avlrule,line width=1pt] (-2.6,-2.20) -- (2.6,-2.20);
+      \draw[avlrule,line width=1\pxl] (-2.6,-2.20) -- (2.6,-2.20);
       \foreach \k/\x in {10/-1.9, 20/0, 30/1.9} {
-        \draw[avlrule,line width=1pt] (\x,-2.08) -- (\x,-2.32);
-        \node[color=avlink,font=\scriptsize] at (\x,-1.87) {\k};
+        \draw[avlrule,line width=1\pxl] (\x,-2.08) -- (\x,-2.32);
+        \node[color=avlink,font=\avlfAnnot] at (\x,-1.90) {\k};
       }
-      \node[color=avlmuted,font=\scriptsize,anchor=north] at (0,-2.45)
-        {left to right order --- \textbf{never changed}};
+      \node[avlannot,anchor=north] at (0,-2.42)
+        {left to right order --- \strong{never changed}};
     }
   \end{tikzpicture}
   \end{center}
 
   \vspace{-0.3em}
   \begin{center}
-    \only<1>{{\color{avlmuted}Left skewed tree.  
-              \viol{30 has a balance factor of +2}.}}
-    \only<2>{{\color{avlmuted}Push the pin into \fib{30}, the node the
-              rotation is \emph{named} at.}}
-    \only<3>{{\color{avlmuted}Now turn the whole tree \fib{clockwise} about
-              that pin. That is a \fib{right rotation}.}}
-    \only<4>{{\color{avlmuted}20 became the parent, 30 came down on the right.\fib{This Tree is now Balanced}}}
-    \only<5->{{\color{avlmuted}Nothing moved sideways, so the order is safe,
-              and only \fib{three links} changed.}}
+    \only<1>{{\avlfSec\color{avlmuted}Left skewed tree.
+              \viol{30 has a balance factor of $+2$}.}}
+    \only<2>{{\avlfSec\color{avlmuted}Push the pin into
+              {\color{avlptwo}\wmed 30}, the node the rotation is
+              \emph{named} at.}}
+    \only<3>{{\avlfSec\color{avlmuted}Now turn the whole tree
+              {\color{avlptwo}\wmed clockwise} about that pin. That is a
+              {\color{avlptwo}\wmed right rotation}.}}
+    \only<4>{{\avlfSec\color{avlmuted}20 became the parent, 30 came down on the
+              right. \ok{The tree is balanced again.}}}
+    \only<5->{{\avlfSec\color{avlmuted}Nothing moved sideways, so the order is
+              safe, and only \fib{three links} changed.}}
   \end{center}
 
   \note{Say it as a physical action. The pin goes into 30, the node that is
@@ -96,25 +102,36 @@
 \end{frame}
 % ------------------------------------------------------------------ four cases
 \begin{frame}[label=p2]{Four cases, and what to do}
-  \vspace{0.3em}
+  % No vertical rules, no zebra. Header labels avlfaint, hairline under the
+  % header, avlrule2 between body rows, the fix column carries the ember tint.
+  % One hairline under the header and nothing else: no vertical rules, no row
+  % rules, no fills. The fix column is carried by colour alone.
+  \vspace{0.1em}
   \begin{center}
-  \setlength{\tabcolsep}{9pt}
-  \renewcommand{\arraystretch}{1.28}
-  {\small
-  \begin{tabular}{l|l|l}
-    {\color{avlmuted}case} & {\color{avlmuted}where the new node went} & {\color{avlmuted}fix}\\\hline
-    \textbf{LL} & left child's \emph{left} side  & \fib{one right rotation}\\
-    \textbf{RR} & right child's \emph{right} side & \fib{one left rotation}\\
-    \textbf{LR} & left child's \emph{right} side & \fib{left, then right}\\
-    \textbf{RL} & right child's \emph{left} side & \fib{right, then left}\\
+  \setlength{\tabcolsep}{20\pxl}
+  \renewcommand{\arraystretch}{1.32}
+  \setlength{\arrayrulewidth}{1\pxl}
+  \arrayrulecolor{avlrule}
+  {\avlfBody
+  \begin{tabular}{lll}
+    {\avlfEyebrow\color{avlfaint}case}
+      & {\avlfEyebrow\color{avlfaint}where the new node went}
+      & {\avlfEyebrow\color{avlfaint}fix}\\\hline
+    \strong{LL} & left child's \emph{left} side  & \fib{one right rotation}\\
+    \strong{RR} & right child's \emph{right} side & \fib{one left rotation}\\
+    \strong{LR} & left child's \emph{right} side & \fib{left, then right}\\
+    \strong{RL} & right child's \emph{left} side & \fib{right, then left}\\
   \end{tabular}}
   \end{center}
 
-  \vspace{1.6em}
+  \vspace{0.5em}
   \begin{center}
-    {\color{avlmuted}Each case is named after the two steps the new node took
-     down from the broken node.}\\[0.7em]
-    {\large\color{avlfib}A zig-zag imbalance requires two successive rotations. First on the child then on the broken node}\\[0.7em]
+    {\avlfSec\color{avlmuted}Each case is named after the two steps the new
+     node took down from the broken node.}\\[0.7em]
+    \begin{avlpanel}[0.96\textwidth]
+      A \fib{zig-zag} imbalance needs two rotations: first on the child, then
+      on the broken node.
+    \end{avlpanel}
   \end{center}
 
   \note{Four shapes, four fixes. The two straight ones need a single rotation.
@@ -131,89 +148,107 @@
 %  nodes in four arrangements, and the doubles turn into the singles after
 %  their first rotation, which is the point the frame is making.
 % Cell lattice, the same rule as the simulation frame: 10 always sits at
-% x = -0.55, 20 at x = 0, 30 at x = +0.55, in every shape. A click therefore
+% x = -0.90, 20 at x = 0, 30 at x = +0.90, in every shape. A click therefore
 % moves a node straight up or straight down and never sideways, and the bent
 % shapes visibly straighten into the chains directly above them.
 \newcommand{\cellchainL}{%   leans left -- the LL shape
-  \draw[avledge,line width=0.6pt] (0.55,0) -- (0,-0.60) -- (-0.55,-1.20);
-  \node[gred] at (0.55,0) {30}; \node[gkey] at (0,-0.60) {20};
-  \node[ggold] at (-0.55,-1.20) {10};}
+  \draw[avledge,line width=0.9pt] (0.90,0) -- (0,-0.80) -- (-0.90,-1.60);
+  \node[gred] at (0.90,0) {30}; \node[gkey] at (0,-0.80) {20};
+  \node[ggold] at (-0.90,-1.60) {10};}
 \newcommand{\cellchainR}{%   leans right -- the RR shape
-  \draw[avledge,line width=0.6pt] (-0.55,0) -- (0,-0.60) -- (0.55,-1.20);
-  \node[gred] at (-0.55,0) {10}; \node[gkey] at (0,-0.60) {20};
-  \node[ggold] at (0.55,-1.20) {30};}
+  \draw[avledge,line width=0.9pt] (-0.90,0) -- (0,-0.80) -- (0.90,-1.60);
+  \node[gred] at (-0.90,0) {10}; \node[gkey] at (0,-0.80) {20};
+  \node[ggold] at (0.90,-1.60) {30};}
 \newcommand{\cellbentL}{%    left then right -- the LR shape
-  \draw[avledge,line width=0.6pt] (0.55,0) -- (-0.55,-0.60) -- (0,-1.20);
-  \node[gred] at (0.55,0) {30}; \node[gkey] at (-0.55,-0.60) {10};
-  \node[ggold] at (0,-1.20) {20};}
+  \draw[avledge,line width=0.9pt] (0.90,0) -- (-0.90,-0.80) -- (0,-1.60);
+  \node[gred] at (0.90,0) {30}; \node[gkey] at (-0.90,-0.80) {10};
+  \node[ggold] at (0,-1.60) {20};}
 \newcommand{\cellbentR}{%    right then left -- the RL shape
-  \draw[avledge,line width=0.6pt] (-0.55,0) -- (0.55,-0.60) -- (0,-1.20);
-  \node[gred] at (-0.55,0) {10}; \node[gkey] at (0.55,-0.60) {30};
-  \node[ggold] at (0,-1.20) {20};}
+  \draw[avledge,line width=0.9pt] (-0.90,0) -- (0.90,-0.80) -- (0,-1.60);
+  \node[gred] at (-0.90,0) {10}; \node[gkey] at (0.90,-0.80) {30};
+  \node[ggold] at (0,-1.60) {20};}
 \newcommand{\cellflat}{%     the balanced result every case lands on
-  \draw[avlgoldedge,line width=0.9pt] (-0.55,-0.60) -- (0,0) -- (0.55,-0.60);
-  \node[ggold] at (0,0) {20}; \node[ggold] at (-0.55,-0.60) {10};
-  \node[ggold] at (0.55,-0.60) {30};}
+  \draw[avlgoldedge,line width=1.2pt] (-0.90,-0.80) -- (0,0) -- (0.90,-0.80);
+  \node[ggold] at (0,0) {20}; \node[ggold] at (-0.90,-0.80) {10};
+  \node[ggold] at (0.90,-0.80) {30};}
 
 \begin{frame}[label=p2]{\only<1>{Four cases, four pivots}%
     \only<2>{LR and RL just become LL and RR}%
     \only<3->{Four arrivals, one tree}}
-  \vspace{-0.7em}
+  \vspace{-1.1em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92,every node/.style={transform shape},
-      gkey/.style ={avlkey,      minimum size=5.4mm,font=\tiny,inner sep=0pt},
-      ggold/.style={avlkeygold,  minimum size=5.4mm,font=\tiny,inner sep=0pt},
-      gred/.style ={avlkeyalert, minimum size=5.4mm,font=\tiny,inner sep=0pt},
-      tag/.style  ={font=\small,align=center,text=avlmuted,anchor=north,
+  % The grid used to sit at scale 0.70 inside a 14 cm text block -- barely 8 cm
+  % wide, with the discs and their tags shrunk to match. The lattice is now
+  % drawn larger and spread wider, so the figure fills the column it is given.
+  % The grid used to sit at scale 0.70 inside a 14 cm text block -- barely 8 cm
+  % wide, with the discs and their tags shrunk to match. The lattice is drawn
+  % larger and spread wider now, and each tag is ONE line: two-line tags were
+  % what made the block too tall to enlarge without pushing into the panel.
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.72,every node/.style={transform shape},
+      gkey/.style ={avlkey,      minimum size=6.6mm,font=\avlfEyebrow,inner sep=0pt},
+      ggold/.style={avlkeygold,  minimum size=6.6mm,font=\avlfEyebrow,inner sep=0pt},
+      gred/.style ={avlkeyalert, minimum size=6.6mm,font=\avlfEyebrow,inner sep=0pt},
+      tag/.style  ={font=\avlfBody,align=center,text=avlmuted,anchor=north,
                     inner sep=1pt}]
-    % pin scaled to the cell's smaller nodes, so the gap under them matches
-    % every other pin in the deck
-    \setpinscale{0.80}
-    % Fixed extent. Row pitch is 3.25: an arc reaches 0.80 above its cell
-    % origin and a two-line tag reaches 2.17 below it, so anything tighter
-    % puts the top row's caption inside the bottom row's arc.
-    \path (-5.6,-5.45) rectangle (5.6,1.0);
+    % hairline between the two rows of cells, clear of the row-1 tags above it
+    % and the row-2 discs below it
+    \only<3->{\draw[avlrule,line width=1\pxl] (-6.6,-2.68) -- (6.6,-2.68);}
+    \setpinscale{1.0}
+    % Fixed extent, symmetric about x = 0. Row pitch 3.32: an arc reaches 0.85
+    % above its cell origin and a one-line tag reaches 2.34 below it, so
+    % anything tighter puts the top row's caption inside the bottom row's arc.
+    \path (-7.1,-5.66) rectangle (7.1,0.88);
 
     % ================= LL : 30, 20, 10 =================
-    \begin{scope}[shift={(-3.8,0)}]
+    \begin{scope}[shift={(-5.2,0)}]
       % arc first, so the nodes always sit on top of it
-      \only<1>{\rotright{0.55,0}{0.80}\cellchainL\pivotpin{0.55,0}}
+      \only<1>{\rotright{0.90,0}{0.85}\cellchainL\pivotpin{0.90,0}}
       \only<2->{\cellflat}
-      \node[tag] at (0,-1.62) {\textbf{\color{avlink}LL}\ \ 30, 20, 10\\
-        \fib{one right rotation at 30}};
+      \node[tag] at (0,-2.02) {\textbf{\color{avlink}LL}\ \ 30, 20, 10
+        \ \quietc{---}\ \fib{right 30}};
     \end{scope}
 
     % ================= RR : 10, 20, 30 =================
-    \begin{scope}[shift={(3.8,0)}]
-      \only<1>{\rotleft{-0.55,0}{0.80}\cellchainR\pivotpin{-0.55,0}}
+    \begin{scope}[shift={(5.2,0)}]
+      \only<1>{\rotleft{-0.90,0}{0.85}\cellchainR\pivotpin{-0.90,0}}
       \only<2->{\cellflat}
-      \node[tag] at (0,-1.62) {\textbf{\color{avlink}RR}\ \ 10, 20, 30\\
-        \fib{one left rotation at 10}};
+      \node[tag] at (0,-2.02) {\textbf{\color{avlink}RR}\ \ 10, 20, 30
+        \ \quietc{---}\ \fib{left 10}};
     \end{scope}
 
     % ================= LR : 30, 10, 20 =================
     % The first turn is at 10 and straightens the bend into an LL chain; the
     % second turn is then literally the LL cell sitting above it.
-    \begin{scope}[shift={(-3.8,-3.25)}]
-      \only<1>{\rotleft{-0.55,-0.60}{0.62}
-               \cellbentL\pivotpin{-0.55,-0.60}}
-      \only<2>{\rotright{0.55,0}{0.80}\cellchainL\pivotpin{0.55,0}}
+    \begin{scope}[shift={(-5.2,-3.32)}]
+      \only<1>{\rotleft{-0.90,-0.80}{0.70}
+               \cellbentL\pivotpin{-0.90,-0.80}}
+      \only<2>{\rotright{0.90,0}{0.85}\cellchainL\pivotpin{0.90,0}}
       \only<3->{\cellflat}
-      \node[tag] at (0,-1.62) {\textbf{\color{avlink}LR}\ \ 30, 10, 20\\
-        \fib{left at 10, then right at 30}};
+      \node[tag] at (0,-2.02) {\textbf{\color{avlink}LR}\ \ 30, 10, 20
+        \ \quietc{---}\ \fib{left, right}};
     \end{scope}
 
     % ================= RL : 10, 30, 20 =================
-    \begin{scope}[shift={(3.8,-3.25)}]
-      \only<1>{\rotright{0.55,-0.60}{0.62}
-               \cellbentR\pivotpin{0.55,-0.60}}
-      \only<2>{\rotleft{-0.55,0}{0.80}\cellchainR\pivotpin{-0.55,0}}
+    \begin{scope}[shift={(5.2,-3.32)}]
+      \only<1>{\rotright{0.90,-0.80}{0.70}
+               \cellbentR\pivotpin{0.90,-0.80}}
+      \only<2>{\rotleft{-0.90,0}{0.85}\cellchainR\pivotpin{-0.90,0}}
       \only<3->{\cellflat}
-      \node[tag] at (0,-1.62) {\textbf{\color{avlink}RL}\ \ 10, 30, 20\\
-        \fib{right at 30, then left at 10}};
+      \node[tag] at (0,-2.02) {\textbf{\color{avlink}RL}\ \ 10, 30, 20
+        \ \quietc{---}\ \fib{right, left}};
     \end{scope}
   \end{tikzpicture}
   \end{center}
+
+  \only<3->{
+  \vspace{0.45em}
+  \begin{center}
+    \begin{avlpanel}[0.96\textwidth]
+      Same three keys, four arrival orders --- \fib{all four land on the same
+      tree}.
+    \end{avlpanel}
+  \end{center}
+  \vspace{0.15em}}
 
   \note{Four cells, same three keys, only the arrival order changes. Point at
   each pin and each arc: LL turns clockwise about 30, RR turns anticlockwise
@@ -225,34 +260,39 @@
 
 % ------------------------------------------------------------------ rotation power
 \begin{frame}[label=p2]{The beauty: one constant operation fixes everything}
-  \vspace{-0.2em}
+  \vspace{-0.4em}
   \begin{center}
-  {\large\bfseries\color{avlptwo}What makes a rotation elegant}
+  \eyebrow{What makes a rotation elegant}
   \end{center}
 
-  \vspace{0.35em}
+  \vspace{0.5em}
   \begin{center}
-  \begin{minipage}{0.78\textwidth}
-  \begin{itemize}
-    \setlength{\itemsep}{0.45em}
-    \item {\color{avlfib}\bfseries Only three links change}\\
-      {\color{avlmuted}\small $O(1)$ no matter the tree size}
-    \item {\color{avlfib}\bfseries Restores subtree height}\\
-      {\color{avlmuted}\small Parent sees no change, repair stops}
-    \item {\color{avlfib}\bfseries Search order is safe}\\
-      {\color{avlmuted}\small Left-right order never breaks}
-    \item {\color{avlfib}\bfseries One rotation suffices}\\
-      {\color{avlmuted}\small No need to check nodes above}
-  \end{itemize}
+  \begin{minipage}{0.86\textwidth}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      {\fib{Only three links change}}\\[0.15em]
+      {\avlfSec\color{avlmuted}$O(1)$ no matter the tree size}\\[0.8em]
+      {\fib{Restores subtree height}}\\[0.15em]
+      {\avlfSec\color{avlmuted}Parent sees no change, repair stops}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      {\fib{Search order is safe}}\\[0.15em]
+      {\avlfSec\color{avlmuted}Left-right order never breaks}\\[0.8em]
+      {\fib{One rotation suffices}}\\[0.15em]
+      {\avlfSec\color{avlmuted}No need to check nodes above}
+    \end{column}
+  \end{columns}
   \end{minipage}
   \end{center}
 
-  \vspace{0.4em}
+  \vspace{1.0em}
   \begin{center}
-    {\footnotesize\color{avlmuted}A rotation changes only three pointers ---
-     no recursion, no loops. That is why it}\\[0.15em]
-    {\normalsize\bfseries\color{avlfib}runs in constant time.}\\[0.35em]
-    {\normalsize\color{avlfib}Four cases. \quad One pattern. \quad Perfect balance.}
+    \begin{avlpanel}[0.84\textwidth]
+      Three pointers, no recursion, no loops --- that is why a rotation
+      \fib{runs in constant time}.
+    \end{avlpanel}\\[0.7em]
+    {\avlfSec\color{avlmuted}Four cases. \quad One pattern. \quad
+     \ok{Perfect balance.}}
   \end{center}
 
   \note{The heart of AVL. A rotation is O(1): only three pointers move. It
@@ -263,29 +303,37 @@
 
 % ------------------------------------------------------------------ insertion rule
 \begin{frame}[label=p2]{Insertion: the rule}
-  \vspace{0.9em}
+  \vspace{0.6em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
-    \node[draw=avlptwo,fill=avlptwo!8!avlground,rounded corners=3pt,
-          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s1) at (-4.4,0)
-          {\begin{minipage}{3.0cm}\centering Insert like a normal BST\end{minipage}};
-    \node[draw=avlptwo,fill=avlptwo!8!avlground,rounded corners=3pt,
-          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s2) at (0,0)
-          {\begin{minipage}{3.0cm}\centering Walk back up to the root\end{minipage}};
-    \node[draw=avlfib,fill=avlfib!10!avlground,rounded corners=3pt,
-          minimum width=3.4cm,minimum height=1.1cm,font=\small,text=avlink] (s3) at (4.4,0)
-          {\begin{minipage}{3.0cm}\centering Rotate at the \textbf{first} bad node\end{minipage}};
-    \draw[avlgoldarrow,line width=1.1pt] (s1) -- (s2);
-    \draw[avlgoldarrow,line width=1.1pt] (s2) -- (s3);
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      stepbox/.style={draw=avlptwo!45!avlground,fill=avlptwo!8!avlground,
+                   line width=1.5\pxl,rounded corners=6pt,
+                   minimum width=3.4cm,minimum height=1.15cm,
+                   font=\avlfSec,text=avlink},
+      last/.style={draw=avlfib!45!avlground,fill=avlfib!8!avlground,
+                   line width=1.5\pxl,rounded corners=6pt,
+                   minimum width=3.4cm,minimum height=1.15cm,
+                   font=\avlfSec,text=avlink}]
+    \node[stepbox] (s1) at (-4.4,0)
+      {\begin{minipage}{3.0cm}\centering Insert like a normal BST\end{minipage}};
+    \node[stepbox] (s2) at (0,0)
+      {\begin{minipage}{3.0cm}\centering Walk back up to the root\end{minipage}};
+    \node[last] (s3) at (4.4,0)
+      {\begin{minipage}{3.0cm}\centering Rotate at the \strong{first} bad node\end{minipage}};
+    \draw[avlgoldarrow] (s1) -- (s2);
+    \draw[avlgoldarrow] (s2) -- (s3);
   \end{tikzpicture}
   \end{center}
 
-  \vspace{1.6em}
+  \vspace{1.1em}
   \begin{center}
-    {\large\color{avlfib}\bfseries One rotation is always enough.}\\[0.7em]
-    {\color{avlmuted}After it, the subtree is back to the height it had
-     \emph{before} the insert.}\\[0.3em]
-    {\color{avlmuted}So no node above it sees any change, and the repair stops.}
+    \begin{avlpanel}[0.72\textwidth]
+      {\avlfLead\color{avlfib}\wbold One rotation is always enough.}
+    \end{avlpanel}\\[0.8em]
+    {\avlfSec\color{avlmuted}After it, the subtree is back to the height it had
+     \emph{before} the insert.}\\[0.25em]
+    {\avlfSec\color{avlmuted}So no node above it sees any change, and the
+     repair stops.}
   \end{center}
 
   \note{Three steps. Insert normally, walk up, fix the first bad node you meet.
@@ -310,9 +358,9 @@
 %  DOWN, the node that went UP, and the newly-arrived key. All three threads are
 %  vertical, so each dotted arrow is a pure rise or fall.
 \begin{frame}[label=p2]{Simulation: insert 1, 2, 3, 4, 5, 6, 7}
-  \vspace{-0.5em}
+  \vspace{-0.7em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.style={transform shape}]
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.84,every node/.style={transform shape}]
     \setpinscale{1}
     % column = sorted position, row = depth
     \foreach \kk in {1,...,7}{\foreach \dd in {0,1,2,3}{
@@ -344,7 +392,7 @@
       \node[avlkeygold]  at (n3-2) {3};
       \pivotpin{n1-0}
       \rotleft{n1-0}{1.45}
-      \node[color=avlfib,font=\small,anchor=west] at (-2.30,1.05) {rotate left at 1};
+      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (-2.30,1.05) {rotate left at 1};
     }
     \only<4>{
       \ghostnode{-3.75}{0}{1}     \ghostpath{-3.75,-0.35}{-3.75,-0.85}
@@ -375,7 +423,7 @@
       \node[avlkeygold]  at (n5-3) {5};
       \pivotpin{n3-1}
       \rotleft{n3-1}{1.25}
-      \node[color=avlfib,font=\small,anchor=west] at (0.20,-0.15) {rotate left at 3};
+      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (0.20,-0.15) {rotate left at 3};
     }
     \only<7>{
       \ghostnode{-1.25}{-1.20}{3} \ghostpath{-1.25,-1.55}{-1.25,-2.05}
@@ -403,7 +451,7 @@
       \node[avlkeygold]  at (n6-3) {6};
       \pivotpin{n2-0}
       \rotleft{n2-0}{1.45}
-      \node[color=avlfib,font=\small,anchor=west] at (-1.05,1.05) {rotate left at 2};
+      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (-1.05,1.05) {rotate left at 2};
     }
     \only<9>{
       \ghostnode{-2.50}{0}{2}    \ghostpath{-2.50,-0.35}{-2.50,-0.85}
@@ -434,10 +482,11 @@
       \node[avlkeygold]  at (n7-3) {7};
       \pivotpin{n5-1}
       \rotleft{n5-1}{1.25}
-      \node[color=avlfib,font=\small,anchor=west] at (2.55,-0.15) {rotate left at 5};
+      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (2.55,-0.15) {rotate left at 5};
     }
-    % The payoff beat doubles as the result beat, so it keeps its three ghosts
-    % and then goes gold everywhere -- the whole tree, not just the new links.
+    % Result beat: the last turn has landed, so the three ghosts say where 5, 6
+    % and 7 came from. The tree is still drawn in ember here -- it is the shape
+    % that just changed, not yet the verdict.
     \only<11>{
       \ghostnode{1.25}{-1.20}{5} \ghostpath{1.25,-1.55}{1.25,-2.05}
       \ghostnode{2.50}{-2.40}{6} \ghostpath{2.50,-2.05}{2.50,-1.55}
@@ -453,6 +502,21 @@
       \node[avlkeygold] at (n5-2) {5};
       \node[avlkeygold] at (n7-2) {7};
     }
+    % Verdict beat: the same tree with the afterimages cleared and every node
+    % green. Nothing moves between 11 and 12 -- the only change is that the
+    % tree has stopped being a thing in motion and become a legal result.
+    \only<12>{
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (n2-1) -- (n4-0) -- (n6-1);
+      \foreach \a/\b in {n1-2/n2-1, n3-2/n2-1, n5-2/n6-1, n7-2/n6-1}
+        \draw[draw=avlbalance!70,line width=1.6\pxl] (\a) -- (\b);
+      \node[avlkeyok] at (n4-0) {4};
+      \node[avlkeyok] at (n2-1) {2};
+      \node[avlkeyok] at (n6-1) {6};
+      \node[avlkeyok] at (n1-2) {1};
+      \node[avlkeyok] at (n3-2) {3};
+      \node[avlkeyok] at (n5-2) {5};
+      \node[avlkeyok] at (n7-2) {7};
+    }
   \end{tikzpicture}
   \end{center}
 
@@ -461,8 +525,8 @@
   % Fixed-height box: the balance factor lives here rather than on the picture
   % (four labels squeezed between four arcs never all fit), and the fixed height
   % stops the two-line payoff caption from shifting the one-line captions.
-  \begin{minipage}[t][3.4em][t]{0.86\textwidth}
-  \centering
+  \begin{minipage}[t][84\pxl][t]{0.96\textwidth}
+  \centering\avlfSec
     \only<1>{{\color{avlmuted}1 arrives. A single node --- there is nothing to
               break yet.}}
     \only<2>{{\color{avlmuted}2 goes right. $\mathrm{bf}(1) = -1$ --- still
@@ -480,7 +544,8 @@
     \only<9>{{\color{avlmuted}Balanced again. \fib{Three rotations.}}}
     \only<10>{{\color{avlmuted}7 arrives. \viol{$\mathrm{bf}(5) = -2$}.
               Pin 5 and turn left --- the last one.}}
-    \only<11>{{\large\color{avlfib}\bfseries Perfect tree. Height 2.}\\[0.35em]
+    \only<11>{{\color{avlmuted}Balanced again. \fib{Four rotations.}}}
+    \only<12>{{\avlfLead\color{avlbalance}\wbold Perfect tree. Height 2.}\\[0.35em]
               {\color{avlmuted}The same input that made a 7-step list
                now answers in 3 steps. \fib{4 rotations total.}}}
   \end{minipage}
@@ -508,7 +573,7 @@
     % AVL: logarithmic
     \begin{scope}[xshift=-4.5cm]
       % Box
-      \node[draw=avlfib,fill=avlfib!12!avlground,rounded corners=3pt,
+      \node[draw=avlfib!45!avlground,fill=avlfib!8!avlground,line width=1.5\pxl,rounded corners=6pt,
             minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
             text=avlink,anchor=south] (avlbox) at (0,0) {\bfseries AVL Tree};
 
@@ -536,7 +601,7 @@
     % Unbalanced BST: worst case linear (same dimensions)
     \begin{scope}[xshift=4.5cm]
       % Box
-      \node[draw=avlalert,fill=avlalert!12!avlground,rounded corners=3pt,
+      \node[draw=avlalert!45!avlground,fill=avlalert!8!avlground,line width=1.5\pxl,rounded corners=6pt,
             minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
             text=avlink,anchor=south] (bstbox) at (0,0) {\bfseries Unbalanced BST};
 
@@ -571,8 +636,8 @@
 
   \vspace{0.3em}
   \begin{center}
-    {\normalsize\color{avlfib}\bfseries Three links, logarithmic height.}\\[0.1em]
-    {\color{avlmuted}\footnotesize That is the contract.}
+    {\avlfLead\color{avlfib}\wbold Three links, logarithmic height.}\\[0.2em]
+    {\avlfSec\color{avlmuted}That is the contract.}
   \end{center}
 
   \note{Here is the payoff. Insertion in an AVL tree is logarithmic: walk down

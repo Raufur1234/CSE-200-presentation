@@ -21,34 +21,41 @@
 % document body is fine.
 \input{tikz/cascade.tex}
 
-\avldivider{3}{Deletion}{The expensive one.}{avlpthree}
+\avldivider{3}{Deletion}{The expensive one.}{avlpthree}{avlpthreeA}{avlpthreeB}{avlpthreeC}
 
-\setavlpart{Part 3 --- Deletion}{avlpthree}
+\setavlpart{3}{Part 3 --- Deletion}{avlpthree}
 
 % ------------------------------------------------------------------ rule
 \begin{frame}[label=p3]{Deletion: the rule}
-  \vspace{0.7em}
+  \vspace{0.5em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
-    \node[draw=avlpthree,fill=avlpthree!8!avlground,rounded corners=3pt,
-          minimum width=3.6cm,minimum height=1.15cm,font=\small,text=avlink] (s1) at (-4.5,0)
-          {\begin{minipage}{3.2cm}\centering Remove like a normal BST\end{minipage}};
-    \node[draw=avlpthree,fill=avlpthree!8!avlground,rounded corners=3pt,
-          minimum width=3.6cm,minimum height=1.15cm,font=\small,text=avlink] (s2) at (0,0)
-          {\begin{minipage}{3.2cm}\centering Walk back up to the root\end{minipage}};
-    \node[draw=avlalert,fill=avlalert!8!avlground,rounded corners=3pt,
-          minimum width=3.6cm,minimum height=1.15cm,font=\small,text=avlink] (s3) at (4.5,0)
-          {\begin{minipage}{3.2cm}\centering Rotate at \textbf{every} bad node\end{minipage}};
-    \draw[avlarrow,line width=1.1pt] (s1) -- (s2);
-    \draw[avlarrow,line width=1.1pt] (s2) -- (s3);
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      stepbox/.style={draw=avlpthree!45!avlground,fill=avlpthree!8!avlground,
+                   line width=1.5\pxl,rounded corners=6pt,
+                   minimum width=3.6cm,minimum height=1.15cm,
+                   font=\avlfSec,text=avlink},
+      bad/.style ={draw=avlalert!45!avlground,fill=avlalert!8!avlground,
+                   line width=1.5\pxl,rounded corners=6pt,
+                   minimum width=3.6cm,minimum height=1.15cm,
+                   font=\avlfSec,text=avlink}]
+    \node[stepbox] (s1) at (-4.5,0)
+      {\begin{minipage}{3.2cm}\centering Remove like a normal BST\end{minipage}};
+    \node[stepbox] (s2) at (0,0)
+      {\begin{minipage}{3.2cm}\centering Walk back up to the root\end{minipage}};
+    \node[bad] (s3) at (4.5,0)
+      {\begin{minipage}{3.2cm}\centering Rotate at \strong{every} bad node\end{minipage}};
+    \draw[avlarrow] (s1) -- (s2);
+    \draw[avlarrow] (s2) -- (s3);
   \end{tikzpicture}
   \end{center}
 
-  \vspace{1.5em}
+  \vspace{1.0em}
   \begin{center}
-    {\large\color{avlink}The first two steps are the same as insertion.}\\[0.8em]
-    {\large\viol{\bfseries The third one is not.}}\\[0.7em]
-    {\color{avlmuted}With insertion you stop after one rotation.
+    {\avlfLead\color{avlbody}The first two steps are the same as insertion.}\\[0.7em]
+    \begin{avlpanelh}[0.62\textwidth]{avlalert}
+      {\avlfLead\viol{\wbold The third one is not.}}
+    \end{avlpanelh}\\[0.8em]
+    {\avlfSec\color{avlmuted}With insertion you stop after one rotation.
      With deletion you \emph{cannot} stop.}
   \end{center}
 
@@ -59,39 +66,38 @@
 
 % ------------------------------------------------------------------ why worse
 \begin{frame}[label=p3]{Why deletion cannot stop}
-  \vspace{0.5em}
+  \vspace{0.2em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.47\textwidth}
-      \vspace{0.2em}
-      {\bfseries\color{avlfib}Insertion}\\[0.4em]
-      {\color{avlmuted}The rotation puts the subtree back to its
-       \emph{old} height.}\\[0.4em]
-      The parent sees no change.\\[0.3em]
-      \fib{So the repair stops.}\\[1.1em]
+      {\avlfLead\wbold\color{avlfib}Insertion}\\[0.35em]
+      {\avlfSec\color{avlmuted}The rotation puts the subtree back to its
+       \emph{old} height. The parent sees no change.}\\[0.3em]
+      {\avlfSec\fib{So the repair stops.}}\\[1.0em]
 
-      {\bfseries\color{avlalert}Deletion}\\[0.4em]
-      {\color{avlmuted}The rotation leaves the subtree \emph{one shorter}.}\\[0.4em]
-      That is itself a change.\\[0.3em]
-      \viol{So the parent may break too.}
+      {\avlfLead\wbold\color{avlalert}Deletion}\\[0.35em]
+      {\avlfSec\color{avlmuted}The rotation leaves the subtree
+       \emph{one shorter}. That is itself a change.}\\[0.3em]
+      {\avlfSec\viol{So the parent may break too.}}
     \end{column}
     \begin{column}{0.49\textwidth}
       \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.92]
-        \node[avltri,draw=avlfib,minimum size=2.0cm] at (-1.4,0) {};
-        \node[color=avlfib,font=\scriptsize] at (-1.4,-1.45) {height $h$};
-        \node[color=avlmuted,font=\scriptsize] at (-1.4,1.20) {after insert};
+      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.86,every node/.style={transform shape}]
+        \node[avltri,minimum size=2.0cm] at (-1.4,0) {};
+        \node[avlannotfib] at (-1.4,-1.45) {height $h$};
+        \node[avlannot] at (-1.4,1.20) {after insert};
 
-        \node[avltri,draw=avlalert,minimum size=1.65cm] at (1.5,-0.18) {};
-        \node[color=avlalert,font=\scriptsize] at (1.5,-1.45) {height $h-1$};
-        \node[color=avlmuted,font=\scriptsize] at (1.5,1.20) {after delete};
+        \node[avltri,draw=avlalert!55,fill=avlalert!8!avlground,
+              minimum size=1.65cm] at (1.5,-0.18) {};
+        \node[avlannotalert] at (1.5,-1.45) {height $h-1$};
+        \node[avlannot] at (1.5,1.20) {after delete};
 
-        \draw[draw=avlalert,line width=1.2pt,-{Stealth[length=4pt]}]
+        \draw[draw=avlalert,line width=1.6\pxl,-{Stealth[length=2.6pt]}]
           (1.5,-1.85) -- (1.5,-2.45);
-        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-2.55)
+        \node[avlannotalert,anchor=north] at (1.5,-2.55)
           {parent must be checked};
-        \draw[draw=avlalert,line width=1.2pt,-{Stealth[length=4pt]}]
+        \draw[draw=avlalert,line width=1.6\pxl,-{Stealth[length=2.6pt]}]
           (1.5,-3.05) -- (1.5,-3.65);
-        \node[color=avlalert,font=\scriptsize,anchor=north] at (1.5,-3.75)
+        \node[avlannotalert,anchor=north] at (1.5,-3.75)
           {and its parent \dots};
       \end{tikzpicture}
       \end{center}
@@ -112,37 +118,42 @@
 %  \drawfib emits nodes in pre-order, so the left spine of T_7 is exactly
 %  f1..f8 = T_7, T_6, ..., T_0. Sizes 54 33 20 12 7 4 2 1 -- F(k+3)-1 term by term.
 \begin{frame}[label=p3]{Every layer is a Fibonacci tree}
-  \vspace{0.4em}
+  \vspace{-0.2em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,
-      avldot/.style={avlgolddot},
-      avledge/.style={avlgoldedge}]
-    \setavlscale{0.47}{0.48}
+      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
+                     minimum size=5.8\pxl},
+      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
+    \setavlscale{0.42}{0.33}
     \resetavl
     \drawfib{7}{0}{0}
 
     % The root's tag would sit under the title rule if it went left like the
     % rest, so it is the one that leans right instead.
-    \node[color=avlfib,font=\tiny,anchor=west,inner sep=1.2pt]
+    \node[avlannotfib,anchor=west]
       at ($(f1)+(0.22,0.10)$) {$T_{7}$\,:\,\textbf{54}};
     \foreach \i/\k/\N in {2/6/33, 3/5/20, 4/4/12,
                           5/3/7, 6/2/4, 7/1/2, 8/0/1} {
-      \draw[avlfib!45,line width=0.4pt]
+      \draw[avlfib!45,line width=1\pxl]
         ($(f\i)+(-0.14,0)$) -- ($(f\i)+(-0.30,0)$);
-      \node[color=avlfib,font=\tiny,anchor=east,inner sep=1.2pt]
+      \node[avlannotfib,anchor=east]
         at ($(f\i)+(-0.32,0.01)$) {$T_{\k}$\,:\,\textbf{\N}};
     }
   \end{tikzpicture}
   \end{center}
 
-  \vspace{0.5em}
+  \vspace{0.3em}
   \begin{center}
-    {\color{avlmuted}\small Every subtree down the left edge is itself the
+    {\avlfSec\color{avlmuted}Every subtree down the left edge is itself the
      \emph{smallest} tree of its height:}\\[0.3em]
-    {\color{avlfib}54, \ 33, \ 20, \ 12, \ 7, \ 4, \ 2, \ 1
-     \quad\quietc{---}\quad $N(k) = F(k{+}3) - 1$ \ at \emph{every} layer}\\[0.45em]
-    \onslide<2->{{\color{avlpthree}\bfseries\small Nothing here has a spare
-     node. Take one away and something has to get shorter.}}
+    {\avlfSec\color{avlfib}54, \ 33, \ 20, \ 12, \ 7, \ 4, \ 2, \ 1
+     \quad\quietc{---}\quad $N(k) = F(k{+}3) - 1$ \ at \emph{every} layer}\\[0.5em]
+    \begin{minipage}[t][60\pxl][c]{\textwidth}\centering
+    \onslide<2->{\begin{avlpanelh}[\textwidth]{avlpthree}
+      {\color{avlpthree}Nothing here has a spare node. Take one away and
+       something has to get shorter.}
+    \end{avlpanelh}}
+    \end{minipage}
   \end{center}
 
   \note{Part 1 counted the whole tree and got 54, a Fibonacci number. Now look
@@ -173,22 +184,29 @@
   \foreach \a/\b in #2 {\draw[avlgoldedge] (c-\a) -- (c-\b);}%
   \foreach \r/\d in #1 {\fill[avlfib] (c-\r) circle (\cascrad);}}
 
-% the node that is gone, marked at the x-slot it will never occupy again
-\newcommand{\cascgap}{%
-  \draw[draw=avlalert!55, dashed, line width=0.7pt]
-    (\casctarget*\cascdx,-4*\cascdy) circle (4.2pt);}
+% The node that is gone. It used to be marked with a dashed ring held at the
+% x-slot it would never occupy again; that ring read as a stray artefact once
+% the tree had restructured around it, so the slot is now simply left empty.
+\newcommand{\cascgap}{}
 
 % \cascbreak{<rank>}{<bf>} -- the node that is now illegal
 \newcommand{\cascbreak}[2]{%
   \draw[draw=avlalert, line width=1.2pt] (c-#1) circle (4.2pt);
-  \node[text=avlalert, font=\scriptsize\bfseries, anchor=west,
-        fill=avlground, inner sep=1.6pt, rounded corners=1pt,
-        xshift=5.5pt, yshift=7pt] at (c-#1) {$\mathrm{bf}=#2$};}
+  % The label goes ABOVE THE ROOT ROW, the one band of this figure that is
+  % guaranteed empty at every beat, and a hairline leader ties it back to the
+  % ring. Anywhere inside the canopy its filled box lands on some edge and
+  % chops it -- which is what it was doing next to the node.
+  \draw[avlalert!50, line width=0.5pt]
+    ($(c-#1)+(0,4.6pt)$) -- ({#1*\cascdx},0.10);
+  \node[text=avlalert, font=\scriptsize\bfseries, anchor=south,
+        fill=avlground, inner sep=1.8pt, rounded corners=1pt]
+    at ({#1*\cascdx},0.10) {$\mathrm{bf}=#2$};}
 
 % height ruler down the left edge; #1 = height, #2 = colour
 \newcommand{\cascruler}[2]{%
   \begin{scope}[xshift=-0.55cm]
-    \draw[decorate,decoration={brace,amplitude=4pt},#2,line width=0.8pt]
+    % mirror: the brace must open toward the tree it is measuring
+    \draw[decorate,decoration={brace,amplitude=4pt,mirror},#2,line width=0.8pt]
       (0,0.10) -- (0,{-#1*\cascdy-0.10});
     \node[color=#2,font=\scriptsize,anchor=east,rotate=90]
       at (-0.26,{-#1*\cascdy/2}) {height #1};
@@ -216,22 +234,28 @@
   \end{tikzpicture}
   \end{center}
 
+  % Caption block reserves its own height: five beats, one of them two lines.
   \vspace{-0.7em}
   \begin{center}
+  \begin{minipage}[t][76\pxl][t]{\textwidth}\centering\avlfSec
     \only<1>{{\color{avlmuted}54 nodes, height 7, no spare room anywhere.
               Delete the \viol{marked leaf}.}}
     \only<2>{{\color{avlmuted}Gone. Its grandparent is now
-              \viol{$\mathrm{bf}=+2$} --- illegal. \fib{Rotate.}}}
+              \viol{$\mathrm{bf}=+2$} --- illegal.
+              {\color{avlpthree}\wmed Rotate.}}}
     \only<3>{{\color{avlmuted}Fixed --- but that subtree got \emph{shorter},
-              so its own parent is now \viol{$+2$}. \fib{Rotate again.}}}
+              so its own parent is now \viol{$+2$}.
+              {\color{avlpthree}\wmed Rotate again.}}}
     \only<4>{{\color{avlmuted}And again. This one is a child of the root.
-              \fib{Rotate a third time.}}}
-    \only<5->{{\large\viol{\textbf{3 rotations}}\quad\quietc{$\cdot$}\quad
-               54 $\rightarrow$ 53 nodes \quad\quietc{$\cdot$}\quad
-               height \textbf{7} $\rightarrow$
-               \color{avlpthree}\textbf{6}}\\[0.3em]
+              {\color{avlpthree}\wmed Rotate a third time.}}}
+    \only<5->{{\avlfLead\viol{\wbold 3 rotations}\quad\quietc{$\cdot$}\quad
+               {\color{avlbody}54 $\rightarrow$ 53 nodes}
+               \quad\quietc{$\cdot$}\quad
+               {\color{avlbody}height \textbf{7} $\rightarrow$}
+               \color{avlpthree}\textbf{6}}\\[0.35em]
               {\color{avlmuted}The height only fell when the cascade reached
                the top --- and one delete paid for all of it.}}
+  \end{minipage}
   \end{center}
 
   \note{One click at a time, and say what changed. The leaf is gone --- the
@@ -246,45 +270,51 @@
 
 % ------------------------------------------------------------------ the law
 \begin{frame}[label=p3]{Insertion costs 1. Deletion costs $\lfloor h/2 \rfloor$.}
-  \vspace{0.5em}
-  \begin{center}
-  \begin{tikzpicture}
-    \begin{axis}[
-      width=8.6cm, height=4.4cm, axis lines=left,
-      xlabel={height of the tree}, ylabel={rotations},
-      xlabel style={font=\scriptsize,color=avlmuted},
-      ylabel style={font=\scriptsize,color=avlmuted},
-      tick label style={font=\tiny,color=avlmuted},
-      axis line style={color=avlmuted},
-      legend style={font=\scriptsize,draw=none,fill=none,text=avlink,
-                    at={(0.03,0.97)},anchor=north west},
-      ymin=0, ymax=8, xmin=2, xmax=14,
-    ]
-      \addplot[color=avlalert,mark=*,mark size=1.3pt,thick]
-        coordinates {(2,1)(3,1)(4,2)(5,2)(6,3)(7,3)(8,4)(9,4)(10,5)(11,5)(12,6)(13,6)(14,7)};
-      \addlegendentry{deletion}
-      \addplot[color=avlfib,thick,dashed] coordinates {(2,1)(14,1)};
-      \addlegendentry{insertion}
-    \end{axis}
-  \end{tikzpicture}
-  \end{center}
-
-  \vspace{0.1em}
-  \begin{center}
-  \setlength{\tabcolsep}{13pt}
-  \renewcommand{\arraystretch}{1.25}
-  {\small
-  \begin{tabular}{lcc}
-    \color{avlmuted}one million nodes & \color{avlmuted}insertion & \color{avlmuted}deletion\\\hline
-    worst case rotations & \fib{\textbf{1}} & \viol{\textbf{13}}\\
-  \end{tabular}}
-  \end{center}
-
-  \vspace{0.3em}
-  \begin{center}
-    {\color{avlmuted}\small Measured by running a real AVL tree for every
-     height from 2 to 14.}
-  \end{center}
+  % Fixed two-column layout: the plot is drawn at its true size (640 px wide)
+  % and is never scaled to fit, so its tick and axis labels stay legible.
+  % No grid -- the ticks carry the scale, and a guide line under the series
+  % labels is the one thing that kept colliding with them.
+  \vspace{0.2em}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{7.9cm}
+      \begin{tikzpicture}
+        \begin{axis}[
+          width=7.3cm, height=4.45cm, axis lines=left, scale only axis,
+          xlabel={height of the tree}, ylabel={rotations, worst case},
+          xlabel style={font=\avlfAnnot,color=avlfaint},
+          ylabel style={font=\avlfAnnot,color=avlfaint},
+          tick label style={font=\avlfAnnot,color=avlfaint},
+          axis line style={color=avlfaint,line width=1\pxl},
+          tick style={color=avlfaint,line width=1\pxl},
+          xtick={2,4,6,8,10,12,14}, ytick={0,2,4,6,8},
+          ymin=0, ymax=8, xmin=2, xmax=14,
+        ]
+          % the 13 measured points, verify/ ground truth
+          \addplot[color=avlalert,line width=2.4\pxl,mark=*,mark size=2\pxl,
+                   mark options={fill=avlalert,draw=avlalert}]
+            coordinates {(2,1)(3,1)(4,2)(5,2)(6,3)(7,3)(8,4)(9,4)(10,5)(11,5)
+                         (12,6)(13,6)(14,7)};
+          \addplot[color=avlfib,line width=2.4\pxl,dash pattern=on 8\pxl off 6\pxl]
+            coordinates {(2,1)(14,1)};
+          % Series named in place, upper left -- no legend box, no swatch of a
+          % colour the curve does not already use.
+          \node[anchor=west,font=\avlfAnnot\wmed,text=avlalert]
+            at (axis cs:2.55,7.3) {\textcolor{avlalert}{\rule[0.6ex]{20\pxl}{2.4\pxl}}\ \ deletion --- $\lfloor h/2 \rfloor$};
+          \node[anchor=west,font=\avlfAnnot\wmed,text=avlfib]
+            at (axis cs:2.55,6.4) {\textcolor{avlfib}{\rule[0.6ex]{8\pxl}{2.4\pxl}\hskip4\pxl\rule[0.6ex]{8\pxl}{2.4\pxl}}\ \ insertion --- always 1};
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{4.55cm}
+      \eyebrow{One million nodes}\\[0.5em]
+      {\color{avlrule}\hrule height 1\pxl}\vskip 8\pxl
+      \avlstatrow[avlfib]{Insertion}{1}
+      \avlstatrow[avlalert]{Deletion}{13}
+      \vskip 0.6em
+      {\avlfSec\color{avlmuted}Measured on a real AVL tree, every height
+       from 2 to 14.}
+    \end{column}
+  \end{columns}
 
   \note{Insertion is flat at one, forever. Deletion grows with the height.
   At one million nodes the tree is 27 tall, so a single delete can cost 13
@@ -295,25 +325,28 @@
 \begin{frame}[label=p3]{And now count the nodes}
   % No tree here on purpose: it was on screen two slides ago, and repeating it
   % pushed this frame off the bottom. The number is the payload.
-  \vspace{1.6em}
+  \vspace{1.2em}
   \begin{center}
-    {\color{avlmuted}Count the worst case tree we just broke:}\\[0.5em]
-    {\Huge\color{avlfib}\bfseries 54 nodes}
+    {\avlfSec\color{avlmuted}Count the worst case tree we just broke:}\\[0.5em]
+    {\avlfHuge\color{avlfib}\wbold 54 nodes}
   \end{center}
 
-  \vspace{1.8em}
+  \vspace{1.5em}
   \onslide<2->{
   \begin{center}
-    {\color{avlink}Fibonacci: \ 1, 1, 2, 3, 5, 8, 13, 21, 34,
-     \fib{\textbf{55}}}\\[0.35em]
-    {\Large\color{avlfib}$55 - 1 \;=\; \mathbf{54}$}
+    {\avlfBody\color{avlink}Fibonacci: \ 1, 1, 2, 3, 5, 8, 13, 21, 34,
+     \fib{\textbf{55}}}\\[0.4em]
+    {\avlfLead\color{avlfib}$55 - 1 \;=\; \mathbf{54}$}
   \end{center}}
 
-  \vspace{0.45em}
-  \onslide<3->{
+  \vspace{0.8em}
   \begin{center}
-    {\color{avlpthree}\bfseries We predicted this in Part 1. It matches exactly.}
-  \end{center}}
+  \begin{minipage}[t][58\pxl][c]{0.72\textwidth}\centering
+  \onslide<3->{\begin{avlpanelh}[0.98\textwidth]{avlpthree}
+    {\color{avlpthree}We predicted this in Part 1. It matches exactly.}
+  \end{avlpanelh}}
+  \end{minipage}
+  \end{center}
 
   \note{Count the tree we just broke. 54 nodes. Now the Fibonacci sequence ---
   the tenth number is 55. Minus one is 54. We said this in Part 1 before we had
@@ -323,35 +356,38 @@
 
 % ------------------------------------------------------------------ tie-back
 \begin{frame}[label=p3]{One tree. Three answers.}
-  \vspace{1.2em}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.31\textwidth}
-      \begin{center}
-        {\color{avlfib}\large\bfseries Height}\\[0.8em]
-        {\color{avlmuted}\small It is the emptiest legal tree,
-         so it sets the limit}\\[0.9em]
-        \fib{$h < 1.44 \log_2 n$}
-      \end{center}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      \begin{center}
-        {\color{avlfib}\large\bfseries Count}\\[0.8em]
-        {\color{avlmuted}\small Its size is a Fibonacci number}\\[0.9em]
-        \fib{$54 = F(10) - 1$}
-      \end{center}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      \begin{center}
-        {\color{avlfib}\large\bfseries Cost}\\[0.8em]
-        {\color{avlmuted}\small No spare room, so a delete cannot be absorbed}\\[0.9em]
-        \fib{3 rotations}
-      \end{center}
-    \end{column}
-  \end{columns}
-
-  \vspace{1.8em}
+  % Three answers, hairline-separated -- the rules say "same object, three
+  % readings" more economically than three boxes would.
+  \vspace{1.0em}
   \begin{center}
-    {\large\color{avlmuted}Not three facts --- \fib{one tree} seen three ways.}
+  \setlength{\tabcolsep}{22\pxl}
+  \arrayrulecolor{avlrule}
+  \setlength{\arrayrulewidth}{1\pxl}
+  \begin{tabular}{@{}c|c|c@{}}
+    \begin{minipage}[t]{0.27\textwidth}\centering
+      {\color{avlfib}\avlfLead\wbold Height}\\[0.7em]
+      {\color{avlmuted}\avlfSec It is the emptiest legal tree, so it sets the
+       limit}\\[0.8em]
+      \fib{$h < 1.44 \log_2 n$}
+    \end{minipage} &
+    \begin{minipage}[t]{0.27\textwidth}\centering
+      {\color{avlfib}\avlfLead\wbold Count}\\[0.7em]
+      {\color{avlmuted}\avlfSec Its size is a Fibonacci number}\\[0.8em]
+      \fib{$54 = F(10) - 1$}
+    \end{minipage} &
+    \begin{minipage}[t]{0.27\textwidth}\centering
+      {\color{avlfib}\avlfLead\wbold Cost}\\[0.7em]
+      {\color{avlmuted}\avlfSec No spare room, so a delete cannot be
+       absorbed}\\[0.8em]
+      \fib{3 rotations}
+    \end{minipage}
+  \end{tabular}
+  \end{center}
+
+  \vspace{1.4em}
+  \begin{center}
+    {\avlfLead\color{avlmuted}Not three facts --- \fib{one tree} seen three
+     ways.}
   \end{center}
 
   \note{The height bound, the Fibonacci number and the worst case are the same
@@ -359,6 +395,6 @@
 \end{frame}
 
 % ------------------------------------------------------------------ closing
-\avlstatement{A balanced tree is not one that is even.\\[0.7em]
-It is one that is never more than \emph{one step} away from even.\\[0.7em]
-That one step is what keeps every search fast.}{avlpthree}
+\avlstatement{A balanced tree is not one that is even.\\[0.35em]
+It is one that is never more than \dstrong{one step} away from even.\\[0.35em]
+That one step is what keeps every search fast.}{avlpthreeA}{avlpthreeB}{avlpthreeC}

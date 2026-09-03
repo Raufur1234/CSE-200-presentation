@@ -12,6 +12,9 @@
 %  The pin marks the node the rotation is NAMED at -- the unbalanced one, the
 %  one that comes down. A double rotation gets two pins and two arcs, in order.
 %
+%  COLOUR: the arc and the pin carry the CURRENT PART's hue, never ember.
+%  Ember means the Fibonacci argument and nothing else.
+%
 %  Beamer overlays are jump cuts, so GHOSTING carries the eye across: the
 %  post-rotation frame redraws the pre-rotation positions at low opacity, with
 %  a faint thread to where each node ended up.
@@ -27,25 +30,26 @@
 % and the node slides over it like every other node, so the tip stops short of
 % the rim rather than touching it. Straight down is also the one direction that
 % never collides with a child edge, and it is where the mark sits on the board.
-\newcommand{\pivotpin}[2][avlfib]{%
+% Stem 2.4 px, ball 5.5 px, tip stopping 6 px short of the rim (spec 5).
+\newcommand{\pivotpin}[2][avlpartcolor]{%
   \begin{scope}[shift={(#2)},scale=\avlpinscale]
-    \draw[draw=#1, line width=0.9pt, line cap=round] (0,-0.95) -- (0,-0.60);
-    \fill[#1] (0,-0.99) circle (0.095);
-    \fill[#1] (0,-0.58) circle (0.024);
+    \draw[draw=#1, line width=2.4\pxl, line cap=round] (0,-0.95) -- (0,-0.60);
+    \fill[#1] (0,-0.99) circle (5.5\pxl);
+    \fill[#1] (0,-0.58) circle (1.5\pxl);
   \end{scope}%
 }
 
 % \rotright[<colour>]{<pivot>}{<radius>}
 % RIGHT rotation = turn the tree clockwise about the pin. The arc starts low on
 % the left, sweeps over the top, and points down on the right.
-\newcommand{\rotright}[3][avlfib]{%
-  \draw[-{Stealth[length=5pt,width=4pt]}, draw=#1, line width=1.1pt]
+\newcommand{\rotright}[3][avlpartcolor]{%
+  \draw[-{Stealth[length=2.5pt,width=1.95pt]}, draw=#1, line width=2.2\pxl]
     (#2) ++(205:#3) arc (205:-25:#3);%
 }
 
 % \rotleft[<colour>]{<pivot>}{<radius>} -- the mirror image, anticlockwise.
-\newcommand{\rotleft}[3][avlfib]{%
-  \draw[-{Stealth[length=5pt,width=4pt]}, draw=#1, line width=1.1pt]
+\newcommand{\rotleft}[3][avlpartcolor]{%
+  \draw[-{Stealth[length=2.5pt,width=1.95pt]}, draw=#1, line width=2.2\pxl]
     (#2) ++(-25:#3) arc (-25:205:#3);%
 }
 
@@ -53,13 +57,13 @@
 % Dashed outline and NO fill on purpose: a solid disc reads as a live node, and
 % a ghost sitting directly under a real one then looks like its child.
 \newcommand{\ghostnode}[3]{%
-  \node[circle, draw=avlmuted, dashed, line width=0.4pt, fill=none,
-        text=avlmuted, opacity=0.55, inner sep=1pt, minimum size=6.5mm,
-        font=\footnotesize] at (#1,#2) {#3};%
+  \node[circle, draw=avlfaint, dashed, line width=1.6\pxl, fill=none,
+        text=avlfaint, opacity=0.55, inner sep=0pt, minimum size=52\pxl,
+        font=\avlfEyebrow] at (#1,#2) {#3};%
 }
 % \ghostpath{from}{to} -- faint thread from the old spot to the new one, with
 % an arrowhead so the direction of travel is stated, not inferred.
 \newcommand{\ghostpath}[2]{%
-  \draw[-{Stealth[length=3.5pt]}, draw=avlmuted, opacity=0.55, dotted,
-        line width=0.6pt] (#1) -- (#2);%
+  \draw[-{Stealth[length=1.4pt]}, draw=avlfaint, opacity=0.6, dotted,
+        line width=1.4\pxl] (#1) -- (#2);%
 }
