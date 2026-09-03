@@ -126,6 +126,11 @@
   \vspace{0.1em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,scale=0.94,every node/.style={transform shape}]
+    % Symmetric extent, shared with "How AVL fixes the bad case". Without it the
+    % bounding box is decided by whichever side's content reaches further, the
+    % \begin{center} then centres THAT, and the divider at x = 0 drifts off the
+    % slide's midline -- by a different amount on each of the two frames.
+    \path (-6.1,1.00) rectangle (6.1,-3.80);
     \figdivider{0}{0.95}{-3.75}
 
     \begin{scope}[xshift=-3.55cm,yshift=-0.55cm]
@@ -260,37 +265,63 @@
 
 % ------------------------------------------------------------------ how it solves it
 \begin{frame}[label=p1]{How AVL fixes the bad case}
-  \vspace{-0.2em}
+  % Same lattice, node sizes and verdict baseline as "sorted input destroys it"
+  % two frames back, mirrored: there the legal tree was on the left, here it is
+  % the answer, so it lands on the right. Each tree now carries its balance
+  % factors -- all zero and green on the AVL side, one impossible -6 in red
+  % with a cross on the list.
+  \vspace{0.1em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.86,every node/.style={transform shape}]
-    \begin{scope}[xshift=-3.6cm,yshift=0.4cm]
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.94,every node/.style={transform shape}]
+    % same symmetric extent as frame 04, so the divider lands on the same
+    % midline on both frames
+    \path (-6.1,1.00) rectangle (6.1,-3.80);
+    \figdivider{0}{0.95}{-3.75}
+
+    \begin{scope}[xshift=-3.55cm,yshift=-0.15cm]
+      \node[avlannot,text=avlmuted] at (0,0.95) {plain BST};
       \foreach \k [count=\i from 0] in {1,2,3,4,5,6,7} {
-        \pgfmathsetmacro{\yy}{-\i*0.55}
-        \pgfmathsetmacro{\xx}{\i*0.30}
-        \node[avlkeyalert,minimum size=36\pxl,font=\avlfAnnot] (c\k) at (\xx,\yy) {\k};
+        \pgfmathsetmacro{\yy}{-\i*0.44}
+        \pgfmathsetmacro{\xx}{-1.20+\i*0.40}
+        \node[avlkeyalert,minimum size=34\pxl,font=\avlfAnnot] (c\k) at (\xx,\yy) {\k};
       }
       \foreach \a/\b in {c1/c2,c2/c3,c3/c4,c4/c5,c5/c6,c6/c7}
         \draw[draw=avlalert,line width=1.6\pxl] (\a) -- (\b);
-      \node[avlannot,text=avlmuted] at (0.9,-4.2) {plain BST};
-      \node[color=avlalert,font=\avlfLead\wbold] at (0.9,-4.85) {height 6};
+      % \color goes INSIDE the maths: beamer stamps its own "math text" colour
+      % at the start of every $...$, so a node-level text= is ignored there.
+      \node[color=avlalert,font=\avlfAnnot\wmed,anchor=west] (bflab)
+        at (-0.95,0.30) {$\color{avlalert}\mathrm{bf}(1) = -6$};
+      % a drawn cross, sized to the label's own x-height
+      \draw[avlalert,line width=1.5\pxl,line cap=round]
+        ($(bflab.east)+(0.12,-0.08)$) -- ($(bflab.east)+(0.30,0.10)$);
+      \draw[avlalert,line width=1.5\pxl,line cap=round]
+        ($(bflab.east)+(0.12,0.10)$) -- ($(bflab.east)+(0.30,-0.08)$);
+      \node[color=avlalert,font=\avlfStmt\wbold] at (0,-3.35) {7 steps};
     \end{scope}
 
-    % neutral arrow: the transformation is not part of the Fibonacci thread
-    \draw[avlarrow] (-0.9,-1.6) -- (0.5,-1.6);
-    \node[avlannot,above=2pt] at (-0.2,-1.55) {same input};
-
-    \begin{scope}[xshift=3.4cm,yshift=-0.6cm]
-      \node[avlkeyok] (a4) at (0,0)        {4};
-      \node[avlkeyok] (a2) at (-1.3,-1.15) {2};
-      \node[avlkeyok] (a6) at (1.3,-1.15)  {6};
-      \node[avlkeyok] (a1) at (-2.0,-2.3)  {1};
-      \node[avlkeyok] (a3) at (-0.6,-2.3)  {3};
-      \node[avlkeyok] (a5) at (0.6,-2.3)   {5};
-      \node[avlkeyok] (a7) at (2.0,-2.3)   {7};
-      \foreach \a/\b in {a4/a2,a4/a6,a2/a1,a2/a3,a6/a5,a6/a7}
+    \begin{scope}[xshift=3.55cm,yshift=-0.55cm]
+      \node[avlannot,text=avlmuted] at (0,1.35) {AVL tree};
+      \node[avlkeyok] (b4) at (0,0)        {4};
+      \node[avlkeyok] (b2) at (-1.25,-1.0) {2};
+      \node[avlkeyok] (b6) at (1.25,-1.0)  {6};
+      \node[avlkeyok] (b1) at (-1.95,-2.0) {1};
+      \node[avlkeyok] (b3) at (-0.55,-2.0) {3};
+      \node[avlkeyok] (b5) at (0.55,-2.0)  {5};
+      \node[avlkeyok] (b7) at (1.95,-2.0)  {7};
+      \foreach \a/\b in {b4/b2,b4/b6,b2/b1,b2/b3,b6/b5,b6/b7}
         \draw[draw=avlbalance!70,line width=1.6\pxl] (\a) -- (\b);
-      \node[avlannot,text=avlmuted] at (0,-3.2) {AVL tree};
-      \node[color=avlbalance,font=\avlfLead\wbold] at (0,-3.85) {height 2};
+      % every balance factor, and every one of them legal
+      \node[avlannotok,anchor=west] at (0.38,0.34)
+        {$\color{avlbalance}\mathrm{bf} = 0$};
+      \node[avlannotok,anchor=east] at (-1.62,-0.68) {$\color{avlbalance}0$};
+      \node[avlannotok,anchor=west] at (1.62,-0.68)  {$\color{avlbalance}0$};
+      % leaves take their bf beside them, not beneath: underneath would crowd
+      % the verdict line that has to stay level with "7 steps" opposite
+      \node[avlannotok,anchor=west] at (-1.58,-2.0) {$\color{avlbalance}0$};
+      \node[avlannotok,anchor=west] at (-0.18,-2.0) {$\color{avlbalance}0$};
+      \node[avlannotok,anchor=west] at (0.92,-2.0)  {$\color{avlbalance}0$};
+      \node[avlannotok,anchor=west] at (2.32,-2.0)  {$\color{avlbalance}0$};
+      \node[color=avlbalance,font=\avlfStmt\wbold] at (0,-2.95) {3 steps};
     \end{scope}
   \end{tikzpicture}
   \end{center}
