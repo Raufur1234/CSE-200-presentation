@@ -570,8 +570,9 @@
     \def\boxwidth{3.0}
     \def\boxheight{0.75}
     
-    % AVL: logarithmic
-    \begin{scope}[xshift=-4.5cm]
+    % AVL: logarithmic. On the RIGHT, because the "50,000x faster" arrow below
+    % runs left to right and has to point AT the tree that is faster.
+    \begin{scope}[xshift=4.5cm]
       % Box
       \node[draw=avlfib!45!avlground,fill=avlfib!8!avlground,line width=1.5\pxl,rounded corners=6pt,
             minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
@@ -598,8 +599,9 @@
       };
     \end{scope}
 
-    % Unbalanced BST: worst case linear (same dimensions)
-    \begin{scope}[xshift=4.5cm]
+    % Unbalanced BST: worst case linear (same dimensions). On the LEFT -- the
+    % arrow starts from the slow side.
+    \begin{scope}[xshift=-4.5cm]
       % Box
       \node[draw=avlalert!45!avlground,fill=avlalert!8!avlground,line width=1.5\pxl,rounded corners=6pt,
             minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
