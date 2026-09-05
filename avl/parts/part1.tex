@@ -72,7 +72,7 @@
 \setavlpart{1}{Part 1 --- The problem}{avlpone}
 
 % ------------------------------------------------------------------ what is a BST
-\begin{frame}[label=p1]{First, the rule every BST follows}
+\begin{frame}[label=p1]{The Classic BST}
   \vspace{0.3em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
@@ -179,26 +179,28 @@
 
 % ------------------------------------------------------------------ the idea
 \begin{frame}[label=p1]{The idea: check the height at every node}
-  \vspace{0.6em}
+  \vspace{-0.2em}
   \begin{center}
     {\avlfLead\color{avlbody}The tree got tall because one side grew and
      \emph{nobody checked}.}
   \end{center}
   \vspace{0.6em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.style={transform shape}]
-    \node[avlkey,minimum size=42\pxl] (r) at (0,0) {};
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.80,every node/.style={transform shape}]
+    \node[avlkey,minimum size=42\pxl] (r) at (0,0.85) {};
     % subtrees as ember triangles, each carrying its height as the symbol
     \node[avltri,minimum size=2.3cm,font=\avlfLead,text=avlfib] (L) at (-1.75,-1.55) {$a$};
     \node[avltri,minimum size=1.75cm,font=\avlfLead,text=avlfib] (R) at (1.75,-1.25) {$b$};
-    \draw[avledge] (r) -- (L);
-    \draw[avledge] (r) -- (R);
+    \draw[avledge] (r) -- (L.north);
+    \draw[avledge] (r) -- (R.north);
     % height rulers, one per side, measured from the root row to each base
-    \heightbrace{-3.05}{-0.30}{-2.32}{height $a$}{avlfaint}
-    \heightbrace{3.05}{-0.30}{-1.75}{height $b$}{avlfaint}
-    \draw[avlrule,line width=1\pxl,dotted] (-3.05,-0.30) -- (3.05,-0.30);
+    \heightbrace{-3.05}{0.55}{-2.32}{\scalebox{1.5}{height $a$}}{avlfaint}
+    \heightbrace{3.05}{0.55}{-1.75}{}{avlfaint}
+    \node[font=\avlfAnnot,text=avlfaint,rotate=90,anchor=north]
+      at (3.15,-0.60) {\scalebox{1.5}{height $b$}};
+    \draw[avlrule,line width=1\pxl,dotted] (-3.05,0.55) -- (3.05,0.55);
     \draw[avlrule,line width=1\pxl] (-2.55,-2.72) -- (2.55,-2.72);
-    \node[avlannot,anchor=north] at (0,-2.80) {one node, two subtree heights};
+    \node[avlannot,font=\avlfSec,anchor=north] at (0,-2.80) {one node, two subtree heights};
   \end{tikzpicture}
   \end{center}
 
@@ -367,7 +369,7 @@
 
   \vspace{0.7em}
   \begin{center}
-    {\avlfSec\color{avlmuted}Never a list. Always close to the best possible.}
+    {\avlfSec\color{avlmuted}Never a list. Always close to the minimum possible height.}
   \end{center}
 
   \note{This is the promise. No matter what order the data arrives in, the
@@ -385,8 +387,8 @@
   \begin{center}
     {\avlfLead\color{avlmuted}Instead of ``how tall can it get?'', ask:}\\[0.8em]
     % the pivot line: the turned question, with the turn itself in ink
-    {\avlfStmt\color{avlfib}\wbold What is the
-     {\color{avlink}\mdseries smallest} AVL tree of height $h$?}
+    {\avlfStmt\color{avlink} What is the
+     {\color{avlfib}\mdseries \wbold smallest} AVL tree of height $\boldsymbol{\textcolor{avlfib}{h}}$?}
   \end{center}
 
   \vspace{0.7em}
@@ -396,11 +398,10 @@
 
   \vspace{0.7em}
   \begin{center}
-    {\avlfBody\color{avlbody}If even the emptiest legal tree of height $h$
-     needs a lot of nodes,\\[0.3em]
-     then a tree with few nodes \emph{cannot} be tall.}\\[0.9em]
+    {\avlfBody\color{avlbody}Even the smallest AVL tree of height $h$ needs many nodes. \\[0.3em]
+    So an AVL tree with few nodes \emph{cannot} be very tall.}\\[0.9em]
     \begin{avlpanel}[0.58\textwidth]
-      Write \fib{$N(h)$} for that smallest node count.
+     \fib{$N(h)$} means that smallest node count.
     \end{avlpanel}
   \end{center}
 
@@ -500,13 +501,13 @@
   \begin{minipage}[t][112\pxl][c]{0.86\textwidth}\centering
     \only<1>{{\avlfSec\color{avlmuted}The smallest legal tree of height 0 is
               one node.}}
-    \only<2>{{\avlfSec\color{avlmuted}For height 1 you need a child --- and one
+    \only<2>{{\avlfSec\color{avlmuted}For height 1 you need a child, and one
               child is enough, because a gap of 1 is legal.}}
     \only<3>{{\avlfSec\color{avlmuted}For height 2, one side must reach
               height 1. The other is as \emph{small} as the rule allows:
               height 0.}}
     \only<4>{{\avlfSec\color{avlmuted}And again: one side $T_2$, the other side
-              $T_1$. \fib{The pattern does not change.}}}
+              $T_1$. \fib{The pattern holds.}}}
     % the recurrence arrives in a panel -- it is the payoff, not a caption
     \only<5->{\begin{avlpanel}[0.74\textwidth]
                 {\avlfTitle\color{avlfib}$N(h) = N(h-1) + N(h-2) + 1$}\\[8\pxl]
@@ -555,10 +556,10 @@
   \end{center}}}
 
   % Beat 5 -- the phi payoff. A split panel: the glyph, a rule, the value.
-  \only<5>{
+  \only<5-6>{
   \vspace{0.1em}
   \begin{center}
-    \eyebrow{$x^2 = x+1$ has one root above 1, and it dominates}\\[1.0em]
+    {\avlfSec\color{avlfaint}\avltrack{$x^2 = x+1$ has one root above 1, and it dominates}}\\[1.0em]
     % Laid out in tikz so the glyph, the rule and the two value lines all
     % share one vertical centre -- baseline stacking put phi low in the box.
     % The glyph and its value, filling the panel: phi set large and bold in
@@ -573,13 +574,22 @@
           {\fontsize{26}{26}\selectfont\wbold\color{avlfib}1.618};
       \end{tikzpicture}
     \end{avlpanel}\\[0.9em]
-    {\avlfTitle\color{avlink}$N(h) \sim \varphi^{\,h}$}\\[0.9em]
-    \begin{minipage}{0.74\textwidth}\centering
-      {\avlfBody\color{avlbody}The smallest legal tree multiplies by
-       \fib{1.618 every level}. Nodes grow exponentially, so height can only
-       grow like a logarithm --- \fib{this is the whole reason 1.44 appears in
-       this talk.}}
-    \end{minipage}
+    {\avlfTitle\color{avlink}$N(h) = \Theta(\varphi^{\,h})$}\\[0.9em]
+    \begin{overlayarea}{\textwidth}{144\pxl}
+      \centering
+      \only<5>{%
+        \begin{minipage}{0.74\textwidth}\centering
+          {\avlfBody\color{avlbody}The smallest legal tree multiplies by
+           \fib{1.618 every level}. Nodes grow exponentially, so height can only
+           grow like a logarithm \fib{which is why the 1.44 appears.}}
+        \end{minipage}}
+      \only<6>{%
+        \begin{avlpanel}[0.78\textwidth]
+          \panellabel{taking logs of $n \ge N(h) \ge \varphi^h$}
+          {\avlfTitle\color{avlfib}$h \le \log_2 n \,/\, \log_2\varphi
+            \approx 1.44 \log_2 n$}
+        \end{avlpanel}}
+    \end{overlayarea}
   \end{center}}
 
   \note{The recurrence is almost Fibonacci but for the plus one. Adding one to
@@ -587,13 +597,13 @@
   trick: guess a geometric solution, divide through by x to the h minus two,
   and you are left with x squared equals x plus one. That is the defining
   equation of the golden ratio. So the smallest AVL tree grows like phi to the
-  h --- and that is the only reason 1.44 appears anywhere in this talk.}
+  h. On the final click, take logs: an actual tree has at least N of h nodes,
+  so its height is at most log n divided by log phi. In base two, the factor
+  is about 1.44. Now we know why the tree stays short. Next, count exactly.}
 \end{frame}
 
 % --------------------------------------------------------- the exact identity
 \begin{frame}[label=p1]{The exact count}
-  % The identity is set bare, big and ember -- it needs no box; the panel at
-  % the foot of the frame is where the consequence lands.
   \vspace{0.2em}
   \begin{center}
     {\avlfDivider\color{avlfib}$N(h) = F(h+3) - 1$}\\[0.7em]
@@ -617,20 +627,21 @@
   \end{tabular}}
   \end{center}}
 
-  \vspace{0.8em}
-  \onslide<3->{
+  \vspace{0.3em}
+  \onslide<2->{
   \begin{center}
-    \begin{avlpanel}[0.58\textwidth]
-      \panellabel{taking logs of $N(h) \sim \varphi^h$}
-      {\avlfTitle\color{avlfib}$h \approx \log_2 n \,/\, \log_2\varphi
-        = 1.44 \log_2 n$}
-    \end{avlpanel}
+    \begin{minipage}{0.78\textwidth}\centering
+      {\avlfBody\color{avlbody}Add 1 to each minimum node count and you get
+       \fib{the Fibonacci sequence: $2,3,5,8,\ldots$}.\\[6\pxl]
+       At height 7, this gives \fib{$55-1=54$ nodes}.}
+    \end{minipage}
   \end{center}}
 
   \note{One line. The plus-one substitution we just made IS the minus one here.
   Read the last column out loud: at height seven the smallest AVL tree has 54
   nodes, and 55 is a Fibonacci number. Hold onto 54 --- Part 3 will build this
-  exact tree and break it.}
+  exact tree and break it. The table and summary appear together: adding one
+  gives Fibonacci, and subtracting one gives our minimum node counts.}
 \end{frame}
 
 % ------------------------------------------------------------------ THE PLANT
@@ -656,8 +667,7 @@
      $N(7) = F(10) - 1 = 55 - 1 =$ \fib{\textbf{54}}}\\[0.7em]
     % the Part 3 plant, in Part 3's hue -- the only plum on a Part 1 slide
     \begin{avlpanelh}[0.98\textwidth]{avlpthree}
-      {\color{avlpthree}In Part 3 we will delete one leaf from this exact tree
-       --- and watch it come apart.}
+      {\color{avlpthree}In Part 3 we will delete one leaf from this exact tree, and watch it come apart.}
     \end{avlpanelh}
   \end{center}
 
