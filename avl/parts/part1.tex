@@ -181,8 +181,8 @@
 \begin{frame}[label=p1]{The idea: check the height at every node}
   \vspace{-0.2em}
   \begin{center}
-    {\avlfLead\color{avlbody}The tree got tall because one side grew and
-     \emph{nobody checked}.}
+    {\avlfLead\color{avlbody}The BST got tall since one side grew and
+     \emph{remained unchecked}.}
   \end{center}
   \vspace{0.6em}
   \begin{center}
@@ -344,8 +344,8 @@
 \begin{frame}[label=p1]{The height property}
   \vspace{0.1em}
   \begin{center}
-    {\avlfLead\color{avlbody}A local rule at every node gives a
-     \emph{global} guarantee:}\\[0.9em]
+    {\avlfLead\color{avlbody}A simple rule at each node that keeps the 
+     \emph{whole} tree balanced:}\\[0.9em]
     \begin{avlpanel}[0.50\textwidth]
       {\avlfDivider\color{avlfib}$h < 1.44 \, \log_2 n$}
     \end{avlpanel}
@@ -603,76 +603,77 @@
 \end{frame}
 
 % --------------------------------------------------------- the exact identity
-\begin{frame}[label=p1]{The exact count}
-  \vspace{0.2em}
-  \begin{center}
-    {\avlfDivider\color{avlfib}$N(h) = F(h+3) - 1$}\\[0.7em]
-    {\avlfSec\color{avlmuted}because $M(h) = N(h)+1$ is Fibonacci, starting at
-     $M(0) = 2 = F(3)$}
-  \end{center}
+% \begin{frame}[label=p1]{The exact count}
 
-  % No vertical rules, no zebra: a hairline under the header, avlrule2 between
-  % body rows, and the payoff column carries the ember tint.
-  \vspace{0.7em}
-  \onslide<2->{
-  \begin{center}
-  \setlength{\tabcolsep}{10\pxl}
-  \renewcommand{\arraystretch}{1.35}
-  \setlength{\arrayrulewidth}{1\pxl}
-  {\avlfSec
-  \begin{tabular}{r|cccccccc}
-    \color{avlfaint}$h$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & \fib{\textbf{7}}\\
-    \color{avlfaint}$N(h)$ & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
-    \color{avlfaint}$F(h{+}3)$ & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{\textbf{55}}\\
-  \end{tabular}}
-  \end{center}}
+%   % No vertical rules, no zebra: a hairline under the header, avlrule2 between
+%   % body rows, and the payoff column carries the ember tint.
+%   \vspace{0.4em}
+%   \begin{center}
+%   \setlength{\tabcolsep}{10\pxl}
+%   \renewcommand{\arraystretch}{1.35}
+%   \setlength{\arrayrulewidth}{1\pxl}
+%   {\avlfSec
+%   \begin{tabular}{r|cccccccc}
+%     \color{avlfaint}$h$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & \fib{\textbf{7}}\\
+%     \color{avlfaint}$N(h)$ & 1 & 2 & 4 & 7 & 12 & 20 & 33 & \fib{\textbf{54}}\\
+%     \color{avlfaint}$F(h{+}3)$ & 2 & 3 & 5 & 8 & 13 & 21 & 34 & \fib{\textbf{55}}\\
+%   \end{tabular}}
+%   \end{center}
 
-  \vspace{0.3em}
-  \onslide<2->{
-  \begin{center}
-    \begin{minipage}{0.78\textwidth}\centering
-      {\avlfBody\color{avlbody}Add 1 to each minimum node count and you get
-       \fib{the Fibonacci sequence: $2,3,5,8,\ldots$}.\\[6\pxl]
-       At height 7, this gives \fib{$55-1=54$ nodes}.}
-    \end{minipage}
-  \end{center}}
+%   \vspace{0.3em}
+%   \begin{center}
+%     \begin{minipage}{0.78\textwidth}\centering
+%       {\avlfBody\color{avlbody}Add 1 to each minimum node count and you get
+%        \fib{the Fibonacci sequence: $2,3,5,8,\ldots$}.\\[6\pxl]
+%       %  At height 7, this gives \fib{$55-1=54$ nodes}.
+%       }
+%     \end{minipage}
+%   \end{center}
 
-  \note{One line. The plus-one substitution we just made IS the minus one here.
-  Read the last column out loud: at height seven the smallest AVL tree has 54
-  nodes, and 55 is a Fibonacci number. Hold onto 54 --- Part 3 will build this
-  exact tree and break it. The table and summary appear together: adding one
-  gives Fibonacci, and subtracting one gives our minimum node counts.}
-\end{frame}
+%   \vspace{0.2em}
+%   \onslide<2->{
+%   \begin{center}
+%     {\avlfDivider\color{avlfib}$N(h) = F(h+3) - 1$}\\[0.7em]
+%     {\avlfSec\color{avlmuted}because $M(h) = N(h)+1$ is Fibonacci, starting at
+%      $M(0) = 2 = F(3)$}
+%   \end{center}}
+
+%   \note{One line. The plus-one substitution we just made IS the minus one here.
+%   Read the last column out loud: at height seven the smallest AVL tree has 54
+%   nodes, and 55 is a Fibonacci number. Hold onto 54 --- Part 3 will build this
+%   exact tree and break it. The table and summary appear together: adding one
+%   gives Fibonacci, and subtracting one gives our minimum node counts.}
+% \end{frame}
 
 % ------------------------------------------------------------------ THE PLANT
-\begin{frame}[label=p1]{Remember this number: 54}
-  \vspace{-0.4em}
-  \begin{center}
-  % height-7 Fibonacci tree: leafSep 44 px, levSep 38 px (spec section 5)
-  \begin{tikzpicture}[x=1cm,y=1cm,
-      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
-                     minimum size=5.8\pxl},
-      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
-    \setavlscale{0.48}{0.37}
-    \resetavl
-    \drawfib{7}{0}{0}
-  \end{tikzpicture}
-  \end{center}
+% \begin{frame}[label=p1]{Remember this number: 54}
+%   \vspace{-0.4em}
+%   \begin{center}
+%   % height-7 Fibonacci tree: leafSep 44 px, levSep 38 px (spec section 5)
+%   \begin{tikzpicture}[x=1cm,y=1cm,
+%       avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
+%                      minimum size=5.8\pxl},
+%       avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
+%     \setavlscale{0.48}{0.37}
+%     \resetavl
+%     \drawfib{7}{0}{0}
+%   \end{tikzpicture}
+%   \end{center}
 
-  \vspace{0.1em}
-  \begin{center}
-    {\avlfLead\color{avlink}This is the \fib{worst tree AVL allows} at
-     height 7.}\\[0.4em]
-    {\avlfSec\color{avlmuted}It has the fewest nodes possible:
-     $N(7) = F(10) - 1 = 55 - 1 =$ \fib{\textbf{54}}}\\[0.7em]
-    % the Part 3 plant, in Part 3's hue -- the only plum on a Part 1 slide
-    \begin{avlpanelh}[0.98\textwidth]{avlpthree}
-      {\color{avlpthree}In Part 3 we will delete one leaf from this exact tree, and watch it come apart.}
-    \end{avlpanelh}
-  \end{center}
+%   \vspace{0.1em}
+%   \begin{center}
+%     {\avlfLead\color{avlink}This is the \fib{worst tree AVL allows} at
+%      height 7.}\\[0.4em]
+%     {\avlfSec\color{avlmuted}It has the fewest nodes possible:
+%      $N(7) = F(10) - 1 = 55 - 1 =$ \fib{\textbf{54}}}\\[0.7em]
+%     % the Part 3 plant, in Part 3's hue -- the only plum on a Part 1 slide
+%     \begin{avlpanelh}[0.98\textwidth]{avlpthree}
+%       {\color{avlpthree}In Part 3 we will delete one leaf from this exact tree, and watch it come apart.}
+%     \end{avlpanelh}
+%   \end{center}
 
-  \note{This is the emptiest legal AVL tree of height seven. Fibonacci predicts
-  it has 54 nodes. Remember that number. In Part 3 we will take one leaf out of
-  it and count the damage. Handoff: we know the tree stays short. Now, how does
-  it fix itself?}
-\end{frame}
+%   \note{This is the emptiest legal AVL tree of height seven. Fibonacci predicts
+%   it has 54 nodes. Remember that number. In Part 3 we will take one leaf out of
+%   it and count the damage. Handoff: we know the tree stays short. Now, how does
+%   it fix itself?}
+% \end{frame}
