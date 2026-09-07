@@ -1,7 +1,7 @@
 % ===========================================================================
 %  PART 3 --- Deletion, the worst case simulation, and the Fibonacci payoff
-%  Flow: deletion rule -> why deletion is worse -> every layer is a Fibonacci
-%        tree -> worst case simulation run on that fact -> the Fibonacci match
+%  Flow: deletion rule -> gentle example -> cascade -> Fibonacci tie-back
+%        -> rotation bound -> applications -> closing
 %
 %  Every number is simulated ground truth:
 %    worst-case deletion rotations = floor(h/2) exactly, h = 2..14
@@ -25,7 +25,6 @@
 
 \setavlpart{3}{Part 3 --- Deletion}{avlpthree}
 
-% ------------------------------------------------------------------ rule
 \begin{frame}[label=p3]{Deletion: the rule}
   \vspace{0.5em}
   \begin{center}
@@ -55,8 +54,8 @@
     \begin{avlpanelh}[0.62\textwidth]{avlalert}
       {\avlfLead\viol{\wbold The third one is not.}}
     \end{avlpanelh}\\[0.8em]
-    {\avlfSec\color{avlmuted}With insertion you stop after one rotation.
-     With deletion you \emph{cannot} stop.}
+    {\avlfSec\color{avlmuted}Insertion stops after one single or double repair.
+     Deletion may need repairs higher up.}
   \end{center}
 
   \note{The first two steps look identical to insertion. The difference is the
@@ -64,103 +63,110 @@
   node on the way up.}
 \end{frame}
 
-% ------------------------------------------------------------------ why worse
-\begin{frame}[label=p3]{Why deletion cannot stop}
-  \vspace{0.2em}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.47\textwidth}
-      {\avlfLead\wbold\color{avlfib}Insertion}\\[0.35em]
-      {\avlfSec\color{avlmuted}The rotation puts the subtree back to its
-       \emph{old} height. The parent sees no change.}\\[0.3em]
-      {\avlfSec\fib{So the repair stops.}}\\[1.0em]
-
-      {\avlfLead\wbold\color{avlalert}Deletion}\\[0.35em]
-      {\avlfSec\color{avlmuted}The rotation leaves the subtree
-       \emph{one shorter}. That is itself a change.}\\[0.3em]
-      {\avlfSec\viol{So the parent may break too.}}
-    \end{column}
-    \begin{column}{0.49\textwidth}
-      \begin{center}
-      \begin{tikzpicture}[x=1cm,y=1cm,scale=0.86,every node/.style={transform shape}]
-        \node[avltri,minimum size=2.0cm] at (-1.4,0) {};
-        \node[avlannotfib] at (-1.4,-1.45) {height $h$};
-        \node[avlannot] at (-1.4,1.20) {after insert};
-
-        \node[avltri,draw=avlalert!55,fill=avlalert!8!avlground,
-              minimum size=1.65cm] at (1.5,-0.18) {};
-        \node[avlannotalert] at (1.5,-1.45) {height $h-1$};
-        \node[avlannot] at (1.5,1.20) {after delete};
-
-        \draw[draw=avlalert,line width=1.6\pxl,-{Stealth[length=2.6pt]}]
-          (1.5,-1.85) -- (1.5,-2.45);
-        \node[avlannotalert,anchor=north] at (1.5,-2.55)
-          {parent must be checked};
-        \draw[draw=avlalert,line width=1.6\pxl,-{Stealth[length=2.6pt]}]
-          (1.5,-3.05) -- (1.5,-3.65);
-        \node[avlannotalert,anchor=north] at (1.5,-3.75)
-          {and its parent \dots};
-      \end{tikzpicture}
-      \end{center}
-    \end{column}
-  \end{columns}
-
-  \note{This is the whole asymmetry in one picture. Insertion's rotation
-  restores the height, so the parent never finds out. Deletion's rotation
-  shortens the subtree, and a shorter subtree is exactly what the parent was
-  depending on not happening.}
-\end{frame}
-
-% ------------------------------------------------------------------ LAYERS
-%  The setup slide for the simulation. Part 1 proved N(h) = F(h+3) - 1 for the
-%  WHOLE tree; this says the same thing holds at every layer inside it, which
-%  is the fact the cascade on the next slide runs on.
-%
-%  \drawfib emits nodes in pre-order, so the left spine of T_7 is exactly
-%  f1..f8 = T_7, T_6, ..., T_0. Sizes 54 33 20 12 7 4 2 1 -- F(k+3)-1 term by term.
-\begin{frame}[label=p3]{Every layer is a Fibonacci tree}
-  \vspace{-0.2em}
+\begin{frame}[label=p3]{Deletion: same rule, new twist}
+  \vspace{-0.4em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,
-      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
-                     minimum size=5.8\pxl},
-      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
-    \setavlscale{0.42}{0.33}
-    \resetavl
-    \drawfib{7}{0}{0}
-
-    % The root's tag would sit under the title rule if it went left like the
-    % rest, so it is the one that leans right instead.
-    \node[avlannotfib,anchor=west]
-      at ($(f1)+(0.22,0.10)$) {$T_{7}$\,:\,\textbf{54}};
-    \foreach \i/\k/\N in {2/6/33, 3/5/20, 4/4/12,
-                          5/3/7, 6/2/4, 7/1/2, 8/0/1} {
-      \draw[avlfib!45,line width=1\pxl]
-        ($(f\i)+(-0.14,0)$) -- ($(f\i)+(-0.30,0)$);
-      \node[avlannotfib,anchor=east]
-        at ($(f\i)+(-0.32,0.01)$) {$T_{\k}$\,:\,\textbf{\N}};
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \path (-5.6,-2.0) rectangle (5.6,1.05);
+    \only<1-2>{
+      \node[avlannot] at (-3.2,0.65) {delete 10};
+      \draw[avledge] (-4.3,-0.8) -- (-3.2,0) -- (-2.1,-0.8);
+      \node[avlkey] at (-3.2,0) {20};
+      \node[avlkeyalert] at (-4.3,-0.8) {10};
+      \node[avlkey] at (-2.1,-0.8) {30};
+    }
+    \only<2>{
+      \draw[avlarrow] (-0.6,-0.45) -- (0.6,-0.45);
+      \ghostnode{1.8}{-0.8}{10}
+      \draw[avlghostline] (2.9,0) -- (1.8,-0.8);
+      \draw[avledge] (2.9,0) -- (4.0,-0.8);
+      \node[avlkeyok] at (2.9,0) {20};
+      \node[avlkeyok] at (4.0,-0.8) {30};
+      \node[avlannotok] at (2.9,0.65) {$\mathrm{bf}(20)=-1$};
+      \node[avlannotok] at (2.9,-1.65) {still legal; no rotation};
+    }
+    \only<3-6>{
+      \node[avlannot,anchor=west,align=left,text width=1.8cm] at (-5.3,0.65) {a taller tree\\delete 30};
+      \only<3>{
+        \draw[avledge] (-2.1,0) -- (-1.0,-0.8);
+        \node[avlkeyalert] at (-1.0,-0.8) {30};
+      }
+      \only<4-6>{
+        \ghostnode{-1.0}{-0.8}{30}
+        \draw[avlghostline] (-2.1,0) -- (-1.0,-0.8);
+      }
+      \only<5-6>{\rotright{-2.1,0}{0.9}}
+      \draw[avledge] (-2.1,0) -- (-3.2,-0.8) -- (-4.3,-1.6);
+      \only<3>{\node[avlkey] at (-2.1,0) {20};}
+      \only<4-6>{\node[avlkeyalert] at (-2.1,0) {20};}
+      \node[avlkey] at (-3.2,-0.8) {10};
+      \node[avlkeygold] at (-4.3,-1.6) {5};
+      \only<5-6>{\pivotpin[avlalert]{-2.1,0}}
+      \only<4-6>{
+        \node[avlannotalert,anchor=east] at (-2.6,-0.1) {$\mathrm{bf}=+2$};
+      }
+    }
+    \only<6>{
+      \draw[avlarrow] (-0.4,-0.45) -- (0.8,-0.45);
+      \ghostnode{4.0}{0}{20}
+      \ghostpath{4.0,-0.3}{4.0,-0.5}
+      \ghostnode{2.9}{-0.8}{10}
+      \ghostpath{2.9,-0.5}{2.9,-0.3}
+      \ghostnode{1.8}{-1.6}{5}
+      \ghostpath{1.8,-1.3}{1.8,-1.1}
+      \draw[draw=avlbalance!70,line width=1.6\pxl]
+        (1.8,-0.8) -- (2.9,0) -- (4.0,-0.8);
+      \node[avlkeyok] at (2.9,0) {10};
+      \node[avlkeyok] at (1.8,-0.8) {5};
+      \node[avlkeyok] at (4.0,-0.8) {20};
+      \node[avlannotok] at (2.9,0.65) {one right rotation};
     }
   \end{tikzpicture}
-  \end{center}
 
-  \vspace{0.3em}
+  \begin{minipage}[t][74\pxl][t]{\textwidth}
+    \centering\avlfSec\color{avlmuted}
+    \only<1>{Start with 20 above 10 and 30.
+      Every node is balanced.\par}
+    \only<2>{Delete 10. 20 just loses a child --- $\mathrm{bf}(20)=-1$,
+      still legal. Nothing to fix.\par}
+    \only<3>{A fresh, taller tree. $\mathrm{bf}(20)=+1$, still legal.\\
+      This time, delete 30.\par}
+    \only<4>{30 is gone. Now $\mathrm{bf}(20)=+2$.\\
+      The same alarm from Part 2 goes off.\par}
+    \only<5>{Pin 20 and turn clockwise.\\
+      One right rotation, just as in Part 2.\par}
+    \only<6>{10 becomes the root. The tree is balanced again.\\
+      One rotation --- so far, no different from insertion.\par}
+  \end{minipage}
+  \begin{avlpanelh}[0.94\textwidth]{avlfib}
+    \avlfSec\color{avlbody}
+    The rule reads the same as insertion.\\
+    The difference shows up somewhere else.\par
+  \end{avlpanelh}
+  \end{center}
+  \note{Six clicks, with the before and after separated.
+  First, show the balanced three-node tree. Second, delete 10 and reveal the
+  result on the right. The balance factor of 20 becomes minus one; no rotation.
+  Third, show the fresh taller tree before deleting anything: 20 has children
+  10 and 30, and 10 has left child 5. Fourth, delete 30; the balance factor of
+  20 becomes plus two. Fifth, introduce the pin and clockwise arc at 20.
+  Sixth, reveal the repaired tree on the right: 10 above 5 and 20, with ghosts
+  at the old positions. The taller tree is a new example, not a continuation
+  of the first deletion.}
+\end{frame}
+
+\begin{frame}[label=p3]{From one rotation to a cascade}
   \begin{center}
-    {\avlfSec\color{avlmuted}Every subtree down the left edge is itself the
-     \emph{smallest} tree of its height:}\\[0.3em]
-    {\avlfSec\color{avlfib}54, \ 33, \ 20, \ 12, \ 7, \ 4, \ 2, \ 1
-     \quad\quietc{---}\quad $N(k) = F(k{+}3) - 1$ \ at \emph{every} layer}\\[0.5em]
-    \begin{minipage}[t][60\pxl][c]{\textwidth}\centering
-    \onslide<2->{\begin{avlpanelh}[\textwidth]{avlpthree}
-      {\color{avlpthree}Nothing here has a spare node. Take one away and
-       something has to get shorter.}
-    \end{avlpanelh}}
-    \end{minipage}
-  \end{center}
+    {\avlfStmt\wbold\color{avlink}When does a rotation\\
+     propagate toward the root?\par}
 
-  \note{Part 1 counted the whole tree and got 54, a Fibonacci number. Now look
-  inside it. The subtree hanging off the left edge at depth one is the smallest
-  tree of height six: 33 nodes. Below it, 20. Then 12, 7, 4, 2, 1. The same
-  Fibonacci formula, layer by layer, all the way down. That is the property
-  that makes the next slide behave the way it does: nothing here has slack.}
+    \vspace{1.4em}
+    {\avlfBody\color{avlmuted}We fixed one node. Is the parent still balanced?\par}
+  \end{center}
+  \note{Pause here and let the question land. The small example needed only
+  one rotation. What could make a repair continue upward instead of stopping?
+  Invite the audience to think about what changes for the parent, then show
+  the worst-case tree and let the cascade reveal the answer.}
 \end{frame}
 
 % ------------------------------------------------------------ WORST CASE SIM
@@ -215,40 +221,53 @@
 \begin{frame}[label=p3]{Worst case: one leaf out, and it does not stop}
   \vspace{-0.5em}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.append style={transform shape}]
     % fixed extent: the picture must not resize between clicks
-    \path (-1.5,-3.95) rectangle (11.2,0.60);
+    \path (-1.5,-3.70) rectangle (11.2,0.60);
 
     \only<1>{\casctree{\cascNZero}{\cascEZero}%
              \draw[draw=avlalert,line width=1.2pt]
                (\casctarget*\cascdx,-4*\cascdy) circle (3.6pt);
              \cascruler{\cascHZero}{avlfib}}
-    \only<2>{\casctree{\cascNOne}{\cascEOne}\cascgap
+    \only<2-3>{\casctree{\cascNOne}{\cascEOne}\cascgap
              \cascbreak{\cascHotOne}{\cascBfOne}\cascruler{\cascHOne}{avlfib}}
-    \only<3>{\casctree{\cascNTwo}{\cascETwo}\cascgap
+    \only<4>{\casctree{\cascNTwo}{\cascETwo}\cascgap
              \cascbreak{\cascHotTwo}{\cascBfTwo}\cascruler{\cascHTwo}{avlfib}}
-    \only<4>{\casctree{\cascNThree}{\cascEThree}\cascgap
+    \only<5>{\casctree{\cascNThree}{\cascEThree}\cascgap
              \cascbreak{\cascHotThree}{\cascBfThree}\cascruler{\cascHThree}{avlfib}}
-    \only<5->{\casctree{\cascNFour}{\cascEFour}\cascgap
+    \only<6->{\casctree{\cascNFour}{\cascEFour}\cascgap
              \cascruler{\cascHFour}{avlpthree}}
+
+    \only<3>{
+      \begin{scope}[overlay]
+        \setpinscale{0.22}
+        \rotright{c-32}{0.42}
+        \pivotpin[avlalert]{c-32}
+        \node[avlannotalert,anchor=north west,align=left,text width=3.5cm]
+          (shorterNote) at (7.5,-2.65)
+          {Unlike insertion: one level shorter. The parent can break too.};
+        \draw[avlalert!55,line width=1\pxl]
+          ($(c-32)+(0.38,-0.05)$) -- (7.35,-2.48) -- (shorterNote.north west);
+      \end{scope}
+    }
   \end{tikzpicture}
   \end{center}
 
-  % Caption block reserves its own height: five beats, one of them two lines.
+  % Caption block reserves its own height: six beats, one of them two lines.
   \vspace{-0.7em}
   \begin{center}
-  \begin{minipage}[t][76\pxl][t]{\textwidth}\centering\avlfSec
+  \begin{minipage}[t][86\pxl][t]{\textwidth}\centering\avlfSec
     \only<1>{{\color{avlmuted}54 nodes, height 7, no spare room anywhere.
               Delete the \viol{marked leaf}.}}
-    \only<2>{{\color{avlmuted}Gone. Its grandparent is now
+    \only<2-3>{{\color{avlmuted}Gone. Its grandparent is now
               \viol{$\mathrm{bf}=+2$} --- illegal.
               {\color{avlpthree}\wmed Rotate.}}}
-    \only<3>{{\color{avlmuted}Fixed --- but that subtree got \emph{shorter},
+    \only<4>{{\color{avlmuted}Fixed --- but that subtree got \emph{shorter},
               so its own parent is now \viol{$+2$}.
               {\color{avlpthree}\wmed Rotate again.}}}
-    \only<4>{{\color{avlmuted}And again. This one is a child of the root.
+    \only<5>{{\color{avlmuted}And again. This one is a child of the root.
               {\color{avlpthree}\wmed Rotate a third time.}}}
-    \only<5->{{\avlfLead\viol{\wbold 3 rotations}\quad\quietc{$\cdot$}\quad
+    \only<6->{{\avlfLead\viol{\wbold 3 rotations}\quad\quietc{$\cdot$}\quad
                {\color{avlbody}54 $\rightarrow$ 53 nodes}
                \quad\quietc{$\cdot$}\quad
                {\color{avlbody}height \textbf{7} $\rightarrow$}
@@ -258,17 +277,87 @@
   \end{minipage}
   \end{center}
 
-  \note{One click at a time, and say what changed. The leaf is gone --- the
-  dashed circle is the hole it left, and it stays there all the way through.
-  Now its grandparent has balance factor plus two, so it must rotate. Click.
-  That rotation fixed the node but made the subtree one shorter, and shorter is
-  exactly what its parent was relying on not happening --- plus two again.
-  Click. A third time, now a child of the root. Click. Watch the ruler on the
-  left: the height only drops at the very end. Three rotations, for one leaf,
-  because a minimal tree has no slack to absorb anything.}
+  \vspace{-0.1em}
+  {\avlfAnnot\color{avlmuted}\centering
+   Note: this cascade is left-heavy ($\mathrm{bf}=+2$); right-heavy is its mirror.\\
+   Height loss can propagate after any Part 2 repair: LL, RR, LR, or RL.\par}
+
+  \note{Keep all five tree states. The extra beat pauses at the first rotation
+  trigger so you can point to its pin and arc. This rotation shortens the
+  subtree by one --- that is the difference from insertion. A shorter subtree
+  can make the parent illegal too. Then continue the original cascade:
+  fix the first site, fix its parent, and fix the child of the root.
+  The whole tree drops from height seven to six after three rotations.
+  This example propagates height loss; not every deletion rotation does.}
 \end{frame}
 
-% ------------------------------------------------------------------ the law
+\newcommand{\avldeletionlayers}{%
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
+                     minimum size=5.8\pxl},
+      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
+    \setavlscale{0.42}{0.33}
+    \resetavl
+    \drawfib{7}{0}{0}
+
+    % The root's tag would sit under the title rule if it went left like the
+    % rest, so it is the one that leans right instead.
+    \node[avlannotfib,anchor=west]
+      at ($(f1)+(0.22,0.10)$) {$T_{7}$\,:\,\textbf{54}};
+    \foreach \i/\k/\N in {2/6/33, 3/5/20, 4/4/12,
+                          5/3/7, 6/2/4, 7/1/2, 8/0/1} {
+      \draw[avlfib!45,line width=1\pxl]
+        ($(f\i)+(-0.14,0)$) -- ($(f\i)+(-0.30,0)$);
+      \node[avlannotfib,anchor=east]
+        at ($(f\i)+(-0.32,0.01)$) {$T_{\k}$\,:\,\textbf{\N}};
+    }
+  \end{tikzpicture}
+}
+
+\begin{frame}[t,label=p3]{A Fibonacci tree at every level}
+  \vspace{-0.2em}
+  \begin{center}
+    \avldeletionlayers
+
+    \vspace{0.4em}
+    {\avlfSec\color{avlmuted}Each subtree is a smaller \strong{Fibonacci tree}.\\
+     It uses the fewest nodes possible for its height.\par}
+    \vspace{0.5em}
+    {\avlfSec\color{avlfib}$54,\ 33,\ 20,\ 12,\ 7,\ 4,\ 2,\ 1$
+     \quad\quietc{---}\quad $N(7)$ down to $N(0)$.\par}
+  \end{center}
+  \note{The cascade tree is a Fibonacci tree: a minimal AVL tree at every
+  level. Each subtree combines the smallest trees of the two preceding
+  heights. Its node count follows N(h) = 1 + N(h-1) + N(h-2), so the counts
+  are Fibonacci numbers minus one. Read down the left edge: 54, 33, 20, 12,
+  7, 4, 2, 1. That is N(7) down to N(0). Next, connect that minimum node
+  count to the height loss that drives the cascade.}
+\end{frame}
+
+\begin{frame}[t,label=p3]{Why the Fibonacci tree cascades}
+  \vspace{-0.2em}
+  \begin{center}
+    \avldeletionlayers
+
+    \vspace{0.3em}
+    {\avlfSec\color{avlmuted}Fibonacci numbers in disguise:
+     \fib{$54 = F(10)-1$}.\par}
+    \vspace{0.3em}
+    {\avlfSec\color{avlmuted}Height 7 needs at least 54 nodes.\\
+     Delete one leaf: 53 nodes cannot keep that height.\par}
+    \vspace{0.5em}
+    \begin{avlpanelh}[0.94\textwidth]{avlpthree}
+      \avlfSec\color{avlpthree}No slack anywhere. That's why the fix cascades.\par
+    \end{avlpanelh}
+  \end{center}
+  \note{Same diagram, same thought. The subtree counts are Fibonacci numbers
+  minus one: N(h) equals F(h+3) minus one. In particular, 54 is F(10) minus one.
+  This tree has no slack. Removing a leaf must reduce its height after repair:
+  a height-seven AVL tree needs at least 54 nodes, and only 53 remain.
+  Our chosen leaf forces that repair to cascade. Not every leaf must cause
+  three rotations; this is the deliberately chosen worst-case deletion.}
+\end{frame}
+
 \begin{frame}[label=p3]{Insertion costs 1. Deletion costs $\lfloor h/2 \rfloor$.}
   % Fixed two-column layout: the plot is drawn at its true size (640 px wide)
   % and is never scaled to fit, so its tick and axis labels stay legible.
@@ -321,77 +410,121 @@
   rotations where an insert costs one.}
 \end{frame}
 
-% ------------------------------------------------------------------ THE CATCH
-\begin{frame}[label=p3]{And now count the nodes}
-  % No tree here on purpose: it was on screen two slides ago, and repeating it
-  % pushed this frame off the bottom. The number is the payload.
-  \vspace{1.2em}
+\begin{frame}[label=p3]{Deletion: walk back to the root}
   \begin{center}
-    {\avlfSec\color{avlmuted}Count the worst case tree we just broke:}\\[0.5em]
-    {\avlfHuge\color{avlfib}\wbold 54 nodes}
+    {\avlfStmt\wbold\boldmath\color{avlink}BST deletion: $O(\log n)$.\par}
+
+    \vspace{1.2em}
+    {\avlfBody\color{avlmuted}After removing the node, walk upward\\
+     from its parent toward the root.\par}
+
+    \vspace{1.2em}
+    \begin{avlpanelh}[0.78\textwidth]{avlpthree}
+      \avlfLead\color{avlpthree}At most $h=O(\log n)$ ancestors are visited.\par
+    \end{avlpanelh}
+
+    \vspace{0.9em}
+    {\avlfSec\color{avlmuted}Update the height. Check the balance. Move up.\par}
   \end{center}
-
-  \vspace{1.5em}
-  \onslide<2->{
-  \begin{center}
-    {\avlfBody\color{avlink}Fibonacci: \ 1, 1, 2, 3, 5, 8, 13, 21, 34,
-     \fib{\textbf{55}}}\\[0.4em]
-    {\avlfLead\color{avlfib}$55 - 1 \;=\; \mathbf{54}$}
-  \end{center}}
-
-  \vspace{0.8em}
-  \begin{center}
-  \begin{minipage}[t][58\pxl][c]{0.72\textwidth}\centering
-  \onslide<3->{\begin{avlpanelh}[0.98\textwidth]{avlpthree}
-    {\color{avlpthree}We predicted this in Part 1. It matches exactly.}
-  \end{avlpanelh}}
-  \end{minipage}
-  \end{center}
-
-  \note{Count the tree we just broke. 54 nodes. Now the Fibonacci sequence ---
-  the tenth number is 55. Minus one is 54. We said this in Part 1 before we had
-  built anything. The worst case for deletion and the Fibonacci number are the
-  same fact.}
+  \note{First perform the usual BST deletion. The AVL height bound makes the
+  search and successor or predecessor search logarithmic. Start retracing
+  from the parent of the node physically removed, which may differ from the
+  key initially requested when that key has two children. The path contains
+  at most h ancestors, where h is the original tree height. With stored
+  heights or balance factors, checking and updating each node costs O(1),
+  apart from any rotations.}
 \end{frame}
 
-% ------------------------------------------------------------------ tie-back
-\begin{frame}[label=p3]{One tree. Three answers.}
-  % Three answers, hairline-separated -- the rules say "same object, three
-  % readings" more economically than three boxes would.
-  \vspace{1.0em}
+\begin{frame}[label=p3]{Deletion: at most two rotations per level}
   \begin{center}
-  \setlength{\tabcolsep}{22\pxl}
-  \arrayrulecolor{avlrule}
-  \setlength{\arrayrulewidth}{1\pxl}
-  \begin{tabular}{@{}c|c|c@{}}
-    \begin{minipage}[t]{0.27\textwidth}\centering
-      {\color{avlfib}\avlfLead\wbold Height}\\[0.7em]
-      {\color{avlmuted}\avlfSec It is the emptiest legal tree, so it sets the
-       limit}\\[0.8em]
-      \fib{$h < 1.44 \log_2 n$}
-    \end{minipage} &
-    \begin{minipage}[t]{0.27\textwidth}\centering
-      {\color{avlfib}\avlfLead\wbold Count}\\[0.7em]
-      {\color{avlmuted}\avlfSec Its size is a Fibonacci number}\\[0.8em]
-      \fib{$54 = F(10) - 1$}
-    \end{minipage} &
-    \begin{minipage}[t]{0.27\textwidth}\centering
-      {\color{avlfib}\avlfLead\wbold Cost}\\[0.7em]
-      {\color{avlmuted}\avlfSec No spare room, so a delete cannot be
-       absorbed}\\[0.8em]
-      \fib{3 rotations}
+    {\avlfBody\color{avlmuted}Each unbalanced node needs at most two rotations.\par}
+
+    \vspace{1.0em}
+    \begin{minipage}{0.88\textwidth}
+      \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.47\textwidth}
+          \begin{avlpanelh}[\linewidth]{avlfib}
+            {\avlfLead\wbold\color{avlfib}LL / RR\par}
+            \vspace{0.4em}
+            {\avlfBody\color{avlbody}1 rotation\par}
+          \end{avlpanelh}
+        \end{column}
+        \begin{column}{0.47\textwidth}
+          \begin{avlpanelh}[\linewidth]{avlfib}
+            {\avlfLead\wbold\color{avlfib}LR / RL\par}
+            \vspace{0.4em}
+            {\avlfBody\color{avlbody}2 rotations\par}
+          \end{avlpanelh}
+        \end{column}
+      \end{columns}
     \end{minipage}
-  \end{tabular}
-  \end{center}
 
-  \vspace{1.4em}
+    \vspace{1.1em}
+    {\avlfSec\color{avlmuted}At most $h$ ancestors, at most two rotations each:\par}
+    \vspace{0.5em}
+    {\avlfStmt\color{avlpthree}$\text{Max rotations}\le 2h=O(\log n)$\par}
+  \end{center}
+  \note{Count primitive rotations, so a double repair counts as two.
+  LL and RR need one; LR and RL need two. Deletion may trigger repairs at
+  multiple ancestors, but each visited level needs at most one single or
+  double repair. Multiplying at most h ancestors by at most two rotations
+  gives the safe upper bound 2h. It need not be tight, and many deletions
+  require fewer rotations or none.}
+\end{frame}
+
+\begin{frame}[label=p3]{AVL deletion stays logarithmic}
   \begin{center}
-    {\avlfLead\color{avlmuted}Not three facts --- \fib{one tree} seen three
-     ways.}
-  \end{center}
+    {\avlfBody\color{avlmuted}Each rotation takes $O(1)$. Add up the work:\par}
 
-  \note{The height bound, the Fibonacci number and the worst case are the same
-  object looked at from three sides. That is why the number matched.}
+    \vspace{0.8em}
+    {\avlfLead\color{avlbody}$\displaystyle
+      \underbrace{O(\log n)}_{\text{BST deletion}}
+      +\underbrace{O(h)}_{\text{upward walk}}
+      +\underbrace{O(h)}_{\text{rotations}}$\par}
+
+    \vspace{1.0em}
+    {\avlfStmt\color{avlpthree}$\boxed{\text{AVL Deletion}=O(\log n)}$\par}
+
+    \vspace{1.1em}
+    \begin{avlpanelh}[0.96\textwidth]{avlpthree}
+      \avlfSec\color{avlbody}Unlike insertion, deletion may rebalance at multiple levels.\\
+      Even if repairs reach the root, the total stays $O(\log n)$.\par
+    \end{avlpanelh}
+  \end{center}
+  \note{BST deletion costs O(log n). Visiting at most h ancestors costs O(h).
+  At most 2h constant-time rotations also cost O(h), not O(h squared).
+  Because h is O(log n), the sum is O(log n). The contrast with insertion is
+  the number of repair sites: insertion stops after repairing one site,
+  while deletion may continue repairing all the way to% c the root. That extra
+  work does not change the logarithmic worst-case bound on the full operation.}
+\end{frame}
+
+\begin{frame}[label=p3]{Why bother with the worse constant}
+  \begin{center}
+  \begin{minipage}{0.90\textwidth}
+    \avlfSec\color{avlmuted}
+    {\fib{\wbold Databases and filesystems}}\par
+    In-memory indexes need guaranteed worst-case lookup,
+    not just a good average.\par\vspace{0.9em}
+    {\fib{\wbold Read-heavy workloads}}\par
+    Lookups vastly outnumber updates. The extra deletion work barely matters.\par\vspace{0.9em}
+    {\fib{\wbold A hard bound beats a soft average}}\par
+    Real-time systems care about the worst case, not the typical case.\par
+  \end{minipage}
+
+  \vspace{1.1em}
+  {\avlfSec\color{avlbody}An unbalanced tree is fast until it isn't.
+   An AVL tree is always fast\\--- that's the whole trade.\par}
+  \end{center}
+  \note{AVL trees are useful for ordered in-memory data, not a blanket choice
+  for every database or filesystem index. OpenZFS uses AVL trees to track
+  in-memory buffers; see include/sys/dnode.h, dn\_dbufs, in the OpenZFS source.
+  Disk-oriented database indexes often use B-trees instead; see SQLite's
+  Architecture of SQLite, B-Tree section. The read-heavy point is a workload
+  trade-off, not a claim that AVL always beats other balanced trees.
+  Always fast means logarithmically bounded tree work, not constant time or
+  a guaranteed wall-clock deadline. Real-time systems also have to bound
+  allocation, synchronization, and the cost of comparing keys.}
 \end{frame}
 
 % ------------------------------------------------------------------ closing
