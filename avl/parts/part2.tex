@@ -1,7 +1,9 @@
 ﻿% ===========================================================================
 %  PART 2 --- Rotations and Insertion
 %  Flow: one rotation drawn as a physical turn -> the four cases table ->
-%        the 2x2 grid of pivots -> insertion rule -> insertion simulation
+%        the 2x2 grid of pivots -> the insertion story (which ends on a
+%        question) -> one simulated insert that answers it -> the catch ->
+%        why one rotation is always enough, and what it costs
 %
 %  Rotation language, used identically on every rotation in this deck:
 %    a PIN goes into the node the rotation is NAMED at (the broken one), and
@@ -32,7 +34,7 @@
     \path (-3.9,-2.78) rectangle (3.9,2.55);
 
     % ---------------- before: 30, 20, 10 all went left ----------------
-    \only<1-3>{
+    \only<1-2>{
       \draw[avledge] (1.9,0.8) -- (0,-0.5) -- (-1.9,-1.8);
       \node[avlkeyalert] at (1.9,0.8)   {30};
       \node[avlkey]      at (0,-0.5)    {20};
@@ -41,15 +43,17 @@
     \only<1>{%
       \draw[avlalert,line width=2\pxl] (1.9,0.8) circle (0.42);
       \node[avlannotalert,anchor=west] at (2.42,0.98) {$\mathrm{bf} = +2$};}
-    \only<2-3>{\pivotpin{1.9,0.8}}
-    \only<3>{\rotright{1.9,0.8}{1.65}}
+    % Pin and turn are ONE beat: the pin is only meaningful as the thing the
+    % arc sweeps about, and splitting them made the audience click twice for
+    % half a gesture.
+    \only<2>{\pivotpin{1.9,0.8}\rotright{1.9,0.8}{1.65}}
 
     % ---------------- after: 20 came up, 30 came down -----------------
-    \only<4->{
+    \only<3->{
       % Afterimages on the result beat ONLY. They carry the eye across the jump
       % cut from the turn; by the next beat the order strip is making the point
       % instead, and three dashed discs would just read as extra nodes.
-      \only<4>{%
+      \only<3>{%
         \ghostnode{1.9}{0.8}{30}  \ghostpath{1.9,0.45}{1.9,-0.15}
         \ghostnode{0}{-0.5}{20}   \ghostpath{0,-0.15}{0,0.45}
         \ghostnode{-1.9}{-1.8}{10} \ghostpath{-1.9,-1.45}{-1.9,-0.85}}
@@ -64,7 +68,7 @@
     }
 
     % ---------------- the order strip, from the payoff beat on --------
-    \only<5->{
+    \only<4->{
       \draw[avlrule,line width=1\pxl] (-2.6,-2.20) -- (2.6,-2.20);
       \foreach \k/\x in {10/-1.9, 20/0, 30/1.9} {
         \draw[avlrule,line width=1\pxl] (\x,-2.08) -- (\x,-2.32);
@@ -81,20 +85,19 @@
     \only<1>{{\avlfSec\color{avlmuted}Left skewed tree.
               \viol{30 has a balance factor of $+2$}.}}
     \only<2>{{\avlfSec\color{avlmuted}Push the pin into
-              {\color{avlptwo}\wmed 30}, the node the rotation is
-              \emph{named} at.}}
-    \only<3>{{\avlfSec\color{avlmuted}Now turn the whole tree
-              {\color{avlptwo}\wmed clockwise} about that pin. That is a
+              {\color{avlptwo}\wmed 30} and turn the whole tree
+              {\color{avlptwo}\wmed clockwise} about it. That is a
               {\color{avlptwo}\wmed right rotation}.}}
-    \only<4>{{\avlfSec\color{avlmuted}20 became the parent, 30 came down on the
+    \only<3>{{\avlfSec\color{avlmuted}20 became the parent, 30 came down on the
               right. \ok{The tree is balanced again.}}}
-    \only<5->{{\avlfSec\color{avlmuted}Nothing moved sideways, so the order is
+    \only<4->{{\avlfSec\color{avlmuted}Nothing moved sideways, so the order is
               safe, and only \fib{three links} changed.}}
   \end{center}
 
   \note{Say it as a physical action. The pin goes into 30, the node that is
-  broken. Then you turn the whole tree clockwise about that pin, the way you
-  would turn a stiff wire. 20 ends up on top, 30 ends up on the right. Point at
+  broken, and in the same breath you turn the whole tree clockwise about that
+  pin, the way you would turn a stiff wire. One gesture, not two.
+  20 ends up on top, 30 ends up on the right. Point at
   the faded circles: that is where each node was a second ago. Then point at
   the ruler: nothing slid left or right. That is why a rotation can never break
   the search rule, and it only ever re-links three pointers, so it is constant
@@ -159,13 +162,22 @@
   \draw[avledge,line width=0.9pt] (-0.90,0) -- (0,-0.80) -- (0.90,-1.60);
   \node[gred] at (-0.90,0) {10}; \node[gkey] at (0,-0.80) {20};
   \node[ggold] at (0.90,-1.60) {30};}
+% The two bent shapes do NOT use the chain's even level drop. A bend spans two
+% lattice columns on its upper edge and only one on its lower edge, so at an
+% even 0.80/0.80 drop the upper edge comes out 1.97 long against a 1.20 stub --
+% which is what made LR and RL read lopsided next to the chains. The column
+% positions are fixed by sorted order and cannot move, so the only free lever
+% is the drop: 0.52 then 1.08 keeps the total height at 1.60 (the tags and the
+% row hairline never move) and brings the two edges to 1.87 against 1.42.
+% The bend node is the ONLY node on its level in these shapes, so an uneven
+% drop is invisible -- there is nothing beside it to measure against.
 \newcommand{\cellbentL}{%    left then right -- the LR shape
-  \draw[avledge,line width=0.9pt] (0.90,0) -- (-0.90,-0.80) -- (0,-1.60);
-  \node[gred] at (0.90,0) {30}; \node[gkey] at (-0.90,-0.80) {10};
+  \draw[avledge,line width=0.9pt] (0.90,0) -- (-0.90,-0.52) -- (0,-1.60);
+  \node[gred] at (0.90,0) {30}; \node[gkey] at (-0.90,-0.52) {10};
   \node[ggold] at (0,-1.60) {20};}
 \newcommand{\cellbentR}{%    right then left -- the RL shape
-  \draw[avledge,line width=0.9pt] (-0.90,0) -- (0.90,-0.80) -- (0,-1.60);
-  \node[gred] at (-0.90,0) {10}; \node[gkey] at (0.90,-0.80) {30};
+  \draw[avledge,line width=0.9pt] (-0.90,0) -- (0.90,-0.52) -- (0,-1.60);
+  \node[gred] at (-0.90,0) {10}; \node[gkey] at (0.90,-0.52) {30};
   \node[ggold] at (0,-1.60) {20};}
 \newcommand{\cellflat}{%     the balanced result every case lands on
   \draw[avlgoldedge,line width=1.2pt] (-0.90,-0.80) -- (0,0) -- (0.90,-0.80);
@@ -220,8 +232,8 @@
     % The first turn is at 10 and straightens the bend into an LL chain; the
     % second turn is then literally the LL cell sitting above it.
     \begin{scope}[shift={(-5.2,-3.32)}]
-      \only<1>{\rotleft{-0.90,-0.80}{0.70}
-               \cellbentL\pivotpin{-0.90,-0.80}}
+      \only<1>{\rotleft{-0.90,-0.52}{0.70}
+               \cellbentL\pivotpin{-0.90,-0.52}}
       \only<2>{\rotright{0.90,0}{0.85}\cellchainL\pivotpin{0.90,0}}
       \only<3->{\cellflat}
       \node[tag] at (0,-2.02) {\textbf{\color{avlink}LR}\ \ 30, 10, 20
@@ -230,8 +242,8 @@
 
     % ================= RL : 10, 30, 20 =================
     \begin{scope}[shift={(5.2,-3.32)}]
-      \only<1>{\rotright{0.90,-0.80}{0.70}
-               \cellbentR\pivotpin{0.90,-0.80}}
+      \only<1>{\rotright{0.90,-0.52}{0.70}
+               \cellbentR\pivotpin{0.90,-0.52}}
       \only<2>{\rotleft{-0.90,0}{0.85}\cellchainR\pivotpin{-0.90,0}}
       \only<3->{\cellflat}
       \node[tag] at (0,-2.02) {\textbf{\color{avlink}RL}\ \ 10, 30, 20
@@ -301,9 +313,23 @@
   the elegant core that makes AVL practical.}
 \end{frame}
 
-% ------------------------------------------------------------------ insertion rule
-\begin{frame}[label=p2]{Insertion: the rule}
-  \vspace{0.6em}
+% ------------------------------------------------------------------ insertion story
+%  The insertion arc, four frames:
+%    1. the story        insert -> walk up -> rotate, ending on the QUESTION
+%    2. the simulation   one insert on a tree nobody has seen, answering it
+%    3. the catch        one rotation? always? yes
+%    4. why so           the height argument, then the cost
+%
+%  The question is asked before it is answered on purpose. The old deck
+%  asserted "one rotation is always enough" on the rule slide and then ran a
+%  simulation that could only confirm what had already been given away.
+%
+%  WORDING, fixed across all three frames up to the catch: the third step is
+%  "rotate when we find a bad node". Not "the first bad node" -- that phrasing
+%  quietly promises there is only one, which is the thing the catch is about
+%  to ask.
+\begin{frame}[label=p2]{Insertion: insert, walk up, rotate}
+  \vspace{0.7em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,
       stepbox/.style={draw=avlptwo!45!avlground,fill=avlptwo!8!avlground,
@@ -319,334 +345,303 @@
     \node[stepbox] (s2) at (0,0)
       {\begin{minipage}{3.0cm}\centering Walk back up to the root\end{minipage}};
     \node[last] (s3) at (4.4,0)
-      {\begin{minipage}{3.0cm}\centering Rotate at the \strong{first} bad node\end{minipage}};
+      {\begin{minipage}{3.0cm}\centering Rotate when we find a bad node\end{minipage}};
     \draw[avlgoldarrow] (s1) -- (s2);
     \draw[avlgoldarrow] (s2) -- (s3);
   \end{tikzpicture}
   \end{center}
 
-  \vspace{1.1em}
+  \vspace{0.9em}
   \begin{center}
-    \begin{avlpanel}[0.72\textwidth]
-      {\avlfLead\color{avlfib}\wbold One rotation is always enough.}
-    \end{avlpanel}\\[0.8em]
-    {\avlfSec\color{avlmuted}After it, the subtree is back to the height it had
-     \emph{before} the insert.}\\[0.25em]
-    {\avlfSec\color{avlmuted}So no node above it sees any change, and the
-     repair stops.}
-  \end{center}
-
-  \note{Three steps. Insert normally, walk up, fix the first bad node you meet.
-  And one rotation always finishes the job, because it puts the subtree back to
-  its original height, so nothing above notices.}
-\end{frame}
-% ------------------------------------------------------------------ INSERTION SIM
-%  Insert 1..7 in order, one key per beat. The uneventful inserts are KEPT: the
-%  whole point is that 1 and 2 land with nothing to fix, and only when 3 arrives
-%  does the tree break. Rotations keep the deck's two-beat cadence:
-%    break beat  -- the broken tree, pin in the named node, arc showing the turn
-%    result beat -- the answer, with ghosts at the slots that were vacated
-%  Never both at once: the audience must see the turn BEFORE the answer.
-%
-%  LAYOUT RULE -- the reason this frame is smooth. A key's COLUMN is its position
-%  in sorted order and never changes; only its ROW (depth) does. Every node
-%  therefore travels straight up or straight down between overlays: the pinned
-%  node is pushed down one row and the node that rises takes the slot it left.
-%  The named coordinates (n<key>-<depth>) make sideways drift unwritable.
-%
-%  Ghost rule on every result beat, three ghosts exactly: the node that came
-%  DOWN, the node that went UP, and the newly-arrived key. All three threads are
-%  vertical, so each dotted arrow is a pure rise or fall.
-\begin{frame}[label=p2]{Simulation: insert 1, 2, 3, 4, 5, 6, 7}
-  \vspace{-0.7em}
-  \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.84,every node/.style={transform shape}]
-    \setpinscale{1}
-    % column = sorted position, row = depth
-    \foreach \kk in {1,...,7}{\foreach \dd in {0,1,2,3}{
-      \coordinate (n\kk-\dd) at ({(\kk-4)*1.25},{-\dd*1.20});}}
-
-    % Fixed extent: without it the picture is sized by whichever overlay is on
-    % screen and the tree jumps between clicks. Symmetric about x = 0 so key 4 --
-    % the eventual root -- sits dead centre and the finished tree is centred.
-    % The left edge is set by the widest arc (radius 1.45 about key 1 at -3.75).
-    \path (-5.4,-4.05) rectangle (5.4,1.60);
-
-    % ================= 1 arrives =================
-    \only<1>{
-      \node[avlkeygold] at (n1-0) {1};
-    }
-
-    % ================= 2 arrives -- still legal =================
-    \only<2>{
-      \draw[avledge] (n1-0) -- (n2-1);
-      \node[avlkey]     at (n1-0) {1};
-      \node[avlkeygold] at (n2-1) {2};
-    }
-
-    % ================= 3 arrives -- RR at 1 =================
-    \only<3>{
-      \draw[avledge] (n1-0) -- (n2-1) -- (n3-2);
-      \node[avlkeyalert] at (n1-0) {1};
-      \node[avlkey]      at (n2-1) {2};
-      \node[avlkeygold]  at (n3-2) {3};
-      \pivotpin{n1-0}
-      \rotleft{n1-0}{1.45}
-      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (-2.30,1.05) {rotate left at 1};
-    }
-    \only<4>{
-      \ghostnode{-3.75}{0}{1}     \ghostpath{-3.75,-0.35}{-3.75,-0.85}
-      \ghostnode{-2.50}{-1.20}{2} \ghostpath{-2.50,-0.85}{-2.50,-0.35}
-      \ghostnode{-1.25}{-2.40}{3} \ghostpath{-1.25,-2.05}{-1.25,-1.55}
-      \draw[avlgoldedge,line width=1.1pt] (n1-1) -- (n2-0) -- (n3-1);
-      \node[avlkeygold] at (n2-0) {2};
-      \node[avlkey]     at (n1-1) {1};
-      \node[avlkey]     at (n3-1) {3};
-    }
-
-    % ================= 4 arrives -- nothing breaks =================
-    \only<5>{
-      \draw[avledge] (n1-1) -- (n2-0) -- (n3-1) -- (n4-2);
-      \node[avlkey]     at (n2-0) {2};
-      \node[avlkey]     at (n1-1) {1};
-      \node[avlkey]     at (n3-1) {3};
-      \node[avlkeygold] at (n4-2) {4};
-    }
-
-    % ================= 5 arrives -- RR at 3 =================
-    \only<6>{
-      \draw[avledge] (n1-1) -- (n2-0) -- (n3-1) -- (n4-2) -- (n5-3);
-      \node[avlkey]      at (n2-0) {2};
-      \node[avlkey]      at (n1-1) {1};
-      \node[avlkeyalert] at (n3-1) {3};
-      \node[avlkey]      at (n4-2) {4};
-      \node[avlkeygold]  at (n5-3) {5};
-      \pivotpin{n3-1}
-      \rotleft{n3-1}{1.25}
-      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (0.20,-0.15) {rotate left at 3};
-    }
-    \only<7>{
-      \ghostnode{-1.25}{-1.20}{3} \ghostpath{-1.25,-1.55}{-1.25,-2.05}
-      \ghostnode{0}{-2.40}{4}     \ghostpath{0,-2.05}{0,-1.55}
-      \ghostnode{1.25}{-3.60}{5}  \ghostpath{1.25,-3.25}{1.25,-2.75}
-      \draw[avledge] (n1-1) -- (n2-0);
-      \draw[avlgoldedge,line width=1.1pt] (n2-0) -- (n4-1);
-      \draw[avlgoldedge,line width=1.1pt] (n3-2) -- (n4-1) -- (n5-2);
-      \node[avlkey]     at (n2-0) {2};
-      \node[avlkey]     at (n1-1) {1};
-      \node[avlkeygold] at (n4-1) {4};
-      \node[avlkey]     at (n3-2) {3};
-      \node[avlkey]     at (n5-2) {5};
-    }
-
-    % ================= 6 arrives -- the ROOT breaks =================
-    \only<8>{
-      \draw[avledge] (n1-1) -- (n2-0) -- (n4-1);
-      \draw[avledge] (n3-2) -- (n4-1) -- (n5-2) -- (n6-3);
-      \node[avlkeyalert] at (n2-0) {2};
-      \node[avlkey]      at (n1-1) {1};
-      \node[avlkey]      at (n4-1) {4};
-      \node[avlkey]      at (n3-2) {3};
-      \node[avlkey]      at (n5-2) {5};
-      \node[avlkeygold]  at (n6-3) {6};
-      \pivotpin{n2-0}
-      \rotleft{n2-0}{1.45}
-      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (-1.05,1.05) {rotate left at 2};
-    }
-    \only<9>{
-      \ghostnode{-2.50}{0}{2}    \ghostpath{-2.50,-0.35}{-2.50,-0.85}
-      \ghostnode{0}{-1.20}{4}    \ghostpath{0,-0.85}{0,-0.35}
-      \ghostnode{2.50}{-3.60}{6} \ghostpath{2.50,-3.25}{2.50,-2.75}
-      \draw[avlgoldedge,line width=1.1pt] (n2-1) -- (n4-0) -- (n5-1);
-      \draw[avledge] (n1-2) -- (n2-1) -- (n3-2);
-      \draw[avledge] (n5-1) -- (n6-2);
-      \node[avlkeygold] at (n4-0) {4};
-      \node[avlkey]     at (n2-1) {2};
-      \node[avlkey]     at (n5-1) {5};
-      \node[avlkey]     at (n1-2) {1};
-      \node[avlkey]     at (n3-2) {3};
-      \node[avlkey]     at (n6-2) {6};
-    }
-
-    % ================= 7 arrives -- RR at 5, the last one =================
-    \only<10>{
-      \draw[avledge] (n2-1) -- (n4-0) -- (n5-1);
-      \draw[avledge] (n1-2) -- (n2-1) -- (n3-2);
-      \draw[avledge] (n5-1) -- (n6-2) -- (n7-3);
-      \node[avlkey]      at (n4-0) {4};
-      \node[avlkey]      at (n2-1) {2};
-      \node[avlkeyalert] at (n5-1) {5};
-      \node[avlkey]      at (n1-2) {1};
-      \node[avlkey]      at (n3-2) {3};
-      \node[avlkey]      at (n6-2) {6};
-      \node[avlkeygold]  at (n7-3) {7};
-      \pivotpin{n5-1}
-      \rotleft{n5-1}{1.25}
-      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=west] at (2.55,-0.15) {rotate left at 5};
-    }
-    % Result beat: the last turn has landed, so the three ghosts say where 5, 6
-    % and 7 came from. The tree is still drawn in ember here -- it is the shape
-    % that just changed, not yet the verdict.
-    \only<11>{
-      \ghostnode{1.25}{-1.20}{5} \ghostpath{1.25,-1.55}{1.25,-2.05}
-      \ghostnode{2.50}{-2.40}{6} \ghostpath{2.50,-2.05}{2.50,-1.55}
-      \ghostnode{3.75}{-3.60}{7} \ghostpath{3.75,-3.25}{3.75,-2.75}
-      \draw[avlgoldedge,line width=1.1pt] (n2-1) -- (n4-0) -- (n6-1);
-      \foreach \a/\b in {n1-2/n2-1, n3-2/n2-1, n5-2/n6-1, n7-2/n6-1}
-        \draw[avlgoldedge,line width=1.1pt] (\a) -- (\b);
-      \node[avlkeygold] at (n4-0) {4};
-      \node[avlkeygold] at (n2-1) {2};
-      \node[avlkeygold] at (n6-1) {6};
-      \node[avlkeygold] at (n1-2) {1};
-      \node[avlkeygold] at (n3-2) {3};
-      \node[avlkeygold] at (n5-2) {5};
-      \node[avlkeygold] at (n7-2) {7};
-    }
-    % Verdict beat: the same tree with the afterimages cleared and every node
-    % green. Nothing moves between 11 and 12 -- the only change is that the
-    % tree has stopped being a thing in motion and become a legal result.
-    \only<12>{
-      \draw[draw=avlbalance!70,line width=1.6\pxl] (n2-1) -- (n4-0) -- (n6-1);
-      \foreach \a/\b in {n1-2/n2-1, n3-2/n2-1, n5-2/n6-1, n7-2/n6-1}
-        \draw[draw=avlbalance!70,line width=1.6\pxl] (\a) -- (\b);
-      \node[avlkeyok] at (n4-0) {4};
-      \node[avlkeyok] at (n2-1) {2};
-      \node[avlkeyok] at (n6-1) {6};
-      \node[avlkeyok] at (n1-2) {1};
-      \node[avlkeyok] at (n3-2) {3};
-      \node[avlkeyok] at (n5-2) {5};
-      \node[avlkeyok] at (n7-2) {7};
-    }
-  \end{tikzpicture}
-  \end{center}
-
-  \vspace{-1.65em}
-  \begin{center}
-  % Fixed-height box: the balance factor lives here rather than on the picture
-  % (four labels squeezed between four arcs never all fit), and the fixed height
-  % stops the two-line payoff caption from shifting the one-line captions.
-  \begin{minipage}[t][84\pxl][t]{0.96\textwidth}
-  \centering\avlfSec
-    \only<1>{{\color{avlmuted}1 arrives. A single node --- there is nothing to
-              break yet.}}
-    \only<2>{{\color{avlmuted}2 goes right. $\mathrm{bf}(1) = -1$ --- still
-              legal, nothing to do.}}
-    \only<3>{{\color{avlmuted}3 goes right again. \viol{$\mathrm{bf}(1) = -2$},
-              an RR chain. Pin 1 and turn left.}}
-    \only<4>{{\color{avlmuted}Balanced again --- height 1. \fib{One rotation.}}}
-    \only<5>{{\color{avlmuted}4 hangs off 3. Every balance factor is still
-              $\pm 1$ --- nothing breaks.}}
-    \only<6>{{\color{avlmuted}5 arrives. \viol{$\mathrm{bf}(3) = -2$}, RR again.
-              Pin 3 and turn left.}}
-    \only<7>{{\color{avlmuted}Balanced again. \fib{Two rotations.}}}
-    \only<8>{{\color{avlmuted}6 arrives and the \emph{root} breaks:
-              \viol{$\mathrm{bf}(2) = -2$}. Pin 2 and turn left.}}
-    \only<9>{{\color{avlmuted}Balanced again. \fib{Three rotations.}}}
-    \only<10>{{\color{avlmuted}7 arrives. \viol{$\mathrm{bf}(5) = -2$}.
-              Pin 5 and turn left --- the last one.}}
-    \only<11>{{\color{avlmuted}Balanced again. \fib{Four rotations.}}}
-    \only<12>{{\avlfLead\color{avlbalance}\wbold Perfect tree. Height 2.}\\[0.35em]
-              {\color{avlmuted}The same input that made a 7-step list
-               now answers in 3 steps. \fib{4 rotations total.}}}
+  % Fixed-height box so the flow diagram above does not shift when the
+  % question replaces the caption.
+  \begin{minipage}[t][150\pxl][t]{0.96\textwidth}
+  \centering
+    \only<1>{{\avlfSec\color{avlmuted}The tree is only repaired on the way
+              \emph{back up}.}\\[0.9em]
+             {\avlfSec\color{avlmuted}A node is bad once its balance factor
+              reaches $\pm 2$.}}
+    \only<2->{%
+      \begin{avlpanel}[0.78\textwidth]
+        {\avlfLead\color{avlfib}\wbold But exactly how many rotations?}
+      \end{avlpanel}\\[0.8em]
+      {\avlfSec\color{avlmuted}Let us run one insert and count.}}
   \end{minipage}
   \end{center}
 
-  \note{One click per key, so they see the quiet inserts too. 1 lands, nothing
-  breaks. 2 lands, still legal. 3 lands and now the root is broken --- pin it,
-  turn left, and on the next click 1 has been pushed straight down while 2 has
-  come straight up into its place. Say that out loud: nobody slides sideways,
-  they only change level. 4 arrives and nothing breaks --- that beat matters,
-  it is why we do not rotate every time. Then 5 breaks it at 3, 6 breaks it at
-  the root, 7 breaks it at 5. Four rotations across seven inserts, and the tree
-  that used to be a list is perfectly balanced.}
+  \note{Three steps, and the order matters: you insert like an ordinary BST,
+  then you walk back up, and when you find a node with a balance factor of plus
+  or minus two, you rotate there. Click. Now hold the question open: how many
+  rotations does that cost? Do not answer it yet, the next slide answers it by
+  counting.}
+\end{frame}
+% ------------------------------------------------------------------ INSERTION SIM
+%  ONE insert into a tree nobody has seen before, so the count is earned rather
+%  than asserted. The tree is chosen so the walk up passes two healthy nodes
+%  before it finds the broken one: the whole point of step 2 is that most of the
+%  walk finds nothing, and a tree that broke at the parent would hide that.
+%
+%    start        40(20(10,30),60)          legal: bf(40)=+1, bf(20)=0
+%    insert 5     lands left of 10          bf(10)=+1 ok, bf(20)=+1 ok,
+%                                           bf(40)=+2 BROKEN, an LL shape
+%    fix          one right rotation at 40  -> 20(10(5),40(30,60))
+%
+%  Height check, which is the reason one rotation ends it: the tree stood at
+%  height 2 before the insert and stands at height 2 after the rotation.
+%
+%  LAYOUT: lattice pitch 1.25 x 1.20 at scale 0.84, the same figures the 1..7
+%  simulation used, so this tree reads at the size the deck has already
+%  established. A key's COLUMN is its position in sorted order and never
+%  changes, only its ROW does. c0..c5 = 5, 10, 20, 30, 40, 60.
+%
+%  There is no caption strip under this figure. Two things were competing for
+%  the same 1 cm: a readable tree and a line of prose. The tree won, and what
+%  the prose was carrying (the balance factors, the shape name, the count) is
+%  annotated on the figure itself where it belongs.
+%
+%  ALGORITHM RAIL. All four steps hold their slots from beat one, so the list
+%  is a map of where we are rather than a list being built. \setbeamercovered
+%  does the dimming: a step outside its own overlays is covered, which beamer
+%  renders at 32% opacity, and \alt paints it muted grey underneath. The green
+%  chevron is drawn only on the active beats. "Done" is the exception: it is
+%  \only-gated, so it is absent, not dimmed, until the tree is actually legal.
+
+% \insmark{<active spec>} -- the "you are here" chevron. Always occupies its
+% slot (the \path reserves the box) and is only inked on the active beats, so
+% the rail cannot shift sideways between overlays. 1 unit = 1 design px.
+\newcommand{\insmark}[1]{%
+  \begin{tikzpicture}[baseline=0pt,x=0.0125cm,y=0.0125cm]
+    \path (0,0) rectangle (11,12);
+    \only<#1>{\fill[avlbalance] (0,1) -- (0,11) -- (9.5,6) -- cycle;}
+  \end{tikzpicture}}
+
+% \insstep[<reveal spec>]{<active spec>}{<text>}
+\newcommand{\insstep}[3][1-]{%
+  \hbox to\linewidth{%
+    \insmark{#2}\hskip14\pxl
+    \begin{minipage}[t]{\dimexpr\linewidth-40\pxl\relax}
+      \avlfSec\raggedright\strut
+      \only<#1>{\uncover<#2>{%
+        \alt<#2>{\color{avlbalance}\wsemi}{\color{avlmuted}}#3}}%
+    \end{minipage}\hfil}%
+  \vskip 24\pxl}
+
+\begin{frame}[label=p2]{Simulation: count the rotations}
+  \setbeamercovered{transparent=32}
+  \vspace{0.5em}
+  \begin{columns}[T,onlytextwidth]
+  \begin{column}{0.60\textwidth}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.84,every node/.style={transform shape}]
+    \setpinscale{1}
+    % column = sorted position (5,10,20,30,40,60), row = depth
+    \foreach \cc in {0,...,5}{\foreach \dd in {0,1,2,3}{
+      \coordinate (c\cc-\dd) at ({(\cc-2.5)*1.25},{-\dd*1.20});}}
+
+    % Fixed extent: the tree must not resize between beats. The top is set by
+    % the turn arrow and its label, the bottom by the ghost of 5.
+    \path (-3.70,-3.98) rectangle (3.70,1.50);
+
+    % ---------------- the tree as it stands once 5 has arrived -------------
+    \only<1-4>{
+      \draw[avledge] (c4-0) -- (c2-1) -- (c1-2) -- (c0-3);
+      \draw[avledge] (c4-0) -- (c5-1);
+      \draw[avledge] (c2-1) -- (c3-2);
+    }
+    % the walk itself, drawn on the links it climbs
+    \only<2-4>{\draw[draw=avlptwo,line width=2\pxl] (c0-3) -- (c1-2) -- (c2-1);}
+    \only<3-4>{\draw[draw=avlptwo,line width=2\pxl] (c2-1) -- (c4-0);}
+
+    \only<1>{
+      \node[avlkey]     at (c4-0) {40}; \node[avlkey] at (c2-1) {20};
+      \node[avlkey]     at (c5-1) {60}; \node[avlkey] at (c1-2) {10};
+      \node[avlkey]     at (c3-2) {30}; \node[avlkeygold] at (c0-3) {5};
+      \node[avlannotfib,anchor=west] at (-2.62,-3.60) {new};
+    }
+    % Walk beats. A node that has been checked and passed keeps its green, so
+    % the audience can see how much of the walk found nothing.
+    \only<2-4>{
+      \node[avlkeyok] at (c2-1) {20}; \node[avlkey] at (c5-1) {60};
+      \node[avlkeyok] at (c1-2) {10}; \node[avlkey] at (c3-2) {30};
+      \node[avlkeygold] at (c0-3) {5};
+      \node[avlannotok,anchor=east] at (-2.38,-2.40) {$\mathrm{bf} = +1$};
+      \node[avlannotok,anchor=east] at (-1.13,-1.20) {$\mathrm{bf} = +1$};
+    }
+    \only<2>{\node[avlkey] at (c4-0) {40};}
+    \only<3-4>{\node[avlkeyalert] at (c4-0) {40};}
+    \only<3>{
+      \draw[avlalert,line width=2\pxl] (c4-0) circle (0.42);
+      \node[avlannotalert,anchor=west] at (2.45,0.18) {$\mathrm{bf} = +2$};}
+    \only<4>{
+      \pivotpin{c4-0}\rotright{c4-0}{1.30}
+      \node[color=avlptwo,font=\avlfAnnot\wmed,anchor=east] at (0.40,1.28)
+        {LL: turn right at 40};}
+
+    % ---------------- the turn has landed, afterimages still up ------------
+    \only<5>{
+      \ghostnode{1.875}{0}{40}       \ghostpath{1.875,-0.35}{1.875,-0.85}
+      \ghostnode{-0.625}{-1.20}{20}  \ghostpath{-0.625,-0.85}{-0.625,-0.35}
+      \ghostnode{-3.125}{-3.60}{5}   \ghostpath{-3.125,-3.25}{-3.125,-2.75}
+      \draw[avlgoldedge,line width=1.1pt] (c1-1) -- (c2-0) -- (c4-1);
+      \draw[avlgoldedge,line width=1.1pt] (c0-2) -- (c1-1);
+      \draw[avlgoldedge,line width=1.1pt] (c3-2) -- (c4-1) -- (c5-2);
+      \node[avlkeygold] at (c2-0) {20}; \node[avlkeygold] at (c1-1) {10};
+      \node[avlkeygold] at (c4-1) {40}; \node[avlkeygold] at (c0-2) {5};
+      \node[avlkeygold] at (c3-2) {30}; \node[avlkeygold] at (c5-2) {60};
+    }
+    % ---------------- verdict: same tree, afterimages cleared, green -------
+    % Nothing moves between beat 5 and beat 6. The only change is that the
+    % tree stops being a thing in motion and becomes a legal result.
+    \only<6>{
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (c1-1) -- (c2-0) -- (c4-1);
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (c0-2) -- (c1-1);
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (c3-2) -- (c4-1) -- (c5-2);
+      \node[avlkeyok] at (c2-0) {20}; \node[avlkeyok] at (c1-1) {10};
+      \node[avlkeyok] at (c4-1) {40}; \node[avlkeyok] at (c0-2) {5};
+      \node[avlkeyok] at (c3-2) {30}; \node[avlkeyok] at (c5-2) {60};
+      \node[font=\avlfLead\wbold,text=avlbalance,anchor=north] at (0,-3.05)
+        {Legal again. One rotation.};
+    }
+  \end{tikzpicture}
+  \end{center}
+  \end{column}
+
+  % ---------------- the algorithm, tracked beside the tree ----------------
+  \begin{column}{0.36\textwidth}
+  \vspace{1.1em}
+  \insstep{1}{Insert like a normal BST}
+  \insstep{2-3}{Walk back up to the root}
+  \insstep{4-5}{Rotate when we find a bad node}
+  \insstep[6]{6}{Done}
+  \end{column}
+  \end{columns}
+
+  \note{A tree they have not seen. Click: 5 arrives, ordinary BST insert, no
+  balance work at all yet. Click: now walk back up. 10 is fine, 20 is fine.
+  Say out loud that this is the common case, the walk usually finds nothing.
+  Click: the root is the one that broke, plus two. Click: left child, left
+  side, so it is LL. Pin 40, turn clockwise. Click: the turn has landed, and
+  the faded circles say where 40, 20 and 5 came from. Click: legal. Count it
+  with them, one rotation. Then ask whether that was luck.}
 \end{frame}
 
-% ------------------------------------------------------------------ time complexity
-\begin{frame}[label=p2]{Insertion: the cost and the gain}
-  \vspace{-0.2em}
+% ------------------------------------------------------------------ the catch
+%  ONE box on this slide, and it is the answer. The questions are set as plain
+%  type with real air around them, so the only bordered thing on the ground is
+%  the thing the audience is waiting for. The hierarchy is carried by size --
+%  17 pt questions against a 25 pt answer -- and by colour: ink for the
+%  question anyone would ask, part hue for the one that presses, green for the
+%  verdict. A second card around the questions would have flattened all of it
+%  back into two grey rectangles.
+\begin{frame}[label=p2]{The catch}
+  \vspace{0.6em}
   \begin{center}
-  \begin{tikzpicture}[x=0.95cm,y=0.95cm,scale=0.95]
-    % Box and table dimensions (consistent across both)
-    \def\boxwidth{3.0}
-    \def\boxheight{0.75}
-    
-    % AVL: logarithmic. On the RIGHT, because the "50,000x faster" arrow below
-    % runs left to right and has to point AT the tree that is faster.
-    \begin{scope}[xshift=4.5cm]
-      % Box
-      \node[draw=avlfib!45!avlground,fill=avlfib!8!avlground,line width=1.5\pxl,rounded corners=6pt,
-            minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
-            text=avlink,anchor=south] (avlbox) at (0,0) {\bfseries AVL Tree};
+    % The baselineskip in force here is \avlfBody's 14.4 pt, not \avlfStmt's:
+    % the size command is scoped inside the braces, so the \\ that follows it
+    % still breaks at body leading. That is why these gaps look outsized.
+    {\avlfStmt\wmed\color{avlink}One rotation and we are done?}\\[72\pxl]
+    \uncover<2->{{\avlfStmt\wmed\color{avlptwo}Always the case?}}\\[78\pxl]
+    % Fixed slot: the answer must not push the questions up the slide when it
+    % arrives. Sized to the panel plus its trailing line.
+    \begin{minipage}[t][174\pxl][t]{\textwidth}
+    \centering
+    \only<3->{%
+      \begin{avlpanelh}[0.46\textwidth]{avlbalance}
+        {\avlfBig\wbold\color{avlbalance}Yes, it is.}
+      \end{avlpanelh}\\[18\pxl]
+      {\avlfSec\color{avlmuted}At most one rotation per insert.}}
+    \end{minipage}
+  \end{center}
 
-      % Table -- natural-width left column so "Walk down" never wraps.
-      % Pinned below the box itself, not a guessed offset, so it can never
-      % run into the box above it.
-      \node[font=\small,color=avlink,anchor=north,
-            below=0.45cm of avlbox] (avltab) {%
-        \begin{tabular}{@{}l@{\hspace{0.3cm}}r@{}}
-          \color{avlmuted}Walk down & \color{avlmuted}$O(\log n)$ \\
-          \color{avlmuted}Rotate & \color{avlmuted}$O(1)$ \\
-          \hline
-          \color{avlfib}\bfseries Insert & \color{avlfib}\bfseries$O(\log n)$
-        \end{tabular}%
-      };
+  \note{Slow down here. One rotation. Was that this tree, or is it a
+  guarantee? Let them sit with it for a beat. Click. Ask it again, out loud:
+  always? Click. Yes, always, at most one rotation per insert, and that is not
+  an observation, it is provable. The next slide is the proof in one picture.}
+\end{frame}
 
-      % Concrete example -- pinned below the table's actual height, so a
-      % taller or shorter table can never overlap it.
-      \node[font=\scriptsize,color=avlmuted,text width=2.8cm,text centered,
-            anchor=north,below=0.3cm of avltab] (avlex) {%
-        For 1M keys:\\[0.08em]\color{avlfib}\textbf{\(\sim 20\) steps}%
-      };
+% ------------------------------------------------------------------ why so
+%  The height argument, drawn rather than asserted: the insert lifts one
+%  subtree by exactly one, the rotation puts that one back, and an ancestor
+%  that sees the height it saw before has nothing left to repair.
+\begin{frame}[label=p2]{Why so?}
+  \vspace{-0.1em}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.75,every node/.style={transform shape},
+      par/.style={circle,draw=avlink!70,fill=white!96!avlground,
+                  line width=1.5\pxl,inner sep=0pt,minimum size=30\pxl},
+      whycap/.style={font=\avlfAnnot,text=avlmuted,anchor=north,align=center}]
+    \path (-6.30,-1.80) rectangle (6.30,1.45);
+
+    % ---- before the insert : height h ----
+    \begin{scope}[shift={(-4.60,0)}]
+      \node[par] at (0,1.20) {};
+      \draw[avledge] (0,1.20) -- (0,0.85);
+      \draw[draw=avlfib!55,fill=avlfib!8!avlground,line width=1.6\pxl]
+        (0,0.85) -- (-1.00,-0.85) -- (1.00,-0.85) -- cycle;
+      \heightbrace{-1.32}{0.85}{-0.85}{$h$}{avlfaint}
+      \node[whycap] at (0,-1.05) {before the insert};
     \end{scope}
 
-    % Unbalanced BST: worst case linear (same dimensions). On the LEFT -- the
-    % arrow starts from the slow side.
-    \begin{scope}[xshift=-4.5cm]
-      % Box
-      \node[draw=avlalert!45!avlground,fill=avlalert!8!avlground,line width=1.5\pxl,rounded corners=6pt,
-            minimum width=\boxwidth cm,minimum height=\boxheight cm,font=\small,
-            text=avlink,anchor=south] (bstbox) at (0,0) {\bfseries Unbalanced BST};
-
-      % Table -- identical column layout
-      \node[font=\small,color=avlink,anchor=north,
-            below=0.45cm of bstbox] (bsttab) {%
-        \begin{tabular}{@{}l@{\hspace{0.3cm}}r@{}}
-          \color{avlmuted}Walk down & \color{avlmuted}$O(n)$ worst \\
-          \color{avlmuted}No repair & \color{avlmuted}$---$ \\
-          \hline
-          \color{avlalert}\bfseries Insert & \color{avlalert}\bfseries$O(n)$ worst
-        \end{tabular}%
-      };
-
-      % Concrete example
-      \node[font=\scriptsize,color=avlmuted,text width=2.8cm,text centered,
-            anchor=north,below=0.3cm of bsttab] (bstex) {%
-        For 1M keys:\\[0.08em]\color{avlalert}\textbf{\(\sim 1\text{M}\) steps}%
-      };
+    % ---- after the insert : one taller ----
+    \begin{scope}
+      \node[par] at (0,1.20) {};
+      \draw[avledge] (0,1.20) -- (0,0.85);
+      \draw[draw=avlalert!55,fill=avlalert!8!avlground,line width=1.6\pxl]
+        (0,0.85) -- (-1.15,-1.25) -- (1.15,-1.25) -- cycle;
+      \heightbrace{-1.47}{0.85}{-1.25}{$h+1$}{avlalert}
+      \node[whycap] at (0,-1.45) {after the insert};
     \end{scope}
 
-    % The comparison arrow -- pinned below the example blocks' actual row
-    % (both sides share the same structure, so their tops line up), instead
-    % of a guessed absolute y that drifts whenever the text above reflows.
-    \path let \p1 = (avlex.south) in coordinate (rowY) at (0,\y1);
-    \draw[line width=2pt,-{Stealth[length=5pt]},color=avlfib]
-      ($(rowY)+(-1.0,-0.55)$) -- ($(rowY)+(1.0,-0.55)$);
-    \node[color=avlfib,font=\small\bfseries,anchor=south] at
-      ($(rowY)+(0,-0.60)$) {50,000\(\times\) faster};
+    % ---- after one rotation : height h again ----
+    % Pushed a little further right than the mirror position: this brace sits
+    % on the same y as the "rotate" arrow, and its rotated label needs clear
+    % air between itself and the arrowhead.
+    \begin{scope}[shift={(4.80,0)}]
+      % Whole state hidden until the rotation beat -- the parent stub on its
+      % own reads as a stray lollipop with no subtree under it.
+      \only<2->{
+        \node[par] at (0,1.20) {};
+        \draw[avledge] (0,1.20) -- (0,0.85);
+        \draw[draw=avlbalance!60,fill=avlbalance!8!avlground,line width=1.6\pxl]
+          (0,0.85) -- (-1.00,-0.85) -- (1.00,-0.85) -- cycle;
+        \heightbrace{-1.32}{0.85}{-0.85}{$h$}{avlbalance}
+        \node[whycap] at (0,-1.05) {after one rotation};}
+    \end{scope}
+
+    \draw[avlgoldarrow] (-3.35,-0.10) -- (-1.95,-0.10)
+      node[midway,above=2\pxl,font=\avlfAnnot,text=avlfib] {insert};
+    \only<2->{
+      \draw[avlarc] (1.70,-0.10) -- (2.90,-0.10)
+        node[midway,above=2\pxl,font=\avlfAnnot,text=avlptwo] {rotate};}
   \end{tikzpicture}
   \end{center}
 
-  \vspace{0.3em}
+  \vspace{0.2em}
   \begin{center}
-    {\avlfLead\color{avlfib}\wbold Three links, logarithmic height.}\\[0.2em]
-    {\avlfSec\color{avlmuted}That is the contract.}
+  % HARD BUDGET. Below the figure there are 2.45 cm, and a fixed-height
+  % minipage hides an overrun from the compiler: a wrapped line here spills
+  % silently through the footer rule instead of raising an overfull warning.
+  % Both sentences and the panel line must each stay on ONE line, which is
+  % roughly 72 characters at \avlfSec and roughly 46 at \avlfLead.
+  \begin{minipage}[t][196\pxl][t]{0.94\textwidth}
+  \centering
+    {\avlfSec\color{avlmuted}An insert adds
+     \viol{at most one level} to a subtree.}\\[0.5em]
+    \uncover<2->{{\avlfSec\color{avlmuted}The rotation takes that level back,
+      so \ok{nothing above the node changes}.}}\\[0.6em]
+    \only<3->{%
+      \begin{avlpanel}[0.94\linewidth]
+        {\avlfLead\color{avlfib}\wbold Insertion is $O(\log n)$: a walk and
+         one turn.}
+      \end{avlpanel}}
+  \end{minipage}
   \end{center}
 
-  \note{Here is the payoff. Insertion in an AVL tree is logarithmic: walk down
-  log n steps to the leaf, then walk back up log n steps, rotating at most once.
-  Total: O(log n). Without rebalancing, a sorted insertion into a normal BST is
-  linear: a million keys takes a million comparisons. With AVL, it takes 20.
-  That is fifty thousand times faster. For a few pointers, you get guaranteed
-  logarithmic time no matter what keys arrive and in what order.}
+  \note{Here is the whole argument in one picture. An insert adds one node, so
+  it can lift a subtree by at most one level. Click. The rotation gives that
+  level straight back: the subtree comes out at exactly the height it had
+  before the insert, so the parent, and everything above the parent, sees no
+  change at all and has nothing to fix. That is why the repair stops at the
+  node we rotated. Click. And the cost: log n down, log n back up, one
+  constant-time rotation. Insertion is logarithmic, guaranteed.}
 \end{frame}
-
