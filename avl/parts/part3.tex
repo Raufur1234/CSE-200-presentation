@@ -26,7 +26,7 @@
 \setavlpart{3}{Part 3 --- Deletion}{avlpthree}
 
 \begin{frame}[label=p3]{Deletion: the rule}
-  \vspace{0.5em}
+  \vspace{1.0em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,
       stepbox/.style={draw=avlpthree!45!avlground,fill=avlpthree!8!avlground,
@@ -156,6 +156,9 @@
 \end{frame}
 
 \begin{frame}[label=p3]{From one rotation to a cascade}
+  % Two short lines on an otherwise empty slide: without this they float in the
+  % upper third and leave a band of dead air above the footer.
+  \vspace{0.9em}
   \begin{center}
     {\avlfStmt\wbold\color{avlink}When does a rotation\\
      propagate toward the root?\par}
@@ -182,7 +185,7 @@
 %  rather than a claim in the caption.
 \newcommand{\cascdx}{0.196}
 \newcommand{\cascdy}{0.50}
-\newcommand{\cascrad}{1.5pt}
+\newcommand{\cascrad}{4\pxl}
 
 % \casctree{<nodes>}{<edges>} -- edges behind, discs on top
 \newcommand{\casctree}[2]{%
@@ -197,37 +200,43 @@
 
 % \cascbreak{<rank>}{<bf>} -- the node that is now illegal
 \newcommand{\cascbreak}[2]{%
-  \draw[draw=avlalert, line width=1.2pt] (c-#1) circle (4.2pt);
+  \draw[draw=avlalert, line width=3\pxl] (c-#1) circle (12\pxl);
   % The label goes ABOVE THE ROOT ROW, the one band of this figure that is
   % guaranteed empty at every beat, and a hairline leader ties it back to the
   % ring. Anywhere inside the canopy its filled box lands on some edge and
   % chops it -- which is what it was doing next to the node.
-  \draw[avlalert!50, line width=0.5pt]
-    ($(c-#1)+(0,4.6pt)$) -- ({#1*\cascdx},0.10);
-  \node[text=avlalert, font=\scriptsize\bfseries, anchor=south,
-        fill=avlground, inner sep=1.8pt, rounded corners=1pt]
+  \draw[avlalert!50, line width=1\pxl]
+    ($(c-#1)+(0,13\pxl)$) -- ({#1*\cascdx},0.10);
+  \node[avlannotalert, font=\avlfAnnot\wbold, anchor=south,
+        fill=avlground, inner sep=5\pxl, rounded corners=3\pxl]
     at ({#1*\cascdx},0.10) {$\mathrm{bf}=#2$};}
 
 % height ruler down the left edge; #1 = height, #2 = colour
 \newcommand{\cascruler}[2]{%
   \begin{scope}[xshift=-0.55cm]
     % mirror: the brace must open toward the tree it is measuring
-    \draw[decorate,decoration={brace,amplitude=4pt,mirror},#2,line width=0.8pt]
+    \draw[decorate,decoration={brace,amplitude=11\pxl,mirror},#2,line width=2\pxl]
       (0,0.10) -- (0,{-#1*\cascdy-0.10});
-    \node[color=#2,font=\scriptsize,anchor=east,rotate=90]
+    \node[color=#2,font=\avlfAnnot,anchor=east,rotate=90]
       at (-0.26,{-#1*\cascdy/2}) {height #1};
   \end{scope}}
 
 \begin{frame}[label=p3]{Worst case: one leaf out, and it does not stop}
-  \vspace{-0.5em}
+  % The picture reserves 0.60 above the root row, so at -0.5em its bounding box
+  % butted straight into the title rule and the bf tag cleared it by 9 px --
+  % half the gap every other frame in the deck leaves. The room comes back off
+  % the caption slot and the note below, so nothing moves down the slide.
+  \vspace{-0.1em}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,scale=0.90,every node/.append style={transform shape}]
-    % fixed extent: the picture must not resize between clicks
-    \path (-1.5,-3.70) rectangle (11.2,0.60);
+    % Fixed extent: the picture must not resize between clicks. The deepest
+    % row sits at -3.50, so -3.62 keeps a margin under it while handing the
+    % slack back to the gap above the figure.
+    \path (-1.5,-3.62) rectangle (11.2,0.60);
 
     \only<1>{\casctree{\cascNZero}{\cascEZero}%
-             \draw[draw=avlalert,line width=1.2pt]
-               (\casctarget*\cascdx,-4*\cascdy) circle (3.6pt);
+             \draw[draw=avlalert,line width=3\pxl]
+               (\casctarget*\cascdx,-4*\cascdy) circle (10\pxl);
              \cascruler{\cascHZero}{avlfib}}
     \only<2-3>{\casctree{\cascNOne}{\cascEOne}\cascgap
              \cascbreak{\cascHotOne}{\cascBfOne}\cascruler{\cascHOne}{avlfib}}
@@ -256,6 +265,8 @@
   % Caption block reserves its own height: six beats, one of them two lines.
   \vspace{-0.7em}
   \begin{center}
+  % 86 px is what beat 6 needs: a lead line, 0.35em, and a full-width second
+  % line. Anything less and that beat's caption crowds the note beneath it.
   \begin{minipage}[t][86\pxl][t]{\textwidth}\centering\avlfSec
     \only<1>{{\color{avlmuted}54 nodes, height 7, no spare room anywhere.
               Delete the \viol{marked leaf}.}}
@@ -277,7 +288,8 @@
   \end{minipage}
   \end{center}
 
-  \vspace{-0.1em}
+  % -0.15em overflows this frame by 0.8pt; the body is full at this point.
+  \vspace{-0.30em}
   {\avlfAnnot\color{avlmuted}\centering
    Note: this cascade is left-heavy ($\mathrm{bf}=+2$); right-heavy is its mirror.\\
    Height loss can propagate after any Part 2 repair: LL, RR, LR, or RL.\par}
@@ -293,9 +305,10 @@
 
 \newcommand{\avldeletionlayers}{%
   \begin{tikzpicture}[x=1cm,y=1cm,
-      avldot/.style={circle,draw=avlfib,fill=avlfib,inner sep=0pt,
-                     minimum size=5.8\pxl},
-      avledge/.style={draw=avlfib!75,line width=1.3\pxl}]
+      % Same override Part 1 uses: take the theme's dot and mini-edge tokens
+      % rather than restating their values, and only shrink the disc.
+      avldot/.style={avlgolddot,minimum size=5.8\pxl},
+      avledge/.style={avlminiedge}]
     \setavlscale{0.42}{0.33}
     \resetavl
     \drawfib{7}{0}{0}
@@ -315,7 +328,10 @@
 }
 
 \begin{frame}[t,label=p3]{A Fibonacci tree at every level}
-  \vspace{-0.2em}
+  % A [t] frame carrying only two lines under the figure: at -0.2em the block
+  % sat 19 px above the slide's vertical centre with a band of dead air over
+  % the footer. Its sibling frame below needs less because it says more.
+  \vspace{1.5em}
   \begin{center}
     \avldeletionlayers
 
@@ -335,7 +351,7 @@
 \end{frame}
 
 \begin{frame}[t,label=p3]{Why the Fibonacci tree cascades}
-  \vspace{-0.2em}
+  \vspace{0.6em}
   \begin{center}
     \avldeletionlayers
 
@@ -363,9 +379,13 @@
   % and is never scaled to fit, so its tick and axis labels stay legible.
   % No grid -- the ticks carry the scale, and a guide line under the series
   % labels is the one thing that kept colliding with them.
-  \vspace{0.2em}
+  % `scale only axis` sizes the AXIS BOX at 7.3 cm; the ylabel and the tick
+  % labels hang outside it, so a 7.9 cm column was 0.55 cm short and the row
+  % ran over the text block. Widen the plot column to cover the furniture and
+  % take the difference off the stat column, which has slack.
+  \vspace{0.6em}
   \begin{columns}[c,onlytextwidth]
-    \begin{column}{7.9cm}
+    \begin{column}{8.45cm}
       \begin{tikzpicture}
         \begin{axis}[
           width=7.3cm, height=4.45cm, axis lines=left, scale only axis,
@@ -411,8 +431,9 @@
 \end{frame}
 
 \begin{frame}[label=p3]{Deletion: walk back to the root}
+  \vspace{0.4em}
   \begin{center}
-    {\avlfStmt\wbold\boldmath\color{avlink}BST deletion: $O(\log n)$.\par}
+    {\avlfStmt\wbold\boldmath\color{avlink}BST deletion: $O(\log n)$\par}
 
     \vspace{1.2em}
     {\avlfBody\color{avlmuted}After removing the node, walk upward\\
@@ -436,6 +457,7 @@
 \end{frame}
 
 \begin{frame}[label=p3]{Deletion: at most two rotations per level}
+  \vspace{0.6em}
   \begin{center}
     {\avlfBody\color{avlmuted}Each unbalanced node needs at most two rotations.\par}
 
@@ -473,6 +495,7 @@
 \end{frame}
 
 \begin{frame}[label=p3]{AVL deletion stays logarithmic}
+  \vspace{0.6em}
   \begin{center}
     {\avlfBody\color{avlmuted}Each rotation takes $O(1)$. Add up the work:\par}
 
@@ -482,8 +505,13 @@
       +\underbrace{O(h)}_{\text{upward walk}}
       +\underbrace{O(h)}_{\text{rotations}}$\par}
 
+    % The payoff sits in the deck's panel, not amsmath's \boxed: every other
+    % part states its result in a panel (Part 2's "Yes, it is."), and \boxed
+    % draws a hairline rule in the text colour that matches nothing else here.
     \vspace{1.0em}
-    {\avlfStmt\color{avlpthree}$\boxed{\text{AVL Deletion}=O(\log n)}$\par}
+    \begin{avlpanelh}[0.56\textwidth]{avlpthree}
+      {\avlfStmt\wbold\color{avlpthree}AVL Deletion $=O(\log n)$}
+    \end{avlpanelh}
 
     \vspace{1.1em}
     \begin{avlpanelh}[0.96\textwidth]{avlpthree}
@@ -495,26 +523,57 @@
   At most 2h constant-time rotations also cost O(h), not O(h squared).
   Because h is O(log n), the sum is O(log n). The contrast with insertion is
   the number of repair sites: insertion stops after repairing one site,
-  while deletion may continue repairing all the way to% c the root. That extra
+  while deletion may continue repairing all the way to the root. That extra
   work does not change the logarithmic worst-case bound on the full operation.}
 \end{frame}
 
 \begin{frame}[label=p3]{Why bother with the worse constant}
+  % Was a left-aligned stack of three heading/paragraph pairs inside a bare
+  % minipage -- the one frame in the deck that read as a bullet list. Rebuilt
+  % on Part 2's grid device (eyebrow, a row of \fib heads over muted one-liners,
+  % a panel carrying the payoff), so the closing argument looks like the rest
+  % of the deck. Copy trimmed to one line per column to fit three columns.
+  \vspace{-0.2em}
   \begin{center}
-  \begin{minipage}{0.90\textwidth}
-    \avlfSec\color{avlmuted}
-    {\fib{\wbold Databases and filesystems}}\par
-    In-memory indexes need guaranteed worst-case lookup,
-    not just a good average.\par\vspace{0.9em}
-    {\fib{\wbold Read-heavy workloads}}\par
-    Lookups vastly outnumber updates. The extra deletion work barely matters.\par\vspace{0.9em}
-    {\fib{\wbold A hard bound beats a soft average}}\par
-    Real-time systems care about the worst case, not the typical case.\par
-  \end{minipage}
+  \eyebrow{Where the extra rotations are worth paying}
+  \end{center}
 
-  \vspace{1.1em}
-  {\avlfSec\color{avlbody}An unbalanced tree is fast until it isn't.
-   An AVL tree is always fast\\--- that's the whole trade.\par}
+  % Three columns is the deck's maximum, so each cell is held to a two-line
+  % head over a three-line body: at this width an extra word in any one body
+  % costs a whole line and the row stops reading as a row.
+  \vspace{0.9em}
+  \begin{center}
+  \begin{minipage}{0.96\textwidth}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.31\textwidth}
+      {\fib{Databases and filesystems}}\\[0.25em]
+      {\avlfSec\color{avlmuted}Worst-case lookup has to be guaranteed,
+       not merely typical}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      % Broken by hand so all three heads occupy two lines and the three
+      % bodies start on one baseline; it is the only head short enough to fit
+      % on one.
+      {\fib{Read-heavy\\workloads}}\\[0.25em]
+      {\avlfSec\color{avlmuted}Lookups outnumber updates, so deletion's
+       cost rarely lands}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      {\fib{A bound, not an average}}\\[0.25em]
+      {\avlfSec\color{avlmuted}Real-time systems budget for the worst
+       case, not the usual one}
+    \end{column}
+  \end{columns}
+  \end{minipage}
+  \end{center}
+
+  \vspace{1.2em}
+  \begin{center}
+    \begin{avlpanel}[0.86\textwidth]
+      An unbalanced tree is fast until it isn't.
+      An AVL tree is \fib{always fast}.
+    \end{avlpanel}\\[0.7em]
+    {\avlfSec\color{avlmuted}That is the whole trade.}
   \end{center}
   \note{AVL trees are useful for ordered in-memory data, not a blanket choice
   for every database or filesystem index. OpenZFS uses AVL trees to track
@@ -528,6 +587,22 @@
 \end{frame}
 
 % ------------------------------------------------------------------ closing
-\avlstatement{A balanced tree is not one that is even.\\[0.35em]
-It is one that is never more than \dstrong{one step} away from even.\\[0.35em]
-That one step is what keeps every search fast.}{avlpthreeA}{avlpthreeB}{avlpthreeC}
+% Same full-bleed plum shell \avlstatement uses (dark ground, white rule above
+% and below, vfill-centred) rather than the macro itself: the last slide of a
+% talk carries only one line, so it gets its own font call instead of a new
+% argument threaded through a macro with a single call site. \avlfHuge is
+% defined in the theme and used nowhere else in the deck -- reserved for
+% exactly this, the one biggest, last moment.
+\begingroup
+\avldarktrue
+\colorlet{avldkA}{avlpthreeA}\colorlet{avldkB}{avlpthreeB}\colorlet{avldkC}{avlpthreeC}%
+\begin{frame}
+  \vfill
+  \begin{center}
+    {\color{white!70!avlpthreeB}\rule{64\pxl}{3\pxl}}\\[34\pxl]
+    {\avlfHuge\wbold\color{white}\avltrack{Thank You!}}\\[34\pxl]
+    {\color{white!70!avlpthreeB}\rule{64\pxl}{3\pxl}}
+  \end{center}
+  \vfill
+\end{frame}
+\endgroup
