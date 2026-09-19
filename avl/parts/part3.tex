@@ -1,7 +1,5 @@
 % ===========================================================================
 %  PART 3 --- Deletion, the worst case simulation, and the Fibonacci payoff
-%  Flow: deletion rule -> gentle example -> cascade -> Fibonacci tie-back
-%        -> rotation bound -> applications -> closing
 %
 %  Every number is simulated ground truth:
 %    worst-case deletion rotations = floor(h/2) exactly, h = 2..14
@@ -42,7 +40,7 @@
     \node[stepbox] (s2) at (0,0)
       {\begin{minipage}{3.2cm}\centering Walk back up to the root\end{minipage}};
     \node[bad] (s3) at (4.5,0)
-      {\begin{minipage}{3.2cm}\centering Rotate at \strong{every} bad node\end{minipage}};
+      {\begin{minipage}{3.2cm}\centering Rotate at {\wxbold\color{violet}every} bad node\end{minipage}};
     \draw[avlarrow] (s1) -- (s2);
     \draw[avlarrow] (s2) -- (s3);
   \end{tikzpicture}
@@ -51,11 +49,10 @@
   \vspace{1.0em}
   \begin{center}
     {\avlfLead\color{avlbody}The first two steps are the same as insertion.}\\[0.7em]
-    \begin{avlpanelh}[0.62\textwidth]{avlalert}
-      {\avlfLead\viol{\wbold The third one is not.}}
-    \end{avlpanelh}\\[0.8em]
-    {\avlfSec\color{avlmuted}Insertion stops after one single or double repair.
-     Deletion may need repairs higher up.}
+    \begin{minipage}[t][50\pxl][t]{\textwidth}\centering
+      \only<2->{\avlfSec\color{avlmuted}Insertion stops after one single or double repair.
+       Deletion may need repairs higher up.}
+    \end{minipage}
   \end{center}
 
   \note{The first two steps look identical to insertion. The difference is the
@@ -63,108 +60,159 @@
   node on the way up.}
 \end{frame}
 
-\begin{frame}[label=p3]{Deletion: same rule, new twist}
-  \vspace{-0.4em}
+\begingroup
+\newcommand{\delsimmark}[1]{%
+  \begin{tikzpicture}[baseline=0pt,x=0.0125cm,y=0.0125cm]
+    \path (0,0) rectangle (11,12);
+    \only<#1>{\fill[avlbalance] (0,1) -- (0,11) -- (9.5,6) -- cycle;}
+  \end{tikzpicture}%
+}
+\newcommand{\delsimstep}[2]{%
+  \hbox to\linewidth{%
+    \delsimmark{#1}\hskip14\pxl
+    \begin{minipage}[t]{\dimexpr\linewidth-40\pxl\relax}
+      \avlfSec\raggedright\strut
+      \uncover<#1>{\alt<#1>{\color{avlbalance}\wsemi}{\color{avlmuted}}#2}%
+    \end{minipage}\hfil}%
+  \vskip 24\pxl
+}
+\begin{frame}[label=p3]{Deletion: Simulation}
+  \setbeamercovered{transparent=32}
+  \vspace{-0.5em}
+  \begin{columns}[T,onlytextwidth]
+  \begin{column}{0.60\textwidth}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm]
-    \path (-5.6,-2.0) rectangle (5.6,1.05);
-    \only<1-2>{
-      \node[avlannot] at (-3.2,0.65) {delete 10};
-      \draw[avledge] (-4.3,-0.8) -- (-3.2,0) -- (-2.1,-0.8);
-      \node[avlkey] at (-3.2,0) {20};
-      \node[avlkeyalert] at (-4.3,-0.8) {10};
-      \node[avlkey] at (-2.1,-0.8) {30};
-    }
-    \only<2>{
-      \draw[avlarrow] (-0.6,-0.45) -- (0.6,-0.45);
-      \ghostnode{1.8}{-0.8}{10}
-      \draw[avlghostline] (2.9,0) -- (1.8,-0.8);
-      \draw[avledge] (2.9,0) -- (4.0,-0.8);
-      \node[avlkeyok] at (2.9,0) {20};
-      \node[avlkeyok] at (4.0,-0.8) {30};
-      \node[avlannotok] at (2.9,0.65) {$\mathrm{bf}(20)=-1$};
-      \node[avlannotok] at (2.9,-1.65) {still legal; no rotation};
-    }
-    \only<3-6>{
-      \node[avlannot,anchor=west,align=left,text width=1.8cm] at (-5.3,0.65) {a taller tree\\delete 30};
-      \only<3>{
-        \draw[avledge] (-2.1,0) -- (-1.0,-0.8);
-        \node[avlkeyalert] at (-1.0,-0.8) {30};
-      }
-      \only<4-6>{
-        \ghostnode{-1.0}{-0.8}{30}
-        \draw[avlghostline] (-2.1,0) -- (-1.0,-0.8);
-      }
-      \only<5-6>{\rotright{-2.1,0}{0.9}}
-      \draw[avledge] (-2.1,0) -- (-3.2,-0.8) -- (-4.3,-1.6);
-      \only<3>{\node[avlkey] at (-2.1,0) {20};}
-      \only<4-6>{\node[avlkeyalert] at (-2.1,0) {20};}
-      \node[avlkey] at (-3.2,-0.8) {10};
-      \node[avlkeygold] at (-4.3,-1.6) {5};
-      \only<5-6>{\pivotpin[avlalert]{-2.1,0}}
-      \only<4-6>{
-        \node[avlannotalert,anchor=east] at (-2.6,-0.1) {$\mathrm{bf}=+2$};
-      }
-    }
-    \only<6>{
-      \draw[avlarrow] (-0.4,-0.45) -- (0.8,-0.45);
-      \ghostnode{4.0}{0}{20}
-      \ghostpath{4.0,-0.3}{4.0,-0.5}
-      \ghostnode{2.9}{-0.8}{10}
-      \ghostpath{2.9,-0.5}{2.9,-0.3}
-      \ghostnode{1.8}{-1.6}{5}
-      \ghostpath{1.8,-1.3}{1.8,-1.1}
-      \draw[draw=avlbalance!70,line width=1.6\pxl]
-        (1.8,-0.8) -- (2.9,0) -- (4.0,-0.8);
-      \node[avlkeyok] at (2.9,0) {10};
-      \node[avlkeyok] at (1.8,-0.8) {5};
-      \node[avlkeyok] at (4.0,-0.8) {20};
-      \node[avlannotok] at (2.9,0.65) {one right rotation};
-    }
-  \end{tikzpicture}
+  \begin{tikzpicture}[x=1cm,y=1cm,scale=0.84,every node/.style={transform shape}]
+    \setpinscale{1}
+    \path (-3.70,-3.98) rectangle (3.70,1.35);
+    \coordinate (rootBefore) at (0.625,0);
+    \coordinate (tenBefore) at (-0.625,-1.20);
+    \coordinate (fiveBefore) at (-1.875,-2.40);
+    \coordinate (thirtyBefore) at (1.875,-1.20);
+    \coordinate (rootAfter) at (-0.625,0);
+    \coordinate (fiveAfter) at (-1.875,-1.20);
+    \coordinate (twentyAfter) at (0.625,-1.20);
 
-  \begin{minipage}[t][74\pxl][t]{\textwidth}
-    \centering\avlfSec\color{avlmuted}
-    \only<1>{Start with 20 above 10 and 30.
-      Every node is balanced.\par}
-    \only<2>{Delete 10. 20 just loses a child --- $\mathrm{bf}(20)=-1$,
-      still legal. Nothing to fix.\par}
-    \only<3>{A fresh, taller tree. $\mathrm{bf}(20)=+1$, still legal.\\
-      This time, delete 30.\par}
-    \only<4>{30 is gone. Now $\mathrm{bf}(20)=+2$.\\
-      The same alarm from Part 2 goes off.\par}
-    \only<5>{Pin 20 and turn clockwise.\\
-      One right rotation, just as in Part 2.\par}
-    \only<6>{10 becomes the root. The tree is balanced again.\\
-      One rotation --- so far, no different from insertion.\par}
-  \end{minipage}
-  \begin{avlpanelh}[0.94\textwidth]{avlfib}
-    \avlfSec\color{avlbody}
-    The rule reads the same as insertion.\\
-    The difference shows up somewhere else.\par
-  \end{avlpanelh}
+    \node[avlannot,anchor=west] at (-3.05,0.95)
+      {\only<1-4>{Delete 10}\only<5-10>{Delete 30}};
+
+    \only<1>{
+      \draw[avledge] (tenBefore) -- (rootBefore) -- (thirtyBefore);
+      \node[avlkey] at (rootBefore) {20};
+      \node[avlkeyalert] at (tenBefore) {10};
+      \node[avlkey] at (thirtyBefore) {30};
+    }
+    \only<2-3>{
+      \draw[avledge] (rootBefore) -- (thirtyBefore);
+      \draw[avlghostline] (tenBefore) -- (rootBefore);
+      \ghostnode{-0.625}{-1.20}{10}
+      \only<2>{\node[avlkey] at (rootBefore) {20};}
+      \only<3>{
+        \draw[avlarc] (tenBefore) -- (rootBefore);
+        \node[avlkeyok] at (rootBefore) {20};
+        \node[avlannotok,anchor=west] at (1.12,0.15) {$\mathrm{bf}=-1$};
+      }
+      \node[avlkey] at (thirtyBefore) {30};
+    }
+    \only<4>{
+      \draw[draw=avlbalance!70,line width=1.6\pxl] (rootBefore) -- (thirtyBefore);
+      \node[avlkeyok] at (rootBefore) {20};
+      \node[avlkeyok] at (thirtyBefore) {30};
+      \node[avlannotok,anchor=west] at (1.12,0.15) {$\mathrm{bf}=-1$};
+    }
+
+    \only<5-8>{
+      \draw[avledge] (rootBefore) -- (tenBefore) -- (fiveBefore);
+      \only<5>{
+        \draw[avledge] (rootBefore) -- (thirtyBefore);
+        \node[avlkeyalert] at (thirtyBefore) {30};
+      }
+      \only<6-8>{
+        \draw[avlghostline] (thirtyBefore) -- (rootBefore);
+        \ghostnode{1.875}{-1.20}{30}
+      }
+      \only<7>{\draw[avlarc] (thirtyBefore) -- (rootBefore);}
+      \only<8>{\rotright{rootBefore}{1.10}}
+      \only<5-6>{\node[avlkey] at (rootBefore) {20};}
+      \only<7-8>{\node[avlkeyalert] at (rootBefore) {20};}
+      \node[avlkey] at (tenBefore) {10};
+      \node[avlkey] at (fiveBefore) {5};
+      \only<7>{
+        \draw[avlalert,line width=2\pxl] (rootBefore) circle (0.42);
+        \node[avlannotalert,anchor=west] at (1.12,0.15) {$\mathrm{bf}=+2$};
+      }
+      \only<8>{\pivotpin{rootBefore}}
+    }
+    \only<9>{
+      \ghostnode{0.625}{0}{20}
+      \ghostpath{0.625,-0.35}{0.625,-0.85}
+      \ghostnode{-0.625}{-1.20}{10}
+      \ghostpath{-0.625,-0.85}{-0.625,-0.35}
+      \ghostnode{-1.875}{-2.40}{5}
+      \ghostpath{-1.875,-2.05}{-1.875,-1.55}
+      \draw[avlgoldedge] (fiveAfter) -- (rootAfter) -- (twentyAfter);
+      \node[avlkeygold] at (rootAfter) {10};
+      \node[avlkeygold] at (fiveAfter) {5};
+      \node[avlkeygold] at (twentyAfter) {20};
+    }
+    \only<10>{
+      \draw[draw=avlbalance!70,line width=1.6\pxl]
+        (fiveAfter) -- (rootAfter) -- (twentyAfter);
+      \node[avlkeyok] at (rootAfter) {10};
+      \node[avlkeyok] at (fiveAfter) {5};
+      \node[avlkeyok] at (twentyAfter) {20};
+      \node[avlannotok,anchor=west] at (-0.13,0.15) {$\mathrm{bf}=0$};
+    }
+
+    \node[font=\avlfSec,text=avlmuted,align=center,text width=6.6cm,anchor=north]
+      at (0,-3.05) {%
+        \only<1>{Start with a balanced tree.\\Remove the marked leaf.}%
+        \only<2>{10 is gone.\\Now check its ancestors.}%
+        \only<3>{At 20, $\mathrm{bf}=-1$.\\No unbalanced ancestor to rotate.}%
+        \only<4>{\color{avlbalance}\wbold Balanced. Zero rotations.}%
+        \only<5>{Remove 30.}%
+        \only<6>{30 is gone.\\Walk back up to 20.}%
+        \only<7>{At 20, $\mathrm{bf}=+2$.\\This ancestor needs a repair.}%
+        \only<8>{LL imbalance: pin 20.\\Turn clockwise.}%
+        \only<9>{10 moves up; 20 moves down.}%
+        \only<10>{\color{avlbalance}\wbold Balanced. One rotation.}%
+      };
+  \end{tikzpicture}
   \end{center}
-  \note{Six clicks, with the before and after separated.
-  First, show the balanced three-node tree. Second, delete 10 and reveal the
-  result on the right. The balance factor of 20 becomes minus one; no rotation.
-  Third, show the fresh taller tree before deleting anything: 20 has children
-  10 and 30, and 10 has left child 5. Fourth, delete 30; the balance factor of
-  20 becomes plus two. Fifth, introduce the pin and clockwise arc at 20.
-  Sixth, reveal the repaired tree on the right: 10 above 5 and 20, with ghosts
-  at the old positions. The taller tree is a new example, not a continuation
-  of the first deletion.}
+  \end{column}
+
+  \begin{column}{0.36\textwidth}
+    \vspace{1.1em}
+    \delsimstep{1-2,5-6}{1. Delete like normal BST}
+    \delsimstep{3,7}{2. Walk back up the ancestor nodes}
+    \delsimstep{8-9}{3. Rotate every unbalanced ancestor}
+    \begin{minipage}[t][70\pxl][t]{\linewidth}
+      \only<4,10>{\avlfLead\wbold\color{avlbalance}Done\par}
+    \end{minipage}
+  \end{column}
+  \end{columns}
+  \note{The tree stays on the left; the algorithm stays on the right.
+  First example: show the three-node tree, delete 10, then walk back to 20.
+  Its balance factor is minus one, so no rotation is needed. Turn the tree
+  green only once the check is complete. Second example: reset to the taller
+  tree, delete 30, and walk back to 20. Its balance factor is plus two.
+  Highlight step three, pin 20, and turn clockwise. Show the old positions
+  as ghosts, then clear them and finish with green nodes and edges. The new root is 10, with
+  children 5 and 20. In a larger tree, the walk and repairs can continue to
+  higher ancestors; the following cascade will demonstrate that.}
 \end{frame}
+\endgroup
 
 \begin{frame}[label=p3]{From one rotation to a cascade}
   % Two short lines on an otherwise empty slide: without this they float in the
   % upper third and leave a band of dead air above the footer.
-  \vspace{0.9em}
+  \vspace{0.8em}
   \begin{center}
-    {\avlfStmt\wbold\color{avlink}When does a rotation\\
-     propagate toward the root?\par}
+    {\avlfStmt\color{avlink}When does a rotation\\
+     {\wbold propagate} toward the {\color{avlpthree}\wbold root}?\par}
 
     \vspace{1.4em}
-    {\avlfBody\color{avlmuted}We fixed one node. Is the parent still balanced?\par}
+    {\avlfBody\color{avlmuted}If after rebalancing, the subtree’s height decreases by 1, allowing the height reduction to affect its parent.}
   \end{center}
   \note{Pause here and let the question land. The small example needed only
   one rotation. What could make a repair continue upward instead of stopping?
@@ -221,7 +269,7 @@
       at (-0.26,{-#1*\cascdy/2}) {height #1};
   \end{scope}}
 
-\begin{frame}[label=p3]{Worst case: one leaf out, and it does not stop}
+\begin{frame}[label=p3]{Worst case: we keep finding unbalanced nodes}
   % The picture reserves 0.60 above the root row, so at -0.5em its bounding box
   % butted straight into the title rule and the bf tag cleared it by 9 px --
   % half the gap every other frame in the deck leaves. The room comes back off
@@ -252,11 +300,6 @@
         \setpinscale{0.22}
         \rotright{c-32}{0.42}
         \pivotpin[avlalert]{c-32}
-        \node[avlannotalert,anchor=north west,align=left,text width=3.5cm]
-          (shorterNote) at (7.5,-2.65)
-          {Unlike insertion: one level shorter. The parent can break too.};
-        \draw[avlalert!55,line width=1\pxl]
-          ($(c-32)+(0.38,-0.05)$) -- (7.35,-2.48) -- (shorterNote.north west);
       \end{scope}
     }
   \end{tikzpicture}
@@ -284,15 +327,9 @@
                {\color{avlbody}height \textbf{7} $\rightarrow$}
                \color{avlpthree}\textbf{6}}\\[0.35em]
               {\color{avlmuted}The height only fell when the cascade reached
-               the top --- and one delete paid for all of it.}}
+               the top.}}
   \end{minipage}
   \end{center}
-
-  % -0.15em overflows this frame by 0.8pt; the body is full at this point.
-  \vspace{-0.30em}
-  {\avlfAnnot\color{avlmuted}\centering
-   Note: this cascade is left-heavy ($\mathrm{bf}=+2$); right-heavy is its mirror.\\
-   Height loss can propagate after any Part 2 repair: LL, RR, LR, or RL.\par}
 
   \note{Keep all five tree states. The extra beat pauses at the first rotation
   trigger so you can point to its pin and arc. This rotation shortens the
@@ -361,10 +398,6 @@
     \vspace{0.3em}
     {\avlfSec\color{avlmuted}Height 7 needs at least 54 nodes.\\
      Delete one leaf: 53 nodes cannot keep that height.\par}
-    \vspace{0.5em}
-    \begin{avlpanelh}[0.94\textwidth]{avlpthree}
-      \avlfSec\color{avlpthree}No slack anywhere. That's why the fix cascades.\par
-    \end{avlpanelh}
   \end{center}
   \note{Same diagram, same thought. The subtree counts are Fibonacci numbers
   minus one: N(h) equals F(h+3) minus one. In particular, 54 is F(10) minus one.
@@ -374,66 +407,66 @@
   three rotations; this is the deliberately chosen worst-case deletion.}
 \end{frame}
 
-\begin{frame}[label=p3]{Insertion costs 1. Deletion costs $\lfloor h/2 \rfloor$.}
-  % Fixed two-column layout: the plot is drawn at its true size (640 px wide)
-  % and is never scaled to fit, so its tick and axis labels stay legible.
-  % No grid -- the ticks carry the scale, and a guide line under the series
-  % labels is the one thing that kept colliding with them.
-  % `scale only axis` sizes the AXIS BOX at 7.3 cm; the ylabel and the tick
-  % labels hang outside it, so a 7.9 cm column was 0.55 cm short and the row
-  % ran over the text block. Widen the plot column to cover the furniture and
-  % take the difference off the stat column, which has slack.
-  \vspace{0.6em}
-  \begin{columns}[c,onlytextwidth]
-    \begin{column}{8.45cm}
-      \begin{tikzpicture}
-        \begin{axis}[
-          width=7.3cm, height=4.45cm, axis lines=left, scale only axis,
-          xlabel={height of the tree}, ylabel={rotations, worst case},
-          xlabel style={font=\avlfAnnot,color=avlfaint},
-          ylabel style={font=\avlfAnnot,color=avlfaint},
-          tick label style={font=\avlfAnnot,color=avlfaint},
-          axis line style={color=avlfaint,line width=1\pxl},
-          tick style={color=avlfaint,line width=1\pxl},
-          xtick={2,4,6,8,10,12,14}, ytick={0,2,4,6,8},
-          ymin=0, ymax=8, xmin=2, xmax=14,
-        ]
-          % the 13 measured points, verify/ ground truth
-          \addplot[color=avlalert,line width=2.4\pxl,mark=*,mark size=2\pxl,
-                   mark options={fill=avlalert,draw=avlalert}]
-            coordinates {(2,1)(3,1)(4,2)(5,2)(6,3)(7,3)(8,4)(9,4)(10,5)(11,5)
-                         (12,6)(13,6)(14,7)};
-          \addplot[color=avlfib,line width=2.4\pxl,dash pattern=on 8\pxl off 6\pxl]
-            coordinates {(2,1)(14,1)};
-          % Series named in place, upper left -- no legend box, no swatch of a
-          % colour the curve does not already use.
-          \node[anchor=west,font=\avlfAnnot\wmed,text=avlalert]
-            at (axis cs:2.55,7.3) {\textcolor{avlalert}{\rule[0.6ex]{20\pxl}{2.4\pxl}}\ \ deletion --- $\lfloor h/2 \rfloor$};
-          \node[anchor=west,font=\avlfAnnot\wmed,text=avlfib]
-            at (axis cs:2.55,6.4) {\textcolor{avlfib}{\rule[0.6ex]{8\pxl}{2.4\pxl}\hskip4\pxl\rule[0.6ex]{8\pxl}{2.4\pxl}}\ \ insertion --- always 1};
-        \end{axis}
-      \end{tikzpicture}
-    \end{column}
-    \begin{column}{4.55cm}
-      \eyebrow{One million nodes}\\[0.5em]
-      {\color{avlrule}\hrule height 1\pxl}\vskip 8\pxl
-      \avlstatrow[avlfib]{Insertion}{1}
-      \avlstatrow[avlalert]{Deletion}{13}
-      \vskip 0.6em
-      {\avlfSec\color{avlmuted}Measured on a real AVL tree, every height
-       from 2 to 14.}
-    \end{column}
-  \end{columns}
+% \begin{frame}[label=p3]{Insertion costs 1. Deletion costs $\lfloor h/2 \rfloor$.}
+%   % Fixed two-column layout: the plot is drawn at its true size (640 px wide)
+%   % and is never scaled to fit, so its tick and axis labels stay legible.
+%   % No grid -- the ticks carry the scale, and a guide line under the series
+%   % labels is the one thing that kept colliding with them.
+%   % `scale only axis` sizes the AXIS BOX at 7.3 cm; the ylabel and the tick
+%   % labels hang outside it, so a 7.9 cm column was 0.55 cm short and the row
+%   % ran over the text block. Widen the plot column to cover the furniture and
+%   % take the difference off the stat column, which has slack.
+%   \vspace{0.6em}
+%   \begin{columns}[c,onlytextwidth]
+%     \begin{column}{8.45cm}
+%       \begin{tikzpicture}
+%         \begin{axis}[
+%           width=7.3cm, height=4.45cm, axis lines=left, scale only axis,
+%           xlabel={height of the tree}, ylabel={rotations, worst case},
+%           xlabel style={font=\avlfAnnot,color=avlfaint},
+%           ylabel style={font=\avlfAnnot,color=avlfaint},
+%           tick label style={font=\avlfAnnot,color=avlfaint},
+%           axis line style={color=avlfaint,line width=1\pxl},
+%           tick style={color=avlfaint,line width=1\pxl},
+%           xtick={2,4,6,8,10,12,14}, ytick={0,2,4,6,8},
+%           ymin=0, ymax=8, xmin=2, xmax=14,
+%         ]
+%           % the 13 measured points, verify/ ground truth
+%           \addplot[color=avlalert,line width=2.4\pxl,mark=*,mark size=2\pxl,
+%                    mark options={fill=avlalert,draw=avlalert}]
+%             coordinates {(2,1)(3,1)(4,2)(5,2)(6,3)(7,3)(8,4)(9,4)(10,5)(11,5)
+%                          (12,6)(13,6)(14,7)};
+%           \addplot[color=avlfib,line width=2.4\pxl,dash pattern=on 8\pxl off 6\pxl]
+%             coordinates {(2,1)(14,1)};
+%           % Series named in place, upper left -- no legend box, no swatch of a
+%           % colour the curve does not already use.
+%           \node[anchor=west,font=\avlfAnnot\wmed,text=avlalert]
+%             at (axis cs:2.55,7.3) {\textcolor{avlalert}{\rule[0.6ex]{20\pxl}{2.4\pxl}}\ \ deletion --- $\lfloor h/2 \rfloor$};
+%           \node[anchor=west,font=\avlfAnnot\wmed,text=avlfib]
+%             at (axis cs:2.55,6.4) {\textcolor{avlfib}{\rule[0.6ex]{8\pxl}{2.4\pxl}\hskip4\pxl\rule[0.6ex]{8\pxl}{2.4\pxl}}\ \ insertion --- always 1};
+%         \end{axis}
+%       \end{tikzpicture}
+%     \end{column}
+%     \begin{column}{4.55cm}
+%       \eyebrow{One million nodes}\\[0.5em]
+%       {\color{avlrule}\hrule height 1\pxl}\vskip 8\pxl
+%       \avlstatrow[avlfib]{Insertion}{1}
+%       \avlstatrow[avlalert]{Deletion}{13}
+%       \vskip 0.6em
+%       {\avlfSec\color{avlmuted}Measured on a real AVL tree, every height
+%        from 2 to 14.}
+%     \end{column}
+%   \end{columns}
 
-  \note{Insertion is flat at one, forever. Deletion grows with the height.
-  At one million nodes the tree is 27 tall, so a single delete can cost 13
-  rotations where an insert costs one.}
-\end{frame}
+%   \note{Insertion is flat at one, forever. Deletion grows with the height.
+%   At one million nodes the tree is 27 tall, so a single delete can cost 13
+%   rotations where an insert costs one.}
+% \end{frame}
 
-\begin{frame}[label=p3]{Deletion: walk back to the root}
+\begin{frame}[label=p3]{Deletion: Complexity}
   \vspace{0.4em}
   \begin{center}
-    {\avlfStmt\wbold\boldmath\color{avlink}BST deletion: $O(\log n)$\par}
+    {\avlfStmt\color{avlink}{\fontseries{regular}\selectfont BST deletion:} $\color{violet}O(\log n)$\par}
 
     \vspace{1.2em}
     {\avlfBody\color{avlmuted}After removing the node, walk upward\\
@@ -500,24 +533,29 @@
     {\avlfBody\color{avlmuted}Each rotation takes $O(1)$. Add up the work:\par}
 
     \vspace{0.8em}
-    {\avlfLead\color{avlbody}$\displaystyle
+    \only<1>{\avlfLead\color{avlbody}$\displaystyle
       \underbrace{O(\log n)}_{\text{BST deletion}}
       +\underbrace{O(h)}_{\text{upward walk}}
       +\underbrace{O(h)}_{\text{rotations}}$\par}
+
+    \only<2->{\avlfLead\color{avlbody}$\displaystyle
+      \underbrace{O(\log n)}_{\text{BST deletion}}
+      +\underbrace{O(\log n)}_{\text{upward walk}}
+      +\underbrace{O(\log n)}_{\text{rotations}}$\par}
 
     % The payoff sits in the deck's panel, not amsmath's \boxed: every other
     % part states its result in a panel (Part 2's "Yes, it is."), and \boxed
     % draws a hairline rule in the text colour that matches nothing else here.
     \vspace{1.0em}
-    \begin{avlpanelh}[0.56\textwidth]{avlpthree}
+    \onslide<2->{\begin{avlpanelh}[0.56\textwidth]{avlpthree}
       {\avlfStmt\wbold\color{avlpthree}AVL Deletion $=O(\log n)$}
-    \end{avlpanelh}
+    \end{avlpanelh}}
 
     \vspace{1.1em}
-    \begin{avlpanelh}[0.96\textwidth]{avlpthree}
+    \onslide<3->{\begin{avlpanelh}[0.96\textwidth]{avlpthree}
       \avlfSec\color{avlbody}Unlike insertion, deletion may rebalance at multiple levels.\\
       Even if repairs reach the root, the total stays $O(\log n)$.\par
-    \end{avlpanelh}
+    \end{avlpanelh}}
   \end{center}
   \note{BST deletion costs O(log n). Visiting at most h ancestors costs O(h).
   At most 2h constant-time rotations also cost O(h), not O(h squared).
@@ -527,64 +565,64 @@
   work does not change the logarithmic worst-case bound on the full operation.}
 \end{frame}
 
-\begin{frame}[label=p3]{Why bother with the worse constant}
-  % Was a left-aligned stack of three heading/paragraph pairs inside a bare
-  % minipage -- the one frame in the deck that read as a bullet list. Rebuilt
-  % on Part 2's grid device (eyebrow, a row of \fib heads over muted one-liners,
-  % a panel carrying the payoff), so the closing argument looks like the rest
-  % of the deck. Copy trimmed to one line per column to fit three columns.
-  \vspace{-0.2em}
-  \begin{center}
-  \eyebrow{Where the extra rotations are worth paying}
-  \end{center}
+% \begin{frame}[label=p3]{Why bother with the worse constant}
+%   % Was a left-aligned stack of three heading/paragraph pairs inside a bare
+%   % minipage -- the one frame in the deck that read as a bullet list. Rebuilt
+%   % on Part 2's grid device (eyebrow, a row of \fib heads over muted one-liners,
+%   % a panel carrying the payoff), so the closing argument looks like the rest
+%   % of the deck. Copy trimmed to one line per column to fit three columns.
+%   \vspace{-0.2em}
+%   \begin{center}
+%   \eyebrow{Where the extra rotations are worth paying}
+%   \end{center}
 
-  % Three columns is the deck's maximum, so each cell is held to a two-line
-  % head over a three-line body: at this width an extra word in any one body
-  % costs a whole line and the row stops reading as a row.
-  \vspace{0.9em}
-  \begin{center}
-  \begin{minipage}{0.96\textwidth}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.31\textwidth}
-      {\fib{Databases and filesystems}}\\[0.25em]
-      {\avlfSec\color{avlmuted}Worst-case lookup has to be guaranteed,
-       not merely typical}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      % Broken by hand so all three heads occupy two lines and the three
-      % bodies start on one baseline; it is the only head short enough to fit
-      % on one.
-      {\fib{Read-heavy\\workloads}}\\[0.25em]
-      {\avlfSec\color{avlmuted}Lookups outnumber updates, so deletion's
-       cost rarely lands}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      {\fib{A bound, not an average}}\\[0.25em]
-      {\avlfSec\color{avlmuted}Real-time systems budget for the worst
-       case, not the usual one}
-    \end{column}
-  \end{columns}
-  \end{minipage}
-  \end{center}
+%   % Three columns is the deck's maximum, so each cell is held to a two-line
+%   % head over a three-line body: at this width an extra word in any one body
+%   % costs a whole line and the row stops reading as a row.
+%   \vspace{0.9em}
+%   \begin{center}
+%   \begin{minipage}{0.96\textwidth}
+%   \begin{columns}[T,onlytextwidth]
+%     \begin{column}{0.31\textwidth}
+%       {\fib{Databases and filesystems}}\\[0.25em]
+%       {\avlfSec\color{avlmuted}Worst-case lookup has to be guaranteed,
+%        not merely typical}
+%     \end{column}
+%     \begin{column}{0.31\textwidth}
+%       % Broken by hand so all three heads occupy two lines and the three
+%       % bodies start on one baseline; it is the only head short enough to fit
+%       % on one.
+%       {\fib{Read-heavy\\workloads}}\\[0.25em]
+%       {\avlfSec\color{avlmuted}Lookups outnumber updates, so deletion's
+%        cost rarely lands}
+%     \end{column}
+%     \begin{column}{0.31\textwidth}
+%       {\fib{A bound, not an average}}\\[0.25em]
+%       {\avlfSec\color{avlmuted}Real-time systems budget for the worst
+%        case, not the usual one}
+%     \end{column}
+%   \end{columns}
+%   \end{minipage}
+%   \end{center}
 
-  \vspace{1.2em}
-  \begin{center}
-    \begin{avlpanel}[0.86\textwidth]
-      An unbalanced tree is fast until it isn't.
-      An AVL tree is \fib{always fast}.
-    \end{avlpanel}\\[0.7em]
-    {\avlfSec\color{avlmuted}That is the whole trade.}
-  \end{center}
-  \note{AVL trees are useful for ordered in-memory data, not a blanket choice
-  for every database or filesystem index. OpenZFS uses AVL trees to track
-  in-memory buffers; see include/sys/dnode.h, dn\_dbufs, in the OpenZFS source.
-  Disk-oriented database indexes often use B-trees instead; see SQLite's
-  Architecture of SQLite, B-Tree section. The read-heavy point is a workload
-  trade-off, not a claim that AVL always beats other balanced trees.
-  Always fast means logarithmically bounded tree work, not constant time or
-  a guaranteed wall-clock deadline. Real-time systems also have to bound
-  allocation, synchronization, and the cost of comparing keys.}
-\end{frame}
+%   \vspace{1.2em}
+%   \begin{center}
+%     \begin{avlpanel}[0.86\textwidth]
+%       An unbalanced tree is fast until it isn't.
+%       An AVL tree is \fib{always fast}.
+%     \end{avlpanel}\\[0.7em]
+%     {\avlfSec\color{avlmuted}That is the whole trade.}
+%   \end{center}
+%   \note{AVL trees are useful for ordered in-memory data, not a blanket choice
+%   for every database or filesystem index. OpenZFS uses AVL trees to track
+%   in-memory buffers; see include/sys/dnode.h, dn\_dbufs, in the OpenZFS source.
+%   Disk-oriented database indexes often use B-trees instead; see SQLite's
+%   Architecture of SQLite, B-Tree section. The read-heavy point is a workload
+%   trade-off, not a claim that AVL always beats other balanced trees.
+%   Always fast means logarithmically bounded tree work, not constant time or
+%   a guaranteed wall-clock deadline. Real-time systems also have to bound
+%   allocation, synchronization, and the cost of comparing keys.}
+% \end{frame}
 
 % ------------------------------------------------------------------ closing
 % Same full-bleed plum shell \avlstatement uses (dark ground, white rule above
@@ -600,7 +638,7 @@
   \vfill
   \begin{center}
     {\color{white!70!avlpthreeB}\rule{64\pxl}{3\pxl}}\\[34\pxl]
-    {\avlfHuge\wbold\color{white}\avltrack{Thank You!}}\\[34\pxl]
+    {\avlfHuge\wbold\color{white}\avltrack{Thank You}}\\[34\pxl]
     {\color{white!70!avlpthreeB}\rule{64\pxl}{3\pxl}}
   \end{center}
   \vfill

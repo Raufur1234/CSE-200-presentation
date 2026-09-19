@@ -1,10 +1,6 @@
 ﻿% ===========================================================================
 %  PART 1 --- Introduction, the BST problem, the AVL idea, height, proof,
 %             Fibonacci property.
-%  Follows the requested flow:
-%    intro -> what is a BST -> what problem -> AVL idea -> how AVL solves it
-%    -> height property -> proof -> build-up -> golden ratio -> exact count
-%  Wording rule: short sentences, common words, no idioms.
 %
 %  Height convention throughout the deck: h counts EDGES, so a single node is
 %  height 0 and N(0)=1. A lecture that calls a single node "height 1" gets
@@ -347,7 +343,7 @@
     {\avlfLead\color{avlbody}A simple rule at each node that keeps the 
      \emph{whole} tree balanced:}\\[0.9em]
     \begin{avlpanel}[0.50\textwidth]
-      {\avlfDivider\color{avlfib}$h < 1.44 \, \log_2 n$}
+      {\avlfDivider\color{avlfib}$h \le 1.44 \, \log_2 n$}
     \end{avlpanel}
   \end{center}
 

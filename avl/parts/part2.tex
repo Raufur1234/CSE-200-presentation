@@ -1,9 +1,5 @@
 ﻿% ===========================================================================
 %  PART 2 --- Rotations and Insertion
-%  Flow: one rotation drawn as a physical turn -> the four cases table ->
-%        the 2x2 grid of pivots -> the insertion story (which ends on a
-%        question) -> one simulated insert that answers it -> the catch ->
-%        why one rotation is always enough, and what it costs
 %
 %  Rotation language, used identically on every rotation in this deck:
 %    a PIN goes into the node the rotation is NAMED at (the broken one), and
@@ -363,7 +359,7 @@
               reaches $\pm 2$.}}
     \only<2->{%
       \begin{avlpanel}[0.78\textwidth]
-        {\avlfLead\color{avlfib}\wbold But exactly how many rotations?}
+        {\avlfLead\color{avlfib}\wbold But exactly how many bad nodes do we need to rotate at?}
       \end{avlpanel}\\[0.8em]
       {\avlfSec\color{avlmuted}Let us run one insert and count.}}
   \end{minipage}
@@ -426,7 +422,7 @@
     \end{minipage}\hfil}%
   \vskip 24\pxl}
 
-\begin{frame}[label=p2]{Simulation: count the rotations}
+\begin{frame}[label=p2]{Simulation}
   \setbeamercovered{transparent=32}
   % Was 0.5em: the tree's own bbox reserves a fixed ascent for beat 4's arc
   % (apex at y=1.30) that beats 1-3, 5, 6 never use, so on every other beat the
@@ -545,7 +541,7 @@
     % The baselineskip in force here is \avlfBody's 14.4 pt, not \avlfStmt's:
     % the size command is scoped inside the braces, so the \\ that follows it
     % still breaks at body leading. That is why these gaps look outsized.
-    {\avlfStmt\wmed\color{avlink}One rotation and we are done?}\\[72\pxl]
+    {\avlfStmt\wmed\color{avlink}Rotation at the first bad node and we are done?}\\[72\pxl]
     \uncover<2->{{\avlfStmt\wmed\color{avlptwo}Always the case?}}\\[78\pxl]
     % Fixed slot: the answer must not push the questions up the slide when it
     % arrives. Sized to the panel plus its trailing line.
@@ -553,9 +549,9 @@
     \centering
     \only<3->{%
       \begin{avlpanelh}[0.46\textwidth]{avlbalance}
-        {\avlfBig\wbold\color{avlbalance}Yes, it is.}
+        {\avlfBig\wbold\color{avlbalance}Yes.  It is}
       \end{avlpanelh}\\[18\pxl]
-      {\avlfSec\color{avlmuted}At most one rotation per insert.}}
+      }
     \end{minipage}
   \end{center}
 
