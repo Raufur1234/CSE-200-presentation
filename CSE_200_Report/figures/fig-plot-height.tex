@@ -1,0 +1,29 @@
+% Measured height against the two analytic bounds. The horizontal axis is
+% logarithmic, which is why all three series come out as straight lines.
+%
+% The gap that matters is the one between the measured series and the upper
+% bound: the bound is correct but it is not tight, because the minimum-node
+% trees that attain it are vanishingly unlikely to arise from random keys.
+\begin{tikzpicture}
+  \begin{axis}[
+      avlaxis,
+      xmode        = log,
+      log basis x  = 10,
+      xlabel       = {number of keys $n$},
+      ylabel       = {height $h$},
+      xmin         = 8, xmax = 1.4e6,
+      ymin         = 0, ymax = 30,
+      legend pos   = north west,
+    ]
+
+    \addplot[avlbound] table[x = n, y = upper] {data/height_vs_n.dat};
+    \addlegendentry{upper bound $1.4404\lgg(n+2)-1.3277$}
+
+    \addplot[avlmeasured] table[x = n, y = meanh] {data/height_vs_n.dat};
+    \addlegendentry{measured height}
+
+    \addplot[avlfloor] table[x = n, y = lower] {data/height_vs_n.dat};
+    \addlegendentry{lower bound $\lgg(n+1)$}
+
+  \end{axis}
+\end{tikzpicture}

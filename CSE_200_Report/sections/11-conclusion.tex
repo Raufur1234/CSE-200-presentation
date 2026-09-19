@@ -1,0 +1,40 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+An AVL tree replaces a guarantee that depends on the input with one that does
+not. An ordinary binary search tree is fast when the keys arrive in a convenient
+order and degenerates into a list when they do not, and \Cref{fig:plotsearch}
+puts the cost of that degeneration at a factor of $404$ on ten thousand sorted
+keys. Requiring the two subtrees of every node to differ in height by at most one
+removes the dependence, and \Cref{thm:heightbound} shows what the requirement is
+worth: a tree of $n$ keys has height below $1.4404\lgg(n+2) - 1.3277$, so it is
+at most about $44$ percent taller than a perfect tree and never anything like a
+list.
+
+The price is the repair work, and the two update operations pay it differently.
+Insertion adds one level to a subtree and a single rotation takes that level
+back, so by \Cref{thm:insertone} the repair stops at the first node it fixes.
+Deletion removes a level, and by \Cref{lem:shrink} the repair can remove another,
+so the correction propagates and \Cref{thm:deletebound} allows a rotation at
+every level. The minimum-size trees of \Cref{sec:height} show the cascade is real
+rather than an artefact of a loose proof, since removing one leaf from the
+$54$-node tree of \Cref{fig:cascade} forces three repairs and drops the height.
+
+The measurements of \Cref{sec:eval} locate the average behaviour well inside
+those bounds, and in one case they contradict what the worst case would suggest.
+Trees built from random keys reach height $23$ at a million keys where the bound
+permits $27$, and their height varies so little between trials that every trial
+at every size produced the same value. Insertion averages $0.464$ rebalancing
+events, about half of the one that \Cref{thm:insertone} permits. Deletion, which
+the analysis allows to rebalance at every level, averages $0.266$ events and does
+not grow with $n$ across three and a half orders of magnitude. The cascade
+requires a tree with no slack anywhere, and random trees have slack almost
+everywhere, so the repair stops within a level or two of where it started.
+
+That gap between the worst case and the average is the useful thing to carry
+away. The worst-case bounds are what make the structure safe to deploy, because
+they hold whatever the input does. The averages are what a program actually pays.
+An AVL tree charges a fraction of a rotation per update in exchange for a height
+guarantee that no input order can break, and for a workload that searches more
+often than it writes, \Cref{sec:comparison} and \Cref{sec:applications} suggest
+that is a good trade.

@@ -1,0 +1,57 @@
+% One insertion, start to finish. Key 5 arrives as a leaf, the balance factors
+% are recomputed on the way back to the root, node 40 is the first to reach
+% two, and the single rotation there settles the whole tree.
+%
+% Geometry is tight on purpose: three panels have to fit inside 158mm of text
+% block. Panel pitch is 52mm and no label sticks out to the left of a panel.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  % ------------------------------------------------- (a) after the plain insert
+  \begin{scope}
+    \node[tnode] (a40) at (  5,   0) {40};
+    \node[tnode] (a20) at ( -6, -12) {20};
+    \node[tnode] (a60) at ( 16, -12) {60};
+    \node[tnode] (a10) at (-14, -24) {10};
+    \node[tnode] (a30) at (  2, -24) {30};
+    \node[tmark] (a05) at (-21, -36) {5};
+    \foreach \p/\c in {a40/a20, a40/a60, a20/a10, a20/a30, a10/a05}
+      \draw[tedge] (\p) -- (\c);
+    \node[tlabel, below = 1mm of a05] {new};
+    \node[tannot] at (0, -48) {(a) inserted as a leaf};
+  \end{scope}
+
+  % ------------------------------------------ (b) balance factors on the way up
+  \begin{scope}[xshift = 52mm]
+    \node[tmark]  (b40) at (  5,   0) {40};
+    \node[tnode]  (b20) at ( -6, -12) {20};
+    \node[tnode]  (b60) at ( 16, -12) {60};
+    \node[tnode]  (b10) at (-14, -24) {10};
+    \node[tnode]  (b30) at (  2, -24) {30};
+    \node[tnode]  (b05) at (-21, -36) {5};
+    \foreach \p/\c in {b40/b20, b40/b60, b20/b10, b20/b30, b10/b05}
+      \draw[tedge] (\p) -- (\c);
+    \draw[tedge, line width = 1.2pt] (b40) -- (b20);
+    \draw[tedge, line width = 1.2pt] (b20) -- (b10);
+    \draw[tedge, line width = 1.2pt] (b10) -- (b05);
+    % all three labels hang to the right, so nothing overhangs the panel
+    \node[tlabel, right = 1mm of b40] {$+2$};
+    \node[tlabel, right = 1mm of b20] {$+1$};
+    \node[tlabel, right = 1mm of b10] {$+1$};
+    \node[tannot] at (0, -48) {(b) node 40 reaches $+2$};
+  \end{scope}
+
+  % ------------------------------------------------------ (c) after the rotation
+  \begin{scope}[xshift = 104mm]
+    \node[tnode] (c20) at (  0,  -4) {20};
+    \node[tnode] (c10) at (-12, -17) {10};
+    \node[tnode] (c40) at ( 12, -17) {40};
+    \node[tnode] (c05) at (-20, -30) {5};
+    \node[tnode] (c30) at (  3, -30) {30};
+    \node[tnode] (c60) at ( 20, -30) {60};
+    \foreach \p/\c in {c20/c10, c20/c40, c10/c05, c40/c30, c40/c60}
+      \draw[tedge] (\p) -- (\c);
+    \node[tlabel, right = 1mm of c20] {$0$};
+    \node[tannot] at (0, -48) {(c) one right rotation at 40};
+  \end{scope}
+
+\end{tikzpicture}

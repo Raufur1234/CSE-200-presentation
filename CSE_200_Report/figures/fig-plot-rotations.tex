@@ -1,0 +1,37 @@
+% Rebalancing work per operation, against a logarithmic size axis.
+%
+% Both series are flat. That is the point of the picture: the analysis of
+% Section 6 allows the number of rotations per deletion to grow with the
+% height, and measurement says the average does not. The worst case and the
+% average case part company here.
+\begin{tikzpicture}
+  \begin{axis}[
+      avlaxis,
+      height       = 5.6cm,
+      xmode        = log,
+      log basis x  = 10,
+      xlabel       = {number of keys $n$},
+      ylabel       = {per operation},
+      xmin         = 80, xmax = 4e5,
+      ymin         = 0, ymax = 1.25,   % headroom, so the legend clears the data
+      legend pos   = north east,
+      legend columns = 2,
+      legend cell align = left,
+    ]
+
+    \addplot[avlmeasured] table[x = n, y = insrot] {data/rotations.dat};
+    \addlegendentry{single rotations, insertion}
+
+    \addplot[avlsecond] table[x = n, y = delrot] {data/rotations.dat};
+    \addlegendentry{single rotations, deletion}
+
+    \addplot[no marks, thick, dashed, color = rkink]
+      table[x = n, y = insev] {data/rotations.dat};
+    \addlegendentry{rebalance events, insertion}
+
+    \addplot[no marks, thick, dotted, color = rmid]
+      table[x = n, y = delev] {data/rotations.dat};
+    \addlegendentry{rebalance events, deletion}
+
+  \end{axis}
+\end{tikzpicture}

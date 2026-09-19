@@ -1,0 +1,61 @@
+% Pfaff's AVL-to-red-black running-time ratios, drawn from the figures reported
+% in the paper rather than reproduced from it.
+%
+% The source paper is under publisher copyright, so its own figures cannot be
+% reused here. The measurements themselves are facts and are citable, so this
+% is an independent rendering of the reported range, median and geometric mean,
+% credited in the caption. Do not replace it with a scan.
+%
+% Axis: ratio of AVL time to red-black time. Below 1 the AVL tree is faster.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  \def\axl{0.62}   % left end of the axis, in ratio units
+  \def\axr{1.16}
+  % ratio -> millimetres: 200mm per unit ratio, so 0.54 units spans 108mm
+  \newcommand{\rx}[1]{(#1 - \axl) * 200}
+
+  % ---------------------------------------------------------------- the band
+  \fill[rwash]
+    ({\rx{0.677}}, -3.2) rectangle ({\rx{1.077}}, 3.2);
+  \draw[draw = rfaint, line width = 0.4pt]
+    ({\rx{0.677}}, -3.2) rectangle ({\rx{1.077}}, 3.2);
+
+  % ------------------------------------------------------------- parity line
+  \draw[draw = rkink, line width = 0.7pt, dashed]
+    ({\rx{1.0}}, -12) -- ({\rx{1.0}}, 9);
+  \node[tlabel, above] at ({\rx{1.0}}, 9) {equal speed};
+
+  % ----------------------------------------------------------- the two marks
+  \draw[draw = rkink, line width = 1.1pt]
+    ({\rx{0.910}}, -3.2) -- ({\rx{0.910}}, 3.2);
+  \node[tlabel, below] at ({\rx{0.910}}, -4.6) {geometric mean $0.910$};
+
+  \draw[draw = rmid, line width = 1.1pt]
+    ({\rx{0.947}}, -3.2) -- ({\rx{0.947}}, 3.2);
+  \node[tlabel, above] at ({\rx{0.947}}, 4.2) {median $0.947$};
+
+  % ----------------------------------------------------------- range end tags
+  % the offset has to sit inside the expression group, not after it
+  \node[tlabel, left]  at ({\rx{0.677} - 1.5}, 0) {$0.677$};
+  \node[tlabel, right] at ({\rx{1.077} + 1.5}, 0) {$1.077$};
+
+  % ------------------------------------------------------------------- axis
+  % Sits at -12 rather than just under the band, so the geometric-mean label
+  % at -4.6 has clear space between the band and the tick row.
+  \draw[draw = rmid, line width = 0.5pt] ({\rx{\axl}}, -12) -- ({\rx{\axr}}, -12);
+  \foreach \t in {0.7, 0.8, 0.9, 1.0, 1.1} {
+    \draw[draw = rmid, line width = 0.5pt] ({\rx{\t}}, -12) -- ({\rx{\t}}, -13.6);
+    \node[tlabel, below] at ({\rx{\t}}, -13.8) {\t};
+  }
+  \node[tannot, below] at ({\rx{0.89}}, -19)
+    {ratio of AVL running time to red-black running time};
+
+  % ------------------------------------------------------ which side is which
+  \draw[-{Stealth[length=2.2mm]}, draw = rmid]
+    ({\rx{0.99}}, 14) -- ({\rx{0.90}}, 14);
+  \node[tlabel, left] at ({\rx{0.90}}, 14) {AVL faster};
+  \draw[-{Stealth[length=2.2mm]}, draw = rmid]
+    ({\rx{1.01}}, 14) -- ({\rx{1.10}}, 14);
+  \node[tlabel, right] at ({\rx{1.10}}, 14) {red-black faster};
+
+\end{tikzpicture}

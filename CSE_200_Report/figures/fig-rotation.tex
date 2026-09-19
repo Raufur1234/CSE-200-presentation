@@ -1,0 +1,47 @@
+% A single right rotation, before and after, with the three links that change
+% drawn heavy and everything else left alone.
+%
+% The point of the lower rail is that the left-to-right reading of the keys is
+% identical on both sides. A rotation moves nodes vertically; it never moves
+% them past one another.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  % ------------------------------------------------------------ before
+  \begin{scope}
+    \node[tmark]  (z) at (  8,   0) {30};
+    \node[tnode]  (y) at ( -6, -14) {20};
+    \node[tnode]  (x) at (-20, -28) {10};
+    \draw[tedge, line width = 1.1pt] (z) -- (y);
+    \draw[tedge, line width = 1.1pt] (y) -- (x);
+    \node[tlabel, right = 2mm of z] {$\bfac = +2$};
+    \node[tannot] at (-6, -42) {before};
+  \end{scope}
+
+  % ------------------------------------------------------------- arrow
+  \draw[-{Stealth[length=3mm]}, draw = rmid, line width = 0.7pt]
+    (34, -14) -- (50, -14)
+    node[midway, above, tlabel] {rotate right at 30};
+
+  % ------------------------------------------------------------- after
+  \begin{scope}[xshift = 74mm]
+    \node[tnode] (ny) at (  0,  -7) {20};
+    \node[tnode] (nx) at (-14, -21) {10};
+    \node[tnode] (nz) at ( 14, -21) {30};
+    \draw[tedge, line width = 1.1pt] (ny) -- (nx);
+    \draw[tedge, line width = 1.1pt] (ny) -- (nz);
+    \node[tlabel, right = 2mm of ny] {$\bfac = 0$};
+    \node[tannot] at (0, -42) {after};
+  \end{scope}
+
+  % ----------------------------------------- the reading order, both sides
+  \draw[tfaintedge] (-26, -52) -- (14, -52);
+  \foreach \k [count = \i from 0] in {10, 20, 30}
+    \node[tlabel] at (-26 + \i * 20, -56) {\k};
+
+  \draw[tfaintedge] (60, -52) -- (100, -52);
+  \foreach \k [count = \i from 0] in {10, 20, 30}
+    \node[tlabel] at (60 + \i * 20, -56) {\k};
+
+  \node[tannot] at (37, -64) {the in-order sequence is the same on both sides};
+
+\end{tikzpicture}

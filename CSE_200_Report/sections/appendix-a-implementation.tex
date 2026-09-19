@@ -1,0 +1,142 @@
+\section{Reference implementation}
+\label{app:impl}
+
+The listing below implements the algorithms of
+\Cref{alg:rotate,alg:rebalance,alg:insert,alg:delete} directly, so that each
+procedure in the text has one counterpart here. Heights are stored at the nodes
+and recomputed by \texttt{update} after any change, following the convention of
+\Cref{sec:prelim}: a leaf has height $0$ and the empty tree has height $-1$,
+which is what lets \texttt{height} return $-1$ for \texttt{None} without a
+special case anywhere else.
+
+Both update procedures are written recursively and return the new root of the
+subtree they were given. The caller relinks that return value, which is how a
+rotation that changes the root of a subtree is propagated to its parent without
+storing parent pointers.
+
+\lstset{
+  language        = Python,
+  basicstyle      = \ttfamily\footnotesize,
+  keywordstyle    = \bfseries,
+  commentstyle    = \itshape\color{rmid},
+  stringstyle     = \color{rmid},
+  numbers         = left,
+  numberstyle     = \tiny\color{rfaint},
+  numbersep       = 8pt,
+  frame           = leftline,
+  rulecolor       = \color{rfaint},
+  framesep        = 8pt,
+  xleftmargin     = 18pt,
+  showstringspaces = false,
+  breaklines      = true,
+  columns         = fullflexible,
+}
+
+\begin{lstlisting}
+class Node:
+    __slots__ = ("key", "left", "right", "h")
+
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+        self.h = 0            # a leaf has height 0
+
+
+def height(n):
+    return -1 if n is None else n.h      # the empty tree has height -1
+
+
+def update(n):
+    n.h = 1 + max(height(n.left), height(n.right))
+
+
+def bf(n):
+    """Balance factor: positive when the left subtree is the taller one."""
+    return height(n.left) - height(n.right)
+
+
+# --------------------------------------------------------------- rotations
+
+def rotate_right(z):
+    y = z.left
+    z.left = y.right          # the middle subtree changes parent
+    y.right = z
+    update(z)                 # z is now the lower of the two
+    update(y)
+    return y                  # y is the new root of this subtree
+
+
+def rotate_left(z):
+    y = z.right
+    z.right = y.left
+    y.left = z
+    update(z)
+    update(y)
+    return y
+
+
+def rebalance(n):
+    """Restore the invariant at n, returning the node that now roots it."""
+    update(n)
+    if bf(n) > 1:                         # left side too tall
+        if bf(n.left) < 0:                # LR: straighten to LL first
+            n.left = rotate_left(n.left)
+        return rotate_right(n)
+    if bf(n) < -1:                        # right side too tall
+        if bf(n.right) > 0:               # RL: straighten to RR first
+            n.right = rotate_right(n.right)
+        return rotate_left(n)
+    return n                              # already legal
+
+
+# ----------------------------------------------------------------- updates
+
+def insert(n, key):
+    if n is None:
+        return Node(key)
+    if key < n.key:
+        n.left = insert(n.left, key)
+    elif key > n.key:
+        n.right = insert(n.right, key)
+    else:
+        return n                          # the key is already present
+    return rebalance(n)
+
+
+def delete(n, key):
+    if n is None:
+        return None
+    if key < n.key:
+        n.left = delete(n.left, key)
+    elif key > n.key:
+        n.right = delete(n.right, key)
+    else:
+        if n.left is None:
+            return n.right
+        if n.right is None:
+            return n.left
+        s = n.right                       # in-order successor
+        while s.left:
+            s = s.left
+        n.key = s.key
+        n.right = delete(n.right, s.key)
+    return rebalance(n)
+
+
+def search(n, key):
+    while n is not None and n.key != key:
+        n = n.left if key < n.key else n.right
+    return n
+\end{lstlisting}
+
+One detail is worth drawing out, because it is where the difference between
+\Cref{thm:insertone} and \Cref{thm:deletebound} appears in the code. The two
+update procedures look alike: both recurse down, both call \texttt{rebalance} on
+the way out at every node along the path. The difference is not in the control
+flow but in what \texttt{rebalance} does when it gets there. After an insertion,
+the first rotation restores the original subtree height, so every call above it
+finds a balance factor already in range and returns immediately. After a
+deletion, a rotation can leave the subtree one level shorter, so the next call up
+may find work to do. The same loop produces one repair in the first case and up
+to $h$ in the second.

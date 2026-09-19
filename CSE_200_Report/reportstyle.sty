@@ -1,0 +1,171 @@
+% ===========================================================================
+%  reportstyle.sty --- every package, environment, length and plot style the
+%  AVL report uses. Look-and-feel changes belong here and nowhere else.
+%
+%  Palette is deliberately monochrome: black text, two greys for figures.
+%  The report must stay legible when printed on a departmental laser printer.
+% ===========================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{reportstyle}[2026/09/19 CSE 200 AVL report style]
+
+% ------------------------------------------------------------------ page
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[a4paper,margin=2.6cm,headheight=14pt]{geometry}
+
+% ------------------------------------------------------------------ maths
+% Load order is not negotiable: amsmath and amsthm first, then the newtx
+% fonts. newtxmath carries its own copies of the AMS symbols, of \Bbbk and of
+% \openbox, so amssymb must not be loaded and amsthm must arrive first.
+% Reversing either one produces "command already defined" at load time.
+\RequirePackage{amsmath}
+\RequirePackage{mathtools}
+\RequirePackage{amsthm}
+\RequirePackage{aliascnt}     % shared theorem counters that cleveref can name
+\RequirePackage{newtxtext}
+\RequirePackage[varg]{newtxmath}
+\RequirePackage{microtype}
+
+% ------------------------------------------------------------------ tables
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{multirow}
+\RequirePackage{siunitx}
+\sisetup{
+  detect-all,
+  group-separator = {,},
+  group-minimum-digits = 4,
+  table-number-alignment = center,
+}
+
+% ------------------------------------------------------------------ figures
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing,
+                shapes.geometric,fit,backgrounds,patterns}
+\RequirePackage[font=small,labelfont=bf,width=0.92\textwidth]{caption}
+\RequirePackage{float}
+
+% ------------------------------------------------------------------ code
+\RequirePackage[ruled,vlined,linesnumbered]{algorithm2e}
+\RequirePackage{listings}
+
+% ------------------------------------------------------------------ prose
+\RequirePackage{enumitem}
+\setlist{noitemsep,topsep=4pt}
+\RequirePackage{xcolor}
+
+% ---------------------------------------------------------------- palette
+% Two greys and black. Nothing else. Every figure reads in greyscale because
+% every figure IS greyscale.
+\definecolor{rkink}{gray}{0.00}   % rules, node strokes, body
+\definecolor{rmid} {gray}{0.45}   % secondary lines, annotations
+\definecolor{rfaint}{gray}{0.72}  % ghosts, deleted nodes, grid
+\definecolor{rwash}{gray}{0.93}   % panel fills
+
+% ------------------------------------------------------------------ links
+\RequirePackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = black,
+  citecolor  = black,
+  urlcolor   = black,
+  pdftitle   = {AVL Trees: Balance, Rotation, and Cost},
+  pdfsubject = {CSE 200 technical report},
+}
+\RequirePackage[nameinlink,capitalise]{cleveref}   % must follow hyperref
+
+% ------------------------------------------------------------- theorems
+% Numbered by section, sharing one counter, so Theorem 3.2 follows Lemma 3.1.
+% The course style rules require these names capitalised in cross-references;
+% cleveref does that for us, which is why no reference is ever typed by hand.
+% Every environment shares the theorem counter, so Lemma 3.1 is followed by
+% Theorem 3.2. Plain \newtheorem[theorem] would make cleveref call all of them
+% "Theorem", because it resolves the name from the counter. An alias counter
+% gives each environment a counter of its own name that steps the shared one,
+% which keeps the numbering and fixes the cross-reference text.
+\newcommand{\sharedtheorem}[2]{%
+  \newaliascnt{#1}{theorem}%
+  \newtheorem{#1}[#1]{#2}%
+  \aliascntresetthe{#1}%
+  \crefname{#1}{#2}{#2s}%
+  \Crefname{#1}{#2}{#2s}%
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\sharedtheorem{lemma}{Lemma}
+\sharedtheorem{corollary}{Corollary}
+\sharedtheorem{proposition}{Proposition}
+
+\theoremstyle{definition}
+\sharedtheorem{definition}{Definition}
+\sharedtheorem{example}{Example}
+
+\theoremstyle{remark}
+\sharedtheorem{remark}{Remark}
+
+\crefname{algocf}{Algorithm}{Algorithms}
+\Crefname{algocf}{Algorithm}{Algorithms}
+
+% -------------------------------------------------------------- algorithms
+\SetAlCapNameSty{textbf}
+\SetAlgoCaptionSeparator{.}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\SetArgSty{textnormal}
+\SetKwProg{Fn}{Function}{:}{}
+
+% ------------------------------------------------------------------ plots
+% One axis style for every plot in the report, so the figures read as a set.
+\pgfplotsset{
+  avlaxis/.style = {
+    width            = 0.86\textwidth,
+    height           = 6.2cm,
+    axis lines       = left,
+    tick align       = outside,
+    tick style       = {semithick, color=rmid},
+    every axis label = {font=\small},
+    tick label style = {font=\footnotesize},
+    legend style     = {font=\footnotesize, draw=rfaint, fill=white,
+                        cells={anchor=west}, row sep=1pt},
+    grid             = major,
+    grid style       = {draw=rfaint, line width=0.3pt},
+    label style      = {font=\small},
+  },
+  avlmeasured/.style = {mark=*,   mark size=1.5pt, thick,      color=rkink},
+  avlbound/.style    = {no marks, thick, dashed,               color=rmid},
+  avlfloor/.style    = {no marks, thick, dotted,               color=rmid},
+  avlsecond/.style   = {mark=square*, mark size=1.4pt, thick,  color=rmid},
+}
+
+% ---------------------------------------------------------------- tikz base
+\tikzset{
+  tnode/.style   = {circle, draw=rkink, fill=white, line width=0.6pt,
+                    inner sep=0pt, minimum size=6.5mm, font=\small},
+  tghost/.style  = {circle, draw=rfaint, dashed, fill=white, line width=0.5pt,
+                    inner sep=0pt, minimum size=6.5mm, font=\small,
+                    text=rfaint},
+  tmark/.style   = {circle, draw=rkink, fill=rwash, line width=1.1pt,
+                    inner sep=0pt, minimum size=6.5mm, font=\small},
+  tedge/.style   = {draw=rkink, line width=0.6pt},
+  tfaintedge/.style = {draw=rfaint, line width=0.5pt, dashed},
+  tannot/.style  = {font=\footnotesize, text=rmid},
+  tlabel/.style  = {font=\scriptsize, text=rmid},
+}
+
+% ------------------------------------------------------------------ macros
+\newcommand{\bfac}{\operatorname{bf}}          % balance factor
+\newcommand{\Nmin}{N}                          % minimum node count N(h)
+\newcommand{\height}{\operatorname{h}}
+\newcommand{\goldratio}{\varphi}
+\DeclareMathOperator{\lgop}{log_2}
+\newcommand{\lgg}[1]{\log_{2}#1}
+
+% A compact inline "one of the four cases" tag.
+\newcommand{\case}[1]{\textsc{#1}}
+
+\endinput

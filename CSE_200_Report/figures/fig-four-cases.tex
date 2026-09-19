@@ -1,0 +1,56 @@
+% The four ways an insertion can break a node, and the shape each one leaves
+% behind. The heavy node is the lowest node whose balance factor has reached
+% two; the arrow marks the node the first rotation turns about.
+%
+% Read the pairs across: LL and RR are mirror images, and so are LR and RL.
+% Read them down: the second row needs a preparatory turn that the first does
+% not, because its three nodes zig-zag instead of leaning one way.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  % --------------------------------------------------------------- LL
+  \begin{scope}
+    \node[tmark] (c) at ( 10,   0) {30};
+    \node[tnode] (b) at ( -2, -12) {20};
+    \node[tnode] (a) at (-14, -24) {10};
+    \draw[tedge] (c) -- (b);  \draw[tedge] (b) -- (a);
+    \node[tlabel] at (-2, -33) {\case{ll}: one right rotation at 30};
+  \end{scope}
+
+  % --------------------------------------------------------------- RR
+  \begin{scope}[xshift = 58mm]
+    \node[tmark] (C) at (-14,   0) {10};
+    \node[tnode] (B) at ( -2, -12) {20};
+    \node[tnode] (A) at ( 10, -24) {30};
+    \draw[tedge] (C) -- (B);  \draw[tedge] (B) -- (A);
+    \node[tlabel] at (-2, -33) {\case{rr}: one left rotation at 10};
+  \end{scope}
+
+  % --------------------------------------------------------------- LR
+  \begin{scope}[yshift = -46mm]
+    \node[tmark] (d) at ( 10,   0) {30};
+    \node[tnode] (e) at (-14, -12) {10};
+    \node[tnode] (f) at ( -2, -24) {20};
+    \draw[tedge] (d) -- (e);  \draw[tedge] (e) -- (f);
+    \node[tlabel] at (-2, -33) {\case{lr}: left at 10, then right at 30};
+  \end{scope}
+
+  % --------------------------------------------------------------- RL
+  \begin{scope}[xshift = 58mm, yshift = -46mm]
+    \node[tmark] (D) at (-14,   0) {10};
+    \node[tnode] (E) at ( 10, -12) {30};
+    \node[tnode] (F) at ( -2, -24) {20};
+    \draw[tedge] (D) -- (E);  \draw[tedge] (E) -- (F);
+    \node[tlabel] at (-2, -33) {\case{rl}: right at 30, then left at 10};
+  \end{scope}
+
+  % ----------------------------------------------- what all four settle into
+  \begin{scope}[xshift = 112mm, yshift = -23mm]
+    \node[tnode] (t) at (  0,   0) {20};
+    \node[tnode] (l) at (-12, -13) {10};
+    \node[tnode] (r) at ( 12, -13) {30};
+    \draw[tedge] (t) -- (l);  \draw[tedge] (t) -- (r);
+    \node[tannot, text width = 30mm, align = center] at (0, -28)
+      {all four settle into this};
+  \end{scope}
+
+\end{tikzpicture}

@@ -1,0 +1,170 @@
+\section{Rebalancing by rotation}
+\label{sec:rotations}
+
+\Cref{sec:height} shows what the balance condition is worth once it holds. This
+section gives the operation that restores it after an update has broken it. The
+operation is called a rotation, it rearranges three links, and it is the only
+repair an AVL tree ever performs. Everything in \Cref{sec:insertion} and
+\Cref{sec:deletion} is a question of where to apply it and how often.
+
+\subsection{The operation}
+
+A right rotation at a node $z$ takes the left child $y$ of $z$ and makes it the
+new root of the subtree, with $z$ descending to become the right child of $y$.
+The subtree that $y$ previously held on its right becomes the new left subtree of
+$z$, which is the only place it can go and still satisfy \Cref{def:bst}. A left
+rotation is the mirror image. \Cref{fig:rotation} shows the right rotation on the
+smallest tree that needs one.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-rotation.tex}
+  \caption{A right rotation at the node $30$. Three links change, the node $20$
+  rises, and the node $30$ descends. The rail beneath each tree gives the
+  in-order reading of the keys, which the rotation leaves alone.}
+  \label{fig:rotation}
+\end{figure}
+
+\begin{algorithm}[t]
+\caption{Rotations. Each one rewrites three links and recomputes two heights.}
+\label{alg:rotate}
+\SetKwFunction{RotR}{RotateRight}
+\SetKwFunction{RotL}{RotateLeft}
+\SetKwFunction{Upd}{UpdateHeight}
+\Fn{\RotR{$z$}}{
+  $y \gets z.\mathit{left}$\;
+  $z.\mathit{left} \gets y.\mathit{right}$ \Comment*[r]{the middle subtree changes parent}
+  $y.\mathit{right} \gets z$\;
+  \Upd{$z$}\; \Comment*[r]{$z$ is now the lower of the two}
+  \Upd{$y$}\;
+  \KwRet $y$ \Comment*[r]{the new root of this subtree}
+}
+\BlankLine
+\Fn{\RotL{$z$}}{
+  $y \gets z.\mathit{right}$\;
+  $z.\mathit{right} \gets y.\mathit{left}$\;
+  $y.\mathit{left} \gets z$\;
+  \Upd{$z$}\;
+  \Upd{$y$}\;
+  \KwRet $y$\;
+}
+\end{algorithm}
+
+Two properties make the rotation usable as a repair. It must not destroy the
+search tree property, and it must be cheap.
+
+\begin{lemma}[Rotation preserves order]
+\label{lem:inorder}
+Let $T'$ be the tree obtained from a binary search tree $T$ by a single rotation.
+Then $T'$ is a binary search tree, and its in-order key sequence equals that of
+$T$.
+\end{lemma}
+
+\begin{proof}
+Consider a right rotation at $z$ with left child $y$, and name the three subtrees
+$A = L(y)$, $B = R(y)$ and $C = R(z)$. Reading $T$ in order visits $A$, then $y$,
+then $B$, then $z$, then $C$, because $y$ precedes $z$ and $B$ lies between them.
+After the rotation, $y$ is the root, $A$ is its left subtree, and its right
+subtree is the node $z$ carrying $B$ on the left and $C$ on the right. Reading
+$T'$ in order visits $A$, then $y$, then $B$, then $z$, then $C$, which is the
+same sequence. A binary tree whose in-order traversal is sorted satisfies
+\Cref{def:bst}, and the sequence was sorted in $T$, so it is sorted in $T'$. The
+left rotation is the mirror argument.
+\end{proof}
+
+\Cref{lem:inorder} is the reason a rotation is safe to apply anywhere. It moves
+nodes vertically and never past one another horizontally, so no key changes its
+rank.
+
+\begin{lemma}[Rotation cost]
+\label{lem:rotcost}
+A rotation runs in $O(1)$ time, independent of the size of the subtrees involved.
+\end{lemma}
+
+\begin{proof}
+\Cref{alg:rotate} performs three link assignments and two height updates, each of
+which reads the heights of two children and takes a maximum. The subtrees $A$,
+$B$ and $C$ are moved by reassigning a pointer to their roots, and none of their
+interior nodes is visited. The work is therefore bounded by a constant.
+\end{proof}
+
+\subsection{The four cases}
+
+A single rotation is not always enough. Which repair applies depends on the shape
+of the path from the unbalanced node down toward the subtree that grew, and there
+are four shapes. Let $z$ be the lowest unbalanced node, let $y$ be the child of
+$z$ on the taller side, and let $x$ be the child of $y$ on its taller side. The
+case is named for the two steps taken from $z$ down to $x$.
+
+\begin{table}[t]
+  \centering
+  \caption{The four imbalance cases and the repair each one needs. The first two
+  lean consistently in one direction; the last two change direction on the second
+  step, and the first rotation of the pair straightens them into one of the first
+  two.}
+  \label{tab:cases}
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    Case & Path from $z$ to $x$ & Repair & Single rotations \\
+    \midrule
+    \case{ll} & left, then left   & right rotation at $z$                  & 1 \\
+    \case{rr} & right, then right & left rotation at $z$                   & 1 \\
+    \case{lr} & left, then right  & left at $y$, then right at $z$         & 2 \\
+    \case{rl} & right, then left  & right at $y$, then left at $z$         & 2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{fig:fourcases} draws all four on three keys. The \case{ll} and \case{rr}
+cases lean the same way twice, and one rotation at $z$ lifts the middle key to
+the top. The \case{lr} and \case{rl} cases zig-zag, and a single rotation at $z$
+would only move the imbalance to the other side. The first rotation of the pair
+is applied at $y$ rather than $z$, and it converts the zig-zag into a straight
+lean, after which the second rotation finishes the repair exactly as in the
+straight case. All four end at the same tree.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-four-cases.tex}
+  \caption{The four imbalance cases on three keys. The heavy node is the lowest
+  unbalanced one. Whichever order the keys arrive in, the repair produces the
+  same balanced tree.}
+  \label{fig:fourcases}
+\end{figure}
+
+\Cref{alg:rebalance} selects among the cases. It inspects the balance factor of
+$z$ to find the taller side, then the balance factor of $y$ to find whether the
+lean is straight or a zig-zag.
+
+\begin{algorithm}[t]
+\caption{Rebalancing one node. The node is returned because a rotation changes
+which node roots the subtree, and the caller must relink it.}
+\label{alg:rebalance}
+\SetKwFunction{Reb}{Rebalance}
+\SetKwFunction{RotR}{RotateRight}
+\SetKwFunction{RotL}{RotateLeft}
+\SetKwFunction{Upd}{UpdateHeight}
+\Fn{\Reb{$z$}}{
+  \Upd{$z$}\;
+  \uIf{$\bfac(z) > 1$}{
+    \Comment*[l]{left side is too tall}
+    \lIf{$\bfac(z.\mathit{left}) < 0$}{$z.\mathit{left} \gets$ \RotL{$z.\mathit{left}$}}
+    \Comment*[l]{\case{lr}: straighten first}
+    \KwRet \RotR{$z$} \Comment*[r]{\case{ll}}
+  }
+  \uElseIf{$\bfac(z) < -1$}{
+    \lIf{$\bfac(z.\mathit{right}) > 0$}{$z.\mathit{right} \gets$ \RotR{$z.\mathit{right}$}}
+    \Comment*[l]{\case{rl}: straighten first}
+    \KwRet \RotL{$z$} \Comment*[r]{\case{rr}}
+  }
+  \Else{
+    \KwRet $z$ \Comment*[r]{already legal, nothing to do}
+  }
+}
+\end{algorithm}
+
+Taken together, \Cref{lem:inorder} and \Cref{lem:rotcost} give the property the
+rest of the report depends on. The repair is correct wherever it is applied and
+costs a constant, so the cost of an update is decided entirely by how many times
+the repair runs. \Cref{sec:insertion} and \Cref{sec:deletion} answer that
+question, and they give different answers.

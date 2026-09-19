@@ -1,0 +1,40 @@
+% Average comparisons for a successful search. Both axes are logarithmic,
+% because the four series do not share an order of growth: three of them are
+% logarithmic and one is linear.
+%
+% The separation is the whole argument for balancing. On sorted keys the plain
+% tree needs hundreds of times more comparisons than the balanced one, and the
+% factor grows with every key added.
+\begin{tikzpicture}
+  \begin{axis}[
+      avlaxis,
+      xmode        = log,
+      ymode        = log,
+      log basis x  = 10,
+      xlabel       = {number of keys $n$},
+      ylabel       = {mean comparisons per search},
+      xmin         = 80, xmax = 1.3e4,
+      ymin         = 4, ymax = 1.2e4,
+      % Below the axis: every corner inside the frame has a curve running
+      % through it, so an inset legend would sit on top of the data.
+      legend style = {at = {(0.5, -0.30)}, anchor = north, draw = rfaint},
+      legend columns = 2,
+      legend cell align = left,
+    ]
+
+    \addplot[mark = *, mark size = 1.5pt, thick, color = rmid, dashed]
+      table[x = n, y = bstsorted] {data/search_cost.dat};
+    \addlegendentry{plain tree, sorted keys}
+
+    \addplot[avlsecond] table[x = n, y = bstrand] {data/search_cost.dat};
+    \addlegendentry{plain tree, random keys}
+
+    \addplot[avlmeasured] table[x = n, y = avlrand] {data/search_cost.dat};
+    \addlegendentry{AVL tree, random keys}
+
+    \addplot[no marks, thick, dotted, color = rkink]
+      table[x = n, y = avlsorted] {data/search_cost.dat};
+    \addlegendentry{AVL tree, sorted keys}
+
+  \end{axis}
+\end{tikzpicture}

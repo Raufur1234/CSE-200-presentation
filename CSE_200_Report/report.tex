@@ -1,0 +1,73 @@
+% ===========================================================================
+%  AVL Trees: Balance, Rotation, and Cost
+%  CSE 200 technical report. Extends the team's three-part talk in ../avl/.
+%
+%  Compile:  latexmk -pdf -interaction=nonstopmode report.tex
+%
+%  This file is a skeleton. Prose lives in sections/, pictures in figures/,
+%  and every package or length in reportstyle.sty. See AGENTS.md before
+%  editing --- in particular the rule about what may never be mentioned here,
+%  and the height convention that every number in the report depends on.
+% ===========================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage{reportstyle}
+
+% Recursive minimum-node tree macro, shared with the talk. Restyled monochrome
+% by the tikzset below; the macro itself is untouched.
+\input{figures/fibtree.tex}
+\tikzset{
+  avldot/.style  = {circle, draw=rkink, fill=rkink, inner sep=0pt,
+                    minimum size=1.7pt},
+  avledge/.style = {draw=rmid, line width=0.35pt},
+}
+
+\title{\bfseries AVL Trees: Balance, Rotation, and Cost\\[7pt]
+       \large\mdseries CSE 200 Technical Report}
+
+% Standard single-affiliation author block: the three names on one line with
+% their student IDs parenthesised, then the shared affiliation beneath. The
+% \author argument is typeset inside a centred tabular, so each \\ starts a new
+% centred line. Student IDs go inline rather than stacked under the names,
+% which needs no column alignment and reads as authorship rather than a roster.
+\author{%
+  % IDs a size down: subordinates them to the names, and keeps the line inside
+  % \textwidth, which it exceeds when all three are set at full size.
+  Md Ishtiak Moin\,{\small(2305011)} \quad
+  Sheikh Raufur Rahim\,{\small(2305010)} \quad
+  Abhijnan Podder\,{\small(2305007)} \\[7pt]
+  \normalsize Department of Computer Science and Engineering \\
+  \normalsize Bangladesh University of Engineering and Technology \\
+  \normalsize Dhaka, Bangladesh
+}
+
+% Empty, not omitted: \maketitle falls back to \today when \date is absent, so
+% deleting the line would print the build date rather than suppress it.
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract.tex}
+\end{abstract}
+
+\input{sections/01-introduction.tex}
+\input{sections/02-preliminaries.tex}
+\input{sections/03-height-bound.tex}
+\input{sections/04-rotations.tex}
+\input{sections/05-insertion.tex}
+\input{sections/06-deletion.tex}
+\input{sections/07-evaluation.tex}
+\input{sections/08-comparison.tex}
+\input{sections/09-applications.tex}
+\input{sections/10-history.tex}
+\input{sections/11-conclusion.tex}
+\input{sections/12-contributions.tex}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\appendix
+\input{sections/appendix-a-implementation.tex}
+
+\end{document}

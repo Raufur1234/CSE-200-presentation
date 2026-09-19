@@ -1,0 +1,65 @@
+\section{Applications}
+\label{sec:applications}
+
+The measurements of \Cref{sec:eval} explain where the AVL tree earns its place
+and where it does not. It keeps the shortest tree of any of the structures in
+\Cref{tab:comparison}, and it pays for that during updates. A workload therefore
+suits an AVL tree when it searches far more often than it modifies, and when the
+data is in memory so that a comparison, rather than a block fetch, is the unit of
+cost.
+
+\subsection{In-memory ordered collections}
+
+The clearest case is an ordered dictionary that is read constantly and written
+occasionally. A routing table, a symbol table in a compiler, or an index over a
+data set loaded once and queried many times all have this shape. Each search saves
+comparisons against a red-black tree holding the same keys, and the extra
+rotation work is charged only to the rare update.
+
+The advantage over a hash table is the ordering. A hash table answers an exact
+lookup in expected constant time and beats any search tree at that one operation,
+but it cannot answer a range query, report the keys in sorted order, or find the
+key nearest a target without scanning everything. Those operations are what a
+search tree provides, and they are the reason a program picks one.
+
+\subsection{Guaranteed worst-case behaviour}
+
+The second case is a system that needs a bound on every individual operation
+rather than on a sequence of them. \Cref{thm:heightbound} bounds the height of
+the tree at all times, so \Cref{cor:opcost} bounds every search, and
+\Cref{cor:insertcost} and \Cref{thm:deletebound} bound every update. No
+particular operation can be slow.
+
+This distinguishes the AVL tree from both of its natural competitors for
+in-memory work. A hash table has an expected-case guarantee that a bad set of
+keys can defeat, and a rehash pauses the structure for a time proportional to its
+size. A splay tree has an amortised guarantee, so a single access may cost
+$\Theta(n)$ even though a long run of accesses is cheap. Where a deadline applies
+to each operation, as in scheduling or control software, neither of those bounds
+is usable and the worst-case bound is.
+
+\subsection{Where other structures are chosen instead}
+
+It is worth being clear about the limits, because the AVL tree is often not the
+right choice.
+
+Workloads dominated by insertions and deletions favour the red-black tree, whose
+deletion needs at most three rotations against the $O(\log n)$ of
+\Cref{thm:deletebound}. This is why the ordered maps in several widely used
+standard libraries, and the kernel data structures that track process and memory
+ranges, are red-black rather than AVL.
+
+Data that lives on disk or on a solid-state drive favours a B-tree, for the
+reason given at the end of \Cref{sec:comparison}: the cost is the number of
+blocks fetched, and a shallow, wide tree fetches fewer. Database indexes are
+B-trees for this reason and not because their designers were unaware of the
+height bound.
+
+Workloads with strong locality of reference favour a splay tree, which moves each
+accessed key to the root and so serves a small working set from the top of the
+tree. The AVL tree treats every key alike and cannot exploit that pattern.
+
+Finally, a workload that only ever needs exact lookup, with no ordering
+requirement, should use a hash table. The AVL tree's ordering guarantees cost
+something to maintain, and a program that does not use them should not pay for
+them.

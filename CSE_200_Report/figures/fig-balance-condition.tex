@@ -1,0 +1,27 @@
+% The whole AVL invariant, drawn at a single node: two subtrees, two heights,
+% and the one-level gap the definition permits between them.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  \node[tnode] (v) at (0, 0) {$v$};
+
+  % subtrees as triangles, the left one deliberately one level taller
+  \draw[tedge] (v) -- (-16, -12);
+  \draw[tedge] (v) -- ( 16, -12);
+  \draw[tedge, fill = rwash] (-16, -12) -- (-27, -40) -- (-5, -40) -- cycle;
+  \draw[tedge, fill = white] ( 16, -12) -- (  7, -33) -- (25, -33) -- cycle;
+
+  \node[font = \small] at (-16, -30) {$L$};
+  \node[font = \small] at ( 16, -25) {$R$};
+
+  % height brackets, one per side
+  \draw[decorate, decoration = {brace, amplitude = 4pt}, draw = rmid]
+    (-31, -40) -- (-31, -12)
+    node[midway, left = 5pt, tlabel, rotate = 90, anchor = south] {$h_L$};
+  \draw[decorate, decoration = {brace, amplitude = 4pt, mirror}, draw = rmid]
+    ( 29, -33) -- ( 29, -12)
+    node[midway, right = 5pt, tlabel, rotate = 90, anchor = south] {$h_R$};
+
+  \node[tannot] at (0, -50)
+    {the definition allows $|h_L - h_R| \le 1$, and nothing looser};
+
+\end{tikzpicture}

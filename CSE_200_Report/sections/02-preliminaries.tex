@@ -1,0 +1,105 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+This section fixes the notation used for the rest of the report. The definitions
+are standard, but the height convention is not universal, and every numerical
+claim we make depends on which one we adopt. We therefore state it explicitly and
+return to the consequences in \Cref{rem:conventions}.
+
+\begin{definition}[Binary search tree]
+\label{def:bst}
+A binary search tree is a binary tree whose nodes carry keys drawn from a totally
+ordered set, such that for every node $v$, every key in the left subtree of $v$ is
+smaller than the key at $v$, and every key in the right subtree of $v$ is larger.
+\end{definition}
+
+We write $T$ for a tree, $n$ for the number of nodes it holds, and $L(v)$ and
+$R(v)$ for the left and right subtrees of a node $v$. The height of a tree is the
+number of edges on the longest path from its root down to a leaf. A tree
+consisting of one node therefore has height $0$, and we assign the empty tree the
+height $-1$, which makes the recurrence in \Cref{eq:heightrec} hold without a
+special case:
+\begin{equation}
+  \label{eq:heightrec}
+  h(T) =
+  \begin{cases}
+    -1, & \text{if } T \text{ is empty},\\
+    1 + \max\bigl(h(L(v)),\, h(R(v))\bigr), & \text{if } v \text{ is the root of } T.
+  \end{cases}
+\end{equation}
+
+Searching is the operation everything else is measured against. A search compares
+the target with the key at the root, and either stops or descends into one
+subtree, discarding the other. The number of comparisons is therefore at most
+$h(T)+1$, which gives \Cref{prop:searchcost}.
+
+\begin{proposition}[Search cost]
+\label{prop:searchcost}
+A search in a binary search tree of height $h$ performs at most $h+1$ key
+comparisons.
+\end{proposition}
+
+\Cref{prop:searchcost} is the reason height is the quantity worth controlling. A
+structure that keeps the height logarithmic keeps every operation logarithmic,
+and one that does not keep the height logarithmic offers no guarantee at all.
+
+\subsection{The balance condition}
+
+The AVL condition is stated at a single node, in terms of the difference between
+the heights of its two subtrees.
+
+\begin{definition}[Balance factor]
+\label{def:bf}
+The balance factor of a node $v$ is
+\begin{equation}
+  \label{eq:bf}
+  \bfac(v) = h\bigl(L(v)\bigr) - h\bigl(R(v)\bigr).
+\end{equation}
+\end{definition}
+
+A positive balance factor means that the left subtree is the taller one, and a
+negative balance factor means that the right subtree is. The AVL condition
+restricts the balance factor to three values.
+
+\begin{definition}[AVL tree]
+\label{def:avl}
+An AVL tree is a binary search tree in which every node $v$ satisfies
+$\bfac(v) \in \{-1, 0, +1\}$.
+\end{definition}
+
+\Cref{fig:balance} draws the condition at one node. A node whose balance factor
+reaches $+2$ or $-2$ violates \Cref{def:avl}, and we call such a node
+\emph{unbalanced}. No other value can occur during the operations we describe,
+because insertion and deletion each change the height of a subtree by at most one
+before the repair runs, so a balance factor moves from a legal value to $\pm 2$
+and no further.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-balance-condition.tex}
+  \caption{The AVL condition at one node. The definition permits a gap of one
+  level between the two subtree heights, and forbids a gap of two.}
+  \label{fig:balance}
+\end{figure}
+
+\Cref{tab:notation} collects the symbols.
+
+\begin{table}[t]
+  \centering
+  \caption{Notation used throughout the report.}
+  \label{tab:notation}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    Symbol & Meaning \\
+    \midrule
+    $n$            & number of nodes in the tree \\
+    $h$, $h(T)$    & height in edges; a single node has height $0$, the empty tree $-1$ \\
+    $L(v)$, $R(v)$ & left and right subtrees of the node $v$ \\
+    $\bfac(v)$     & balance factor of $v$, defined in \Cref{eq:bf} \\
+    $\Nmin(h)$     & fewest nodes an AVL tree of height $h$ can have \\
+    $F(k)$         & Fibonacci number, with $F(0)=0$, $F(1)=1$ \\
+    $\varphi$      & golden ratio, $(1+\sqrt{5})/2 \approx 1.618$ \\
+    $\lgg{x}$      & logarithm of $x$ to base two \\
+    \bottomrule
+  \end{tabular}
+\end{table}

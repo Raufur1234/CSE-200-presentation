@@ -1,0 +1,178 @@
+\section{Experimental evaluation}
+\label{sec:eval}
+
+The bounds proved so far are worst-case statements, and a worst-case statement
+says nothing about how often the worst case arrives. \Cref{thm:deletebound}
+permits a deletion to rotate at every level of the tree, and \Cref{fig:cascade}
+exhibits a tree where three levels do rotate, but neither result indicates
+whether a program that deletes a million keys should expect to pay for that
+behaviour. This section measures what actually happens.
+
+\subsection{Method}
+
+We implemented the AVL tree of \Cref{alg:rotate,alg:rebalance,alg:insert,alg:delete}
+and, for comparison, an ordinary binary search tree with no balancing. The two
+implementations share their node representation and their search routine, so any
+difference between them comes from the balancing and not from unrelated
+bookkeeping.
+
+We measure operation counts rather than elapsed time. A comparison count and a
+rotation count are properties of the structure, while a wall-clock reading also
+records the memory hierarchy, the allocator, and the language runtime, none of
+which the analysis of the preceding sections speaks about. Counting comparisons
+also makes the results reproducible on any machine.
+
+Three quantities are recorded. The first is the height of the tree after all keys
+have been inserted. The second is the mean number of comparisons for a successful
+search, which equals the mean node depth plus one and which we obtain by summing
+the depths of all nodes. The third is the rebalancing work per update, counted in
+two ways: rebalancing \emph{events}, where a double rotation counts once, and
+single rotations, where a double rotation counts twice. The first count measures
+how often the repair runs, and the second measures how much pointer work it does.
+
+Each tree is built by inserting $n$ distinct keys, and for the deletion
+measurements every key is then removed in a fresh random order until the tree is
+empty. Two key orders are used: a uniformly random permutation, and increasing
+order, which is the adversarial case of \Cref{fig:degenerate}. Sizes run from
+$100$ to $10^{6}$ keys. Results are averaged over twenty independent trials for
+$n \le 3000$, five trials up to $10^{5}$, and a single trial at the largest
+sizes, where the variation between trials is negligible.
+
+\subsection{Height against the bound}
+
+\Cref{fig:plotheight} plots the measured height against the two bounds of
+\Cref{thm:heightbound}. The horizontal axis is logarithmic, so all three series
+are straight lines and their slopes are directly comparable.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-plot-height.tex}
+  \caption{Height of an AVL tree built from random keys, against the analytic
+  bounds. The measured series runs close to the information-theoretic lower
+  bound rather than to the upper bound.}
+  \label{fig:plotheight}
+\end{figure}
+
+The measured height sits much nearer the lower bound than the upper one. At
+$n = 10^{6}$ the tree has height $23$, against a lower bound of $19.93$ and an
+upper bound of $27.38$. Trees grown from random keys use about $15$ percent more
+levels than a perfect tree, not the $44$ percent the worst case permits.
+
+The gap does not indicate that \Cref{thm:heightbound} is loose. The bound is
+attained only by the minimum-size trees, and those are rare among the trees a
+random key order produces: of the $54$ nodes in \Cref{fig:cascade}, every single
+one has a balance factor of $\pm 1$, and a random sequence of insertions has
+essentially no chance of assembling such a tree. The bound describes an adversary,
+and the measurements describe an average.
+
+One further observation concerns variance. At every size from $100$ keys upward,
+every trial produced trees of identical height. The height of an AVL tree is
+determined by its size much more tightly than the two-bound gap suggests.
+
+\subsection{Search cost against an unbalanced tree}
+
+\Cref{fig:plotsearch} compares the AVL tree with the unbalanced tree on both key
+orders. Both axes are logarithmic, because the four series do not share an order
+of growth.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-plot-search.tex}
+  \caption{Mean comparisons for a successful search. Three series are
+  logarithmic in $n$ and one is linear. The unbalanced tree on sorted keys is the
+  failure case the AVL condition exists to prevent.}
+  \label{fig:plotsearch}
+\end{figure}
+
+On random keys the two structures are close. At $n = 10^{4}$ the AVL tree needs
+$12.59$ comparisons and the unbalanced tree needs $16.98$, a penalty of about a
+third. A random binary search tree has expected height $\Theta(\log n)$ already,
+so balancing buys a constant factor and no more.
+
+On sorted keys the comparison is different in kind. The AVL tree needs $12.36$
+comparisons, marginally fewer than on random keys, because inserting in order
+produces a tree that is nearly perfectly balanced. The unbalanced tree needs
+$5000.5$ comparisons, which is $(n+1)/2$ and confirms that it has degenerated
+into the list of \Cref{fig:degenerate}. The balanced structure is faster by a
+factor of $404$ at ten thousand keys, and the factor grows linearly with $n$.
+
+The practical reading is that balancing is not an optimisation of the average
+case. It is insurance against an input order that costs nothing to produce and
+that ordinary workloads produce by accident.
+
+\subsection{Rebalancing work per operation}
+
+\Cref{tab:rotations} reports the repair work, and \Cref{fig:plotrotations} plots
+the same figures.
+
+\begin{table}[t]
+  \centering
+  \caption{Rebalancing work per update on random keys. A rebalancing event is one
+  repair, counting a double rotation once; the rotation columns count a double
+  rotation as two. All four quantities are flat in $n$.}
+  \label{tab:rotations}
+  \begin{tabular}{@{}S[table-format=7.0]S[table-format=1.4]S[table-format=1.4]S[table-format=1.4]S[table-format=1.4]@{}}
+    \toprule
+    & \multicolumn{2}{c}{Per insertion} & \multicolumn{2}{c}{Per deletion} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    {$n$} & {events} & {rotations} & {events} & {rotations} \\
+    \midrule
+    100    & 0.4510 & 0.6840 & 0.2360 & 0.3360 \\
+    300    & 0.4623 & 0.6843 & 0.2600 & 0.3623 \\
+    1000   & 0.4675 & 0.7011 & 0.2587 & 0.3618 \\
+    3000   & 0.4595 & 0.6893 & 0.2636 & 0.3714 \\
+    10000  & 0.4658 & 0.6981 & 0.2642 & 0.3691 \\
+    30000  & 0.4629 & 0.6946 & 0.2667 & 0.3756 \\
+    100000 & 0.4668 & 0.6993 & 0.2661 & 0.3727 \\
+    300000 & 0.4642 & 0.6963 & 0.2661 & 0.3732 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-plot-rotations.tex}
+  \caption{Rebalancing work per update against tree size. Every series is flat
+  across three and a half orders of magnitude, including the deletion series that
+  \Cref{thm:deletebound} allows to grow with the height.}
+  \label{fig:plotrotations}
+\end{figure}
+
+Two results stand out. The first is that insertion averages $0.464$ rebalancing
+events, so roughly one insertion in two triggers no repair at all. This is
+consistent with \Cref{thm:insertone}, which caps the count at one, and it
+locates the average at about half the cap.
+
+The second result is the one \Cref{thm:deletebound} does not predict. Deletion
+averages $0.266$ rebalancing events, fewer than insertion rather than more, and
+the figure does not grow as $n$ increases from $100$ to $300\,000$. The worst
+case of $h$ repairs per deletion is real, as \Cref{fig:cascade} demonstrates, but
+it requires a tree with no slack at any level, and ordinary trees have slack
+nearly everywhere. A cascade stops as soon as it reaches a node whose balance
+factor was $0$, and after a repair that node absorbs the lost level without
+passing it on. In a random tree such a node is never far away.
+
+Deletion does less repair work than insertion for a related reason. Most nodes in
+a tree of any size are near the leaves, so a randomly chosen key is usually
+shallow in the sense that matters here, and removing it disturbs few ancestors.
+
+\subsection{Threats to validity}
+
+Three limitations qualify the results above.
+
+The measurements count comparisons and rotations, not time. A rotation writes
+three pointers and may evict cache lines, so a structure that rotates less can be
+faster in practice even when it compares more. \Cref{sec:comparison} returns to
+this point with timing results from the literature.
+
+The key orders tested are a uniformly random permutation and increasing order.
+Real workloads sit between the two, and a partially sorted input, such as records
+that are mostly ordered with occasional insertions out of place, is not covered
+here. The unbalanced tree degrades smoothly between the two series of
+\Cref{fig:plotsearch}, so its behaviour on such input lies between them, but we
+did not measure where.
+
+The deletion measurements remove every key from the tree. A workload that
+interleaves insertions and deletions at a steady size may reach a different
+steady state, since the trees it produces are shaped by both operations rather
+than built by one and dismantled by the other.

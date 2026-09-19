@@ -1,0 +1,38 @@
+% The deletion cascade, on the smallest tree that can have one at this height.
+%
+% The drawing macro names its nodes f1, f2, ... in pre-order, so the marked
+% positions below are not decoration placed by eye: f34 is the leaf that is
+% removed, and f31, f23 and f2 are the three ancestors that rebalance, in that
+% order. Every one of them is a left-left case.
+%
+% There is no slack anywhere in this tree. Every node has a balance factor of
+% exactly one, so losing a single leaf is felt all the way up.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  \setavlscale{6.6}{8.4}
+  \resetavl
+  \drawfib{7}{0}{0}
+
+  % the leaf that goes
+  \node[circle, draw = rkink, line width = 0.9pt, inner sep = 0pt,
+        minimum size = 3.4mm] (victim) at (f34) {};
+  \node[tlabel, below = 2mm of victim, anchor = north] {removed};
+
+  % the three ancestors that rebalance, in the order they fire
+  \foreach \nd/\num in {f31/1, f23/2, f2/3} {
+    \node[circle, draw = rkink, fill = rwash, line width = 0.9pt,
+          inner sep = 0pt, minimum size = 4.2mm] (r\num) at (\nd) {};
+    \node[font = \scriptsize, above right = -0.6mm and 0.8mm of r\num] {\num};
+  }
+
+  % the height bracket on the left
+  \draw[decorate, decoration = {brace, amplitude = 4pt}, draw = rmid]
+    (-72, -58.8) -- (-72, 0)
+    node[midway, left = 6pt, tlabel, rotate = 90, anchor = south]
+      {height 7, before};
+
+  \node[tannot, align = center] at (0, -70)
+    {54 nodes, and every balance factor equal to one.\\
+     Removing the marked leaf rebalances three ancestors and leaves height 6.};
+
+\end{tikzpicture}

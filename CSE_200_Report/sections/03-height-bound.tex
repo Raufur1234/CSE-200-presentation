@@ -1,0 +1,209 @@
+\section{The height bound}
+\label{sec:height}
+
+The balance condition of \Cref{def:avl} constrains one node at a time, and we
+now show that it constrains the whole tree. The argument runs backwards from the
+question one might expect. Rather than asking how tall a tree of $n$ nodes can
+become, we ask how few nodes a tree of height $h$ can contain. If even the
+sparsest legal tree of height $h$ needs many nodes, then a tree with few nodes
+cannot be tall, and that is the bound we want.
+
+\begin{definition}[Minimum size]
+\label{def:nh}
+Let $\Nmin(h)$ denote the smallest number of nodes in any AVL tree of height $h$.
+\end{definition}
+
+\subsection{A recurrence for the minimum size}
+
+\begin{lemma}[Minimum-size recurrence]
+\label{lem:recurrence}
+The quantity $\Nmin(h)$ of \Cref{def:nh} satisfies $\Nmin(0) = 1$,
+$\Nmin(1) = 2$, and
+\begin{equation}
+  \label{eq:nrec}
+  \Nmin(h) = \Nmin(h-1) + \Nmin(h-2) + 1 \qquad \text{for } h \ge 2 .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+A tree of height $0$ is a single node, so $\Nmin(0) = 1$. A tree of height $1$
+has a root and at least one child, and one child is enough, because a balance
+factor of $\pm 1$ is legal. Hence $\Nmin(1) = 2$.
+
+Let $h \ge 2$ and let $T$ be an AVL tree of height $h$ with as few nodes as
+possible. Its root has some subtree of height $h-1$, since otherwise $T$ would be
+shorter. Name that subtree $A$ and the other one $B$. By \Cref{def:avl} the
+height of $B$ is at least $h-2$, and making it taller than $h-2$ would only add
+nodes, so a minimum-size tree takes $B$ of height exactly $h-2$. Both $A$ and $B$
+are themselves AVL trees, and each must be as small as its own height permits,
+because replacing either by a smaller tree of the same height would shrink $T$
+without changing its height. Counting the root together with the two subtrees
+gives \Cref{eq:nrec}.
+\end{proof}
+
+\Cref{fig:mintrees} draws the first five of these trees. Each one consists of the
+two before it placed under a new root, which is the recurrence made visible.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-min-trees.tex}
+  \caption{Minimum-size AVL trees of heights $0$ through $4$. Each tree is built
+  from the two preceding trees under a fresh root, so the node counts $1, 2, 4,
+  7, 12$ obey \Cref{eq:nrec}.}
+  \label{fig:mintrees}
+\end{figure}
+
+The recurrence in \Cref{eq:nrec} is the Fibonacci recurrence with an extra
+constant, and that constant can be absorbed.
+
+\begin{theorem}[Closed form]
+\label{thm:closedform}
+For every $h \ge 0$,
+\begin{equation}
+  \label{eq:closedform}
+  \Nmin(h) = F(h+3) - 1 ,
+\end{equation}
+where $F$ is the Fibonacci sequence with $F(0) = 0$ and $F(1) = 1$.
+\end{theorem}
+
+\begin{proof}
+Put $M(h) = \Nmin(h) + 1$. Adding $1$ to both sides of \Cref{eq:nrec} gives
+\begin{equation}
+  \label{eq:mrec}
+  M(h) = M(h-1) + M(h-2) ,
+\end{equation}
+because the two constants on the right of \Cref{eq:nrec} combine with the
+original one. So the shifted sequence obeys the Fibonacci recurrence exactly,
+with no remainder. Its initial values are $M(0) = 2 = F(3)$ and $M(1) = 3 =
+F(4)$. Two sequences that satisfy the same second-order recurrence and agree at
+two consecutive indices agree everywhere, so $M(h) = F(h+3)$ for all $h \ge 0$.
+Subtracting the $1$ gives \Cref{eq:closedform}.
+\end{proof}
+
+\Cref{tab:nh} lists the resulting counts against the size of a perfect tree of
+the same height. The sparsest legal tree of height $15$ holds $2583$ nodes where
+a perfect tree holds $65\,535$, so the balance condition tolerates a tree filled
+to under four percent of its capacity. What it does not tolerate is a tree that
+is tall and nearly empty, and the table shows why: the minimum size grows by a
+factor close to $1.618$ at every step.
+
+\begin{table}[t]
+  \centering
+  \caption{The fewest nodes an AVL tree of height $h$ can hold, against the
+  $2^{h+1}-1$ nodes of a perfect tree of that height. The ratio falls steadily,
+  but $\Nmin(h)$ still grows exponentially.}
+  \label{tab:nh}
+  \begin{tabular}{@{}S[table-format=2.0]S[table-format=4.0]S[table-format=5.0]S[table-format=3.1]@{\qquad\qquad}S[table-format=2.0]S[table-format=4.0]S[table-format=5.0]S[table-format=2.1]@{}}
+    \toprule
+    {$h$} & {$\Nmin(h)$} & {perfect} & {\%} &
+    {$h$} & {$\Nmin(h)$} & {perfect} & {\%} \\
+    \midrule
+    0 &    1 &     1 & 100.0 &  8 &   88 &   511 & 17.2 \\
+    1 &    2 &     3 &  66.7 &  9 &  143 &  1023 & 14.0 \\
+    2 &    4 &     7 &  57.1 & 10 &  232 &  2047 & 11.3 \\
+    3 &    7 &    15 &  46.7 & 11 &  376 &  4095 &  9.2 \\
+    4 &   12 &    31 &  38.7 & 12 &  609 &  8191 &  7.4 \\
+    5 &   20 &    63 &  31.7 & 13 &  986 & 16383 &  6.0 \\
+    6 &   33 &   127 &  26.0 & 14 & 1596 & 32767 &  4.9 \\
+    7 &   54 &   255 &  21.2 & 15 & 2583 & 65535 &  3.9 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{From the recurrence to a logarithm}
+
+The factor $1.618$ is not a coincidence, and identifying it turns
+\Cref{eq:closedform} into a statement about height.
+
+\begin{lemma}[Growth rate]
+\label{lem:growth}
+Let $\varphi = (1+\sqrt{5})/2$. Then $M(h) = \Nmin(h) + 1$ satisfies $M(h) =
+\Theta(\varphi^{h})$.
+\end{lemma}
+
+\begin{proof}
+Look for solutions of \Cref{eq:mrec} of the form $M(h) = x^{h}$. Substituting and
+dividing by $x^{h-2}$ turns the recurrence into the characteristic equation
+\begin{equation}
+  \label{eq:char}
+  x^{2} = x + 1 ,
+\end{equation}
+whose roots are $\varphi = (1+\sqrt{5})/2 \approx 1.618$ and $\psi =
+(1-\sqrt{5})/2 \approx -0.618$. Every solution of \Cref{eq:mrec} is a
+combination $M(h) = \alpha\varphi^{h} + \beta\psi^{h}$. Since $|\psi| < 1$, the
+second term tends to $0$, and the first term dominates. The initial values
+$M(0) = 2$ and $M(1) = 3$ give a positive $\alpha$, so $M(h) =
+\Theta(\varphi^{h})$.
+\end{proof}
+
+\Cref{lem:growth} says that the sparsest legal tree multiplies its node count by
+about $1.618$ for each extra level. Node count grows exponentially in height, so
+height grows logarithmically in node count, and the base of that exponential
+fixes the constant.
+
+\begin{theorem}[Height bound]
+\label{thm:heightbound}
+Every AVL tree with $n \ge 1$ nodes has height
+\begin{equation}
+  \label{eq:heightbound}
+  h \;<\; \frac{1}{\lgg\varphi}\,\lgg(n+2) \;+\; \frac{\lgg 5}{2\lgg\varphi} - 3
+  \;\approx\; 1.4404\,\lgg(n+2) - 1.3277 .
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $T$ be an AVL tree of height $h$ with $n$ nodes. By \Cref{def:nh} and
+\Cref{thm:closedform},
+\begin{equation}
+  \label{eq:nge}
+  n \;\ge\; \Nmin(h) \;=\; F(h+3) - 1 .
+\end{equation}
+Binet's formula states that $F(k) = (\varphi^{k} - \psi^{k})/\sqrt{5}$ with
+$\psi = (1-\sqrt{5})/2$. Since $|\psi| < 1$, we have $|\psi^{k}| \le 1$ for every
+$k \ge 0$, and therefore
+\begin{equation}
+  \label{eq:fiblower}
+  F(k) \;\ge\; \frac{\varphi^{k} - 1}{\sqrt{5}} \;>\; \frac{\varphi^{k}}{\sqrt{5}} - 1 .
+\end{equation}
+Combining \Cref{eq:nge} with \Cref{eq:fiblower} at $k = h+3$ gives
+$n + 2 > \varphi^{h+3}/\sqrt{5}$. Taking logarithms to base two,
+\begin{equation}
+  \label{eq:logstep}
+  \lgg(n+2) \;>\; (h+3)\lgg\varphi - \tfrac{1}{2}\lgg 5 ,
+\end{equation}
+and solving \Cref{eq:logstep} for $h$ yields \Cref{eq:heightbound}.
+\end{proof}
+
+Two checks show that \Cref{eq:heightbound} is close to exact rather than merely
+correct. The minimum-size tree of height $7$ holds $54$ nodes, and the bound
+evaluated at $n = 54$ gives $7.04$. At $n = 10^{6}$ the bound gives $27.38$,
+and the largest height any AVL tree of one million nodes can reach, read off
+\Cref{eq:nrec} directly, is $27$. The bound loses less than one level across five
+orders of magnitude.
+
+Against the perfect tree the cost of the balance condition is therefore modest. A
+perfect tree of $10^{6}$ nodes has height $19$, so the worst permissible AVL tree
+of that size is about $44$ percent taller, and every operation on it still costs
+a logarithmic number of comparisons.
+
+\begin{corollary}[Operation cost]
+\label{cor:opcost}
+Searching an AVL tree of $n$ nodes costs $O(\log n)$ comparisons.
+\end{corollary}
+
+\begin{proof}
+Combine \Cref{prop:searchcost} with \Cref{thm:heightbound}.
+\end{proof}
+
+\begin{remark}[Two height conventions]
+\label{rem:conventions}
+Sources disagree about what the height of a single node is, and the disagreement
+changes every constant above. We count edges, so a single node has height $0$ and
+\Cref{thm:closedform} reads $\Nmin(h) = F(h+3) - 1$. Sources that count levels
+instead give a single node the height $1$ and obtain $\Nmin(h) = F(h+2) - 1$,
+which shifts the additive constant in \Cref{eq:heightbound} from $-1.3277$ to
+$-0.3277$. Both statements are correct under their own convention, and neither
+transfers to the other. A reader comparing \Cref{eq:heightbound} against
+Knuth~\cite{knuth3} or against a textbook should check which convention is in
+force before concluding that one of them is wrong.
+\end{remark}

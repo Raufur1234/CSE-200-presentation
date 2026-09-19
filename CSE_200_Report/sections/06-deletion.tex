@@ -1,0 +1,146 @@
+\section{Deletion}
+\label{sec:deletion}
+
+Deletion follows the same three stages as insertion. The key is removed the way
+an ordinary binary search tree removes it, the procedure walks back toward the
+root updating heights, and unbalanced nodes are repaired by rotation. The
+difference lies in the third stage, and it is the reason deletion deserves its
+own section: the walk cannot stop at the first repair.
+
+\begin{algorithm}[t]
+\caption{Deletion. A node with two children is removed by copying its in-order
+successor into it and deleting the successor instead, which always has at most
+one child.}
+\label{alg:delete}
+\SetKwFunction{Del}{Delete}
+\SetKwFunction{Reb}{Rebalance}
+\SetKwFunction{Min}{Minimum}
+\Fn{\Del{$v$, $k$}}{
+  \lIf{$v = \textbf{nil}$}{\KwRet \textbf{nil}}
+  \uIf{$k < v.\mathit{key}$}{
+    $v.\mathit{left} \gets$ \Del{$v.\mathit{left}$, $k$}\;
+  }
+  \uElseIf{$k > v.\mathit{key}$}{
+    $v.\mathit{right} \gets$ \Del{$v.\mathit{right}$, $k$}\;
+  }
+  \Else{
+    \lIf{$v.\mathit{left} = \textbf{nil}$}{\KwRet $v.\mathit{right}$}
+    \lIf{$v.\mathit{right} = \textbf{nil}$}{\KwRet $v.\mathit{left}$}
+    $s \gets$ \Min{$v.\mathit{right}$} \Comment*[r]{in-order successor}
+    $v.\mathit{key} \gets s.\mathit{key}$\;
+    $v.\mathit{right} \gets$ \Del{$v.\mathit{right}$, $s.\mathit{key}$}\;
+  }
+  \KwRet \Reb{$v$}\;
+}
+\end{algorithm}
+
+\subsection{Why the repair propagates}
+
+\Cref{thm:insertone} rests on one fact: after an insertion is repaired, the
+subtree has the height it started with, so the parent notices nothing. Deletion
+breaks that fact.
+
+\begin{lemma}[The repaired subtree may shrink]
+\label{lem:shrink}
+Let $z$ be an unbalanced node after a deletion, with the subtree at $z$ having
+height $h$ before the deletion. After the prescribed repair, the subtree rooted
+at the new position has height $h$ or $h-1$, and the case $h-1$ can occur.
+\end{lemma}
+
+\begin{proof}
+Suppose the right subtree of $z$ lost a level, so $\bfac(z) = +2$, and write $y$
+for the left child of $z$. Before the deletion the subtree at $z$ had height $h$,
+so $y$ has height $h-1$ and the right subtree of $z$ now has height $h-3$.
+
+Consider the \case{ll} case, in which $\bfac(y) = +1$. Then $L(y)$ has height
+$h-2$ and $R(y)$ has height $h-3$. The right rotation at $z$ puts $y$ on top with
+$L(y)$ of height $h-2$ on the left, and on the right the node $z$ carrying $R(y)$
+and the shortened right subtree, both of height $h-3$, hence of height $h-2$. The
+rotated subtree therefore has height $h-1$, one less than before.
+
+The case $\bfac(y) = 0$ gives the other outcome. Then $L(y)$ and $R(y)$ both have
+height $h-2$, the rotation leaves $z$ with a subtree of height $h-2$ on each
+side, and the result has height $h$ once more. Both outcomes are therefore
+reachable, and the mirror cases behave identically.
+\end{proof}
+
+When the repaired subtree comes out one level shorter, the parent of $z$ has lost
+a level on one side without gaining one on the other. Its own balance factor may
+now reach $\pm 2$, and the same may happen to its parent, and so on. A single
+deletion can therefore set off repairs at every level between the deleted node
+and the root.
+
+\subsection{A cascade in the smallest tree that permits one}
+
+The trees in which this happens are exactly the minimum-size trees of
+\Cref{sec:height}. They have no slack anywhere. Every node in the minimum-size
+tree of height $h$ has a balance factor of exactly $\pm 1$, so removing any node
+at all pushes some ancestor out of range.
+
+\Cref{fig:cascade} shows the minimum-size tree of height $7$, which holds $54$
+nodes by \Cref{tab:nh}. Removing the marked leaf drops the count to $53$. By
+\Cref{eq:nrec} a tree of $53$ nodes cannot have height $7$, since $\Nmin(7) = 54$,
+so the height must fall, and the repairs that make it fall run at three separate
+levels. Each rotation shortens its subtree by one level in the manner of
+\Cref{lem:shrink}, which is precisely what exposes the next ancestor.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-cascade.tex}
+  \caption{A deletion cascade in the minimum-size tree of height $7$. Removing
+  one leaf forces rebalancing at the three ringed ancestors, in the order shown,
+  and the height of the tree falls from $7$ to $6$.}
+  \label{fig:cascade}
+\end{figure}
+
+This example also shows why the cascade cannot be dismissed as a pathological
+construction. The minimum-size trees are the extremal case for the height bound
+of \Cref{thm:heightbound}, so any tree that comes close to the bound is close to
+one of them, and is therefore close to having no slack.
+
+\subsection{Cost}
+
+The cascade is bounded, because the walk visits each level at most once.
+
+\begin{theorem}[Deletion cost]
+\label{thm:deletebound}
+A deletion from an AVL tree of $n$ nodes performs at most $h$ rebalancing steps
+and at most $2h$ single rotations, where $h$ is the height of the tree, and runs
+in $O(\log n)$ time.
+\end{theorem}
+
+\begin{proof}
+The removal descends one level at a time to the node holding the key, and if that
+node has two children, the procedure descends further to its in-order successor.
+Both descents visit at most $h$ nodes. The upward walk retraces the same path, so
+it examines at most $h$ ancestors, and each ancestor is rebalanced at most once.
+By \Cref{tab:cases} a rebalancing step performs one single rotation in the
+\case{ll} and \case{rr} cases and two in the \case{lr} and \case{rl} cases,
+giving at most $2h$ single rotations in total.
+
+For the running time, the descent and the walk each cost $O(h)$, and by
+\Cref{lem:rotcost} each rotation costs $O(1)$, so the rotations cost $O(h)$
+together. The total is $O(h)$, which is $O(\log n)$ by \Cref{thm:heightbound}.
+\end{proof}
+
+\Cref{tab:insdel} sets the two update operations side by side. Both are
+logarithmic, and they differ in the constant work they do on the way back up:
+insertion stops at the first repair, deletion may repair at every level.
+
+\begin{table}[t]
+  \centering
+  \caption{Rebalancing work for the two update operations, for a tree of height
+  $h$. The asymptotic cost is the same; the number of repairs is not.}
+  \label{tab:insdel}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    Operation & Rebalancing steps & Single rotations & Total time \\
+    \midrule
+    Insertion & at most $1$  & at most $2$  & $O(\log n)$ \\
+    Deletion  & at most $h$  & at most $2h$ & $O(\log n)$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The bound of \Cref{thm:deletebound} is a worst case, and \Cref{sec:eval} shows
+that the average behaviour is far from it.

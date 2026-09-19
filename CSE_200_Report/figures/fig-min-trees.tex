@@ -1,0 +1,27 @@
+% The recursion behind the height bound, drawn as the objects it describes.
+% T_h is built from T_{h-1} and T_{h-2} under one new root, so the node counts
+% run 1, 2, 4, 7, 12 --- each one the sum of the previous two, plus the root.
+%
+% The macro doing the drawing is the same one the talk uses. It places each
+% subtree by the golden ratio through Binet's formula, so the picture that
+% argues for the golden ratio is itself laid out by it.
+\begin{tikzpicture}[x = 1mm, y = 1mm]
+
+  \setavlscale{3.1}{6.2}
+
+  \foreach \h [count = \i from 0] in {0, 1, 2, 3, 4} {
+    \begin{scope}[xshift = \i * 27mm]
+      \resetavl
+      \drawfib{\h}{0}{0}
+      \node[font = \small] at (0, -33) {$T_{\h}$};
+    \end{scope}
+  }
+
+  % node counts under each tree
+  \foreach \n [count = \i from 0] in {1, 2, 4, 7, 12}
+    \node[tlabel] at (\i * 27, -40) {$N = \n$};
+
+  \node[tannot] at (54, -50)
+    {each tree is the two before it, joined under one new root};
+
+\end{tikzpicture}

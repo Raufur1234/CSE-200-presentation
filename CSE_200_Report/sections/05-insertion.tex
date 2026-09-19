@@ -1,0 +1,125 @@
+\section{Insertion}
+\label{sec:insertion}
+
+Insertion into an AVL tree begins exactly as insertion into an ordinary binary
+search tree. The new key descends from the root, comparing at each node, until it
+reaches an empty position, where it becomes a leaf. What follows is the part
+\Cref{def:avl} forces. The new leaf may have lengthened the path beneath some of
+its ancestors, so the procedure walks back up, updating heights and testing
+balance factors, and repairs the first node it finds in violation.
+
+\begin{algorithm}[t]
+\caption{Insertion. The recursion descends to the insertion point and rebalances
+on the way back out, so every node on the search path is repaired after its
+children and before its parent.}
+\label{alg:insert}
+\SetKwFunction{Ins}{Insert}
+\SetKwFunction{Reb}{Rebalance}
+\Fn{\Ins{$v$, $k$}}{
+  \lIf{$v = \textbf{nil}$}{\KwRet \textbf{new} node with key $k$ and height $0$}
+  \uIf{$k < v.\mathit{key}$}{
+    $v.\mathit{left} \gets$ \Ins{$v.\mathit{left}$, $k$}\;
+  }
+  \uElseIf{$k > v.\mathit{key}$}{
+    $v.\mathit{right} \gets$ \Ins{$v.\mathit{right}$, $k$}\;
+  }
+  \lElse{\KwRet $v$ \Comment*[f]{the key is already present}}
+  \KwRet \Reb{$v$} \Comment*[r]{updates the height, rotates if needed}
+}
+\end{algorithm}
+
+\Cref{fig:inserttrace} follows one insertion through the three stages. The key
+$5$ arrives as a leaf under the node $10$. Walking back up, the nodes $10$ and
+$20$ both reach a balance factor of $+1$, which \Cref{def:avl} permits, and the
+node $40$ reaches $+2$, which it does not. The path from $40$ down toward the new
+leaf goes left and then left again, so \Cref{tab:cases} calls for a single right
+rotation at $40$. After that rotation the tree is legal, and the walk stops.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-insert-trace.tex}
+  \caption{One insertion. The key $5$ enters as a leaf, the node $40$ is the
+  lowest ancestor to reach a balance factor of $+2$, and one right rotation there
+  restores the invariant for the whole tree.}
+  \label{fig:inserttrace}
+\end{figure}
+
+The walk stopped after one repair, and that is not particular to this example.
+
+\begin{theorem}[One repair suffices]
+\label{thm:insertone}
+An insertion into an AVL tree triggers at most one rebalancing step, consisting
+of either one single rotation or one double rotation.
+\end{theorem}
+
+\begin{proof}
+Let $z$ be the lowest ancestor of the new leaf whose balance factor reaches
+$\pm 2$, and suppose the subtree rooted at $z$ had height $h$ before the
+insertion. An insertion adds one leaf, so it increases the height of any subtree
+by at most one, and $z$ became unbalanced only because the height of its taller
+child grew. The subtree at $z$ therefore has height $h+1$ after the insertion and
+before the repair.
+
+Apply the repair \Cref{tab:cases} prescribes for the case at hand. In the
+\case{ll} case, write $y$ for the left child of $z$ and let $A = L(y)$, $B =
+R(y)$ and $C = R(z)$ as in the proof of \Cref{lem:inorder}. Since $z$ has balance
+factor $+2$ and $y$ has balance factor $+1$, the subtree $A$ has height $h-1$
+while $B$ and $C$ both have height $h-2$. After the right rotation at $z$, the
+node $y$ roots the subtree with $A$ on its left and, on its right, the node $z$
+carrying $B$ and $C$. That right side has height $h-1$, matching $A$, so the
+rotated subtree has height $h$. The \case{rr} case is the mirror image, and the
+two double-rotation cases give the same result by the same count.
+
+The subtree rooted at the repaired position therefore has height $h$ again, which
+is the height it had before the insertion. Every proper ancestor of $z$ sees a
+child of unchanged height, so no ancestor changes its own height and no ancestor
+changes its balance factor. No further node can be in violation, and the walk
+terminates.
+\end{proof}
+
+\Cref{fig:whystops} states the argument in one picture. The insertion adds a
+level, the rotation takes that level back, and nothing above the repaired node
+observes either event.
+
+\begin{corollary}[Insertion cost]
+\label{cor:insertcost}
+Insertion into an AVL tree of $n$ nodes takes $O(\log n)$ time.
+\end{corollary}
+
+\begin{proof}
+The descent visits one node per level, and by \Cref{thm:heightbound} there are
+$O(\log n)$ levels. The upward walk visits the same nodes, spending constant time
+on each to update a height and test a balance factor. By \Cref{thm:insertone} at
+most one rebalancing step runs, and by \Cref{lem:rotcost} it costs $O(1)$.
+Summing the three parts gives $O(\log n)$.
+\end{proof}
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[x = 1mm, y = 1mm]
+    \foreach \dx/\hh/\lab in {0/22/{before}, 46/28/{after the insertion},
+                              92/22/{after the repair}} {
+      \begin{scope}[xshift = \dx mm]
+        \node[tnode, minimum size = 4mm] (r\dx) at (0, 0) {};
+        \draw[tedge] (r\dx) -- (-12, -\hh);
+        \draw[tedge] (r\dx) -- ( 12, -\hh);
+        \draw[tedge] (-12, -\hh) -- (12, -\hh);
+        \node[tannot] at (0, -\hh - 7) {\lab};
+      \end{scope}
+    }
+    \draw[-{Stealth[length=2.5mm]}, draw = rmid] (16, -14) -- (30, -14)
+      node[midway, above, tlabel] {insert};
+    \draw[-{Stealth[length=2.5mm]}, draw = rmid] (62, -14) -- (76, -14)
+      node[midway, above, tlabel] {rotate};
+    \draw[decorate, decoration = {brace, amplitude = 3pt}, draw = rmid]
+      (-16, -22) -- (-16, 0)
+      node[midway, left = 4pt, tlabel] {$h$};
+    \draw[decorate, decoration = {brace, amplitude = 3pt, mirror}, draw = rmid]
+      (108, -22) -- (108, 0)
+      node[midway, right = 4pt, tlabel] {$h$};
+  \end{tikzpicture}
+  \caption{Why one repair ends the walk. The insertion raises the subtree by one
+  level and the rotation returns it, so the parent of the repaired node sees no
+  change and the invariant above it was never disturbed.}
+  \label{fig:whystops}
+\end{figure}

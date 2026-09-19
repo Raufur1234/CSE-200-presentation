@@ -2,6 +2,9 @@
 *
 !.gitignore
 
+# --------------------------------------------------------------- the talk
+# Source only. Everything pdflatex emits, and the build-time verification
+# scripts, stay out.
 !avl/
 !avl/avl.tex
 !avl/avltheme.sty
@@ -9,3 +12,33 @@
 !avl/parts/*.tex
 !avl/tikz/
 !avl/tikz/*.tex
+
+# ------------------------------------------------------------- the report
+# Same rule: whatever `latexmk -pdf report.tex` needs as input, and nothing
+# it produces. report.pdf, report.bbl and the .aux/.log family are all
+# regenerated, so none of them is tracked.
+!CSE_200_Report/
+!CSE_200_Report/report.tex
+!CSE_200_Report/reportstyle.sty
+!CSE_200_Report/refs.bib
+
+!CSE_200_Report/sections/
+!CSE_200_Report/sections/*.tex
+
+!CSE_200_Report/figures/
+!CSE_200_Report/figures/*.tex
+
+# Photographs the report \includegraphics. Both are freely licensed with
+# attribution; the credits live in the caption of the portraits figure.
+!CSE_200_Report/figures/img/
+!CSE_200_Report/figures/img/*.jpg
+
+# pgfplots reads these at build time, so the report does not compile without
+# them. Generated, but a build input all the same.
+!CSE_200_Report/data/
+!CSE_200_Report/data/*.dat
+
+
+!CSE_200_Report/data/*.py
+CSE_200_Report/data/__pycache__/
+

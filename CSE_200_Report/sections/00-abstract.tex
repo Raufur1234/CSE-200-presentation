@@ -1,0 +1,17 @@
+A binary search tree answers a query in time proportional to its height, and
+nothing in the search tree property forces that height to stay small. Keys that
+arrive in sorted order build a tree of $n$ nodes and height $n-1$, which is a
+linked list wearing the interface of a tree. The AVL tree, published by
+Adelson-Velsky and Landis in 1962, removes that failure by requiring the two
+subtrees of every node to differ in height by at most one, and by restoring the
+requirement after every update.
+
+We give a self-contained account of the structure. We derive the height bound
+$h < 1.4404\log_2(n+2) - 1.3277$ from the recurrence that counts the nodes of a
+minimum-size tree, we prove that one insertion needs at most one rebalancing
+step while one deletion may need a rebalancing step at every level, and we give
+the algorithms in full. We then measure an implementation on inputs of up to one
+million keys. The measurements confirm the analysis and sharpen it: the height
+bound holds but is not tight, and although the worst case allows a deletion to
+rotate at every level, deletions average $0.27$ rebalancing events apiece and do
+not grow with $n$.

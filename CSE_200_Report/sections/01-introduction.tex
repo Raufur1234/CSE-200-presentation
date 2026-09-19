@@ -1,0 +1,79 @@
+\section{Introduction}
+\label{sec:intro}
+
+The cost of searching a binary search tree is the length of the path the search
+walks, so the height of the tree determines the cost of every operation the tree
+supports. A tree of $n$ nodes can have any height between $\lfloor \log_2 n
+\rfloor$ and $n-1$, and the search tree property does not prefer one over the
+other. Both extremes are legal. Which one a program ends up with depends on the
+order the keys happened to arrive in, and that order is usually not under the
+programmer's control.
+
+\Cref{fig:degenerate} shows how little it takes to reach the bad extreme. Both
+trees hold the keys 1 through 7 and both obey the search tree property. The tree
+on the left was built from an order that happened to interleave small and large
+keys, and it answers a query in at most three comparisons. The tree on the right
+was built from the keys in increasing order. Every key was larger than every key
+before it, so every key became a right child, and the result is a list. Sorted
+input is not an exotic case. It is what a program sees when it loads records from
+an indexed file, replays a log, or inserts timestamps.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-degenerate.tex}
+  \caption{Two binary search trees over the same seven keys. Only the insertion
+  order differs. The tree on the right is a list, and searching it costs a
+  comparison per key.}
+  \label{fig:degenerate}
+\end{figure}
+
+An AVL tree removes the choice. It keeps the ordinary search tree property and
+adds one local requirement: at every node, the heights of the two subtrees differ
+by at most one. The requirement is checked and repaired as part of every
+insertion and every deletion, so no sequence of updates can produce the tree on
+the right of \Cref{fig:degenerate}. Adelson-Velsky and Landis introduced the
+structure in 1962~\cite{avl1962}, and it was the first search tree to maintain
+its own balance.
+
+The requirement is stated one node at a time, and it is worth asking what a
+condition that local can buy globally. The answer is the subject of
+\Cref{sec:height}. A tree in which every node is nearly balanced cannot be tall,
+because the smallest tree that reaches a given height grows in proportion to
+$\varphi^h$, where $\varphi = (1+\sqrt{5})/2$ is the golden ratio. Height is
+therefore logarithmic in the number of keys, with a constant of about $1.44$
+against the perfect tree.
+
+\subsection*{Contributions}
+
+This report extends a presentation the authors gave on the same subject. It
+contributes the following.
+
+\begin{enumerate}
+  \item A derivation of the height bound of \Cref{thm:heightbound} that carries
+    each step, from the recurrence for the minimum-size tree through the
+    characteristic equation to the constant $1.4404$, together with a remark on
+    the two height conventions that circulate in the literature and the index
+    shift between them (\Cref{rem:conventions}).
+  \item Proofs that rebalancing preserves the in-order key sequence
+    (\Cref{lem:inorder}) and that it costs constant time
+    (\Cref{lem:rotcost}), with the four repair cases and the algorithms that
+    apply them.
+  \item An analysis of why one insertion needs at most one rebalancing step
+    (\Cref{thm:insertone}) while one deletion may need a rebalancing step at
+    every level along the path to the root (\Cref{thm:deletebound}), and a
+    worked minimum-size tree in which three of them fire.
+  \item Measurements on trees of up to one million keys, reported in
+    \Cref{sec:eval}, covering height against the analytic bounds, search cost
+    against an unbalanced tree, and rebalancing work per operation.
+  \item A comparison with other balanced search trees
+    (\Cref{sec:comparison}) and an account of where the structure is used in
+    practice (\Cref{sec:applications}).
+\end{enumerate}
+
+\Cref{sec:prelim} fixes notation and states the invariant.
+\Cref{sec:height} proves the height bound. \Cref{sec:rotations} introduces
+rotation as the repair operation, and \Cref{sec:insertion} and
+\Cref{sec:deletion} apply it to the two update operations.
+\Cref{sec:eval} reports the measurements, \Cref{sec:comparison} sets the
+structure against its alternatives, \Cref{sec:applications} describes where it
+is used, and \Cref{sec:history} returns to the 1962 paper.

@@ -1,0 +1,102 @@
+\section{Comparison with other balanced search trees}
+\label{sec:comparison}
+
+The AVL tree was the first structure to keep a search tree balanced, and it is
+not the only one. The alternatives differ in how strictly they constrain the
+shape of the tree, and that single choice decides the rest: a stricter invariant
+buys shorter trees and faster searches, and it charges for them in rebalancing
+work on every update. \Cref{tab:comparison} sets out where each structure lands.
+
+\begin{table}[t]
+  \centering
+  \caption{Balanced search trees compared. Heights are worst-case bounds for $n$
+  keys. The AVL tree keeps the shortest tree and pays for it during updates; the
+  red-black tree accepts a tree up to twice as tall in exchange for cheaper
+  rebalancing.}
+  \label{tab:comparison}
+  \begin{tabular}{@{}lllll@{}}
+    \toprule
+    Structure & Height bound & Rotations per insert & Rotations per delete
+      & Suits \\
+    \midrule
+    AVL         & $1.44\lgg n$        & $\le 2$    & $O(\log n)$
+      & search-heavy work \\
+    Red-black   & $2\lgg(n+1)$        & $\le 2$    & $\le 3$
+      & update-heavy work \\
+    Splay       & amortised $O(\log n)$ & $O(\log n)$ & $O(\log n)$
+      & skewed access \\
+    B-tree      & $O(\log_B n)$       & none       & none
+      & block storage \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Red-black trees}
+
+A red-black tree colours its nodes and requires that every root-to-leaf path
+contain the same number of black nodes, with no two red nodes adjacent. The
+condition allows one path to be twice as long as another~\cite{clrs}, so the height bound is
+$2\lgg(n+1)$ against the $1.44\lgg n$ of \Cref{thm:heightbound}. Searches
+therefore cost more in the worst case.
+
+The compensation appears during deletion. \Cref{thm:deletebound} allows an AVL
+deletion to rotate at every level, and the cascade of \Cref{fig:cascade} shows
+the bound is attained. A red-black deletion needs at most three rotations
+regardless of the size of the tree, because the looser invariant can absorb an
+imbalance by recolouring rather than by restructuring, and recolouring may
+propagate upward without moving any pointers.
+
+Which structure wins depends on the ratio of searches to updates, and the
+measured difference is smaller than the bounds suggest. Pfaff compared the two
+structures across seventy-nine workloads and found the ratio of AVL running time
+to red-black running time ranging from $0.677$ to $1.077$, with a median of about
+$0.947$ and a geometric mean of about $0.910$~\cite{pfaff2004}.
+\Cref{fig:pfaffrange} draws that spread. The AVL tree was faster in the majority
+of those measurements, and neither structure dominated: the interval straddles
+parity, so the workload decided the winner in both directions.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig-pfaff-range.tex}
+  \caption{Relative running time of AVL against red-black trees across
+  seventy-nine workloads. Drawn from the range, median and geometric mean
+  reported by Pfaff~\cite{pfaff2004}; the rendering is ours.}
+  \label{fig:pfaffrange}
+\end{figure}
+
+Brown reports more recent timings against three red-black variants~\cite{brown2025}.
+The bottom-up red-black tree inserts and deletes randomly ordered keys faster
+than the AVL tree, while the AVL tree is faster at inserting consecutively
+ordered keys and slower at deleting them. The left-leaning variant was slower
+than the other three on every workload tested. The practical conclusion is that
+the choice between AVL and red-black trees is decided by the workload and the
+implementation rather than by the height bounds.
+
+\subsection{Splay trees}
+
+A splay tree~\cite{sleator1985} abandons the idea of an invariant. After every access it rotates the
+accessed node to the root, so the structure carries no balance information and
+gives no worst-case guarantee for a single operation: one access can cost
+$\Theta(n)$. What it guarantees is amortised, namely that any sequence of $m$
+operations costs $O(m \log n)$.
+
+The design pays off when accesses are skewed. A splay tree keeps recently used
+keys near the root, so a workload that repeatedly touches a small subset
+outperforms any structure that treats all keys alike, including the AVL tree.
+The design fails when a guarantee is needed for each individual operation, as in
+a real-time system, where an amortised bound is not usable.
+
+\subsection{B-trees}
+
+A B-tree~\cite{bayer1972} stores many keys in each node and keeps all leaves at the same depth.
+Its height is $O(\log_B n)$ for a branching factor $B$, which for a node sized to
+a disk block reduces the depth of a large index to a handful of levels.
+
+The comparison with the AVL tree is not really a comparison of balancing
+strategies. A B-tree is designed for storage where the cost is dominated by the
+number of blocks fetched rather than the number of keys compared. An AVL tree of
+$10^{6}$ keys has height $23$ by \Cref{fig:plotheight}, so a search touches $24$
+nodes; if each node is a separate disk block, that is $24$ block reads. A B-tree
+with a branching factor of $100$ holds the same keys in three levels. The AVL
+tree compares fewer keys and reads far more blocks, which is why database indexes
+and file systems use B-trees while in-memory structures do not.
